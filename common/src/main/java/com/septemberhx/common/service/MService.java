@@ -22,4 +22,5 @@ public class MService extends MUniqueObject {
     private String serviceName;
     private Map<String, MServiceInterface> serviceInterfaceMap;
     private MServiceVersion serviceVersion;
+    private String girUrl;
 }
