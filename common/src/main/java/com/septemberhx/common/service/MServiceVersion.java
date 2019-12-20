@@ -14,6 +14,7 @@ import java.util.Objects;
  * Do not try to add setter methods for the variables to avoid bugs
  */
 @Getter
+@Setter
 public class MServiceVersion {
 
     private int mainVersionNum;

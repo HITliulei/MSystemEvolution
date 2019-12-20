@@ -1,14 +1,17 @@
 package com.septemberhx.common.service;
 
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author SeptemberHX
  * @version 0.1
  * @date 2019/12/13
  */
+@Getter
+@Setter
 public class MFuncDescription {
-    @Getter
+
     private String functionName;
 
     /*
