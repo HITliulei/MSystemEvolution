@@ -12,6 +12,7 @@
         <module>MOrchestrationServer</module>
         <module>MServiceAnalyser</module>
         <module>common</module>
+        <module>MGateway</module>
     </modules>
 
     <properties>
