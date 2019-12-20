@@ -3,6 +3,7 @@ package com.septemberhx.common.service;
 import com.septemberhx.common.base.MUniqueObject;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -13,14 +14,15 @@ import java.util.Map;
  */
 @Getter
 @Setter
+@ToString
 public class MService extends MUniqueObject {
-
     /*
      * The service name is not the same as the serviceId.
      * For two services, they can have the same service name with different version.
      */
     private String serviceName;
-    private Map<String, MServiceInterface> serviceInterfaceMap;
     private MServiceVersion serviceVersion;
     private String girUrl;
+    private int port;
+    private Map<String, MServiceInterface> serviceInterfaceMap;
 }
