@@ -13,6 +13,7 @@
         <module>MServiceAnalyser</module>
         <module>common</module>
         <module>MGateway</module>
+        <module>MClientFramework</module>
     </modules>
 
     <properties>

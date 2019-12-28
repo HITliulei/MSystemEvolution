@@ -1,6 +1,7 @@
 package com.septemberhx.common.service;
 
 import com.septemberhx.common.base.MUniqueObject;
+import com.septemberhx.common.dao.MServiceDao;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -22,7 +23,8 @@ public class MService extends MUniqueObject {
      */
     private String serviceName;
     private MServiceVersion serviceVersion;
-    private String girUrl;
+    private String gitUrl;
     private int port;
+    private String imageUrl;
     private Map<String, MServiceInterface> serviceInterfaceMap;
 }
