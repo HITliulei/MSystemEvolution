@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author SeptemberHX
@@ -16,13 +17,30 @@ import java.util.List;
 @Setter
 @ToString
 public class MServiceInterface extends MUniqueObject {
-
     private String patternUrl;
     private MFuncDescription funcDescription;
     private String functionName;
     private String requestMethod;
-//    private Map<String, String> parameterTypeMap;
-    private List<MParamer> paramers;
+    private List<MParamer> params;
     private String returnType;
     private String serviceId;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MServiceInterface that = (MServiceInterface) o;
+
+        if (this.params.size() != that.params.size()) return false;
+        for (int i = 0; i < this.params.size(); ++i) {
+            if (!this.params.get(i).equals(that.params.get(i))) return false;
+        }
+
+        return Objects.equals(patternUrl, that.patternUrl) &&
+                Objects.equals(funcDescription, that.funcDescription) &&
+                Objects.equals(functionName, that.functionName) &&
+                Objects.equals(requestMethod, that.requestMethod) &&
+                Objects.equals(returnType, that.returnType) &&
+                Objects.equals(serviceId, that.serviceId);
+    }
 }

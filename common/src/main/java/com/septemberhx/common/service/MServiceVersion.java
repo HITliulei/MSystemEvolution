@@ -31,6 +31,23 @@ public class MServiceVersion {
                 fixVersionNum == that.fixVersionNum;
     }
 
+    public static MServiceVersion fromStr(String versionStr) {
+        String[] numArr = versionStr.split("\\.");
+        if (numArr.length != 3) {
+            throw new RuntimeException("Illegal version: " + versionStr);
+        }
+
+        MServiceVersion version = new MServiceVersion();
+        try {
+            version.setMainVersionNum(Integer.valueOf(numArr[0]));
+            version.setChildVersionNum(Integer.valueOf(numArr[1]));
+            version.setFixVersionNum(Integer.valueOf(numArr[2]));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return version;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(mainVersionNum, childVersionNum, fixVersionNum);

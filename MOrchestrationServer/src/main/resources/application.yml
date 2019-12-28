@@ -10,4 +10,4 @@ spring:
 
 mybatis:
   mapper-locations: classpath:mapping/*.xml
-  type-aliases-package: com.septemberhx.common.dao
+  type-aliases-package: com.septemberhx.server.dao

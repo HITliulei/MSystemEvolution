@@ -1,13 +1,12 @@
 package com.septemberhx.server.mapper;
 
-import com.septemberhx.common.dao.MServiceDao;
+import com.septemberhx.server.dao.MServiceDao;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -37,7 +36,9 @@ public class ServicesMapperTest {
                 "service-test-123321",
                 "service-test",
                 "1.1.2",
-                "septemberhx/service-test"
+                "septemberhx/service-test",
+                8080,
+                "git"
         );
         servicesMapper.insert(serviceDao);
 

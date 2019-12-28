@@ -110,8 +110,8 @@ public class GetServiceDiff {
 
     public static List<MParamerDiff> getParamerDiff(MServiceInterface mServiceInterface1, MServiceInterface mServiceInterface2){
         List<MParamerDiff> list = new ArrayList<>();
-        List<MParamer> interface_version1 = mServiceInterface1.getParamers();
-        List<MParamer> interface_version2 = mServiceInterface2.getParamers();
+        List<MParamer> interface_version1 = mServiceInterface1.getParams();
+        List<MParamer> interface_version2 = mServiceInterface2.getParams();
         List<MParamer> all_1 = new ArrayList<>();
         List<MParamer> all_2 = new ArrayList<>();
         for(int i = 0;i<interface_version1.size();i++){
