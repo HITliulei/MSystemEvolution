@@ -38,16 +38,13 @@ cache:
   script:
     - 'mvn $MAVEN_CLI_OPTS test-compile'
 
-.validate: @validate
-  stage: package
-  script:
-    - 'mvn $MAVEN_CLI_OPTS package'
-
 # Validate merge requests using JDK8
 validate:jdk8:
   <<: *validate
   image: maven:3.3.9-jdk-8
-
-validate:jdk8:
-  <<: *package
+  
+package:
+  stage: package
+  script:
+    - 'mvn $MAVEN_CLI_OPTS package'
   image: maven:3.3.9-jdk-8
