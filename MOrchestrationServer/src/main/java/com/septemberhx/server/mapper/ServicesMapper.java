@@ -1,7 +1,8 @@
 package com.septemberhx.server.mapper;
 
-import com.septemberhx.common.dao.MServiceDao;
+import com.septemberhx.server.dao.MServiceDao;
 import org.apache.ibatis.annotations.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,7 +17,9 @@ public interface ServicesMapper {
             @Result(property = "serviceId", column = "id"),
             @Result(property = "serviceName", column = "name"),
             @Result(property = "serviceVersion", column = "version"),
-            @Result(property = "serviceImage", column = "image")
+            @Result(property = "serviceImage", column = "image"),
+            @Result(property = "port", column = "port"),
+            @Result(property = "git", column = "git")
     })
     List<MServiceDao> getAll();
 
@@ -25,11 +28,14 @@ public interface ServicesMapper {
             @Result(property = "serviceId", column = "id"),
             @Result(property = "serviceName", column = "name"),
             @Result(property = "serviceVersion", column = "version"),
-            @Result(property = "serviceImage", column = "image")
+            @Result(property = "serviceImage", column = "image"),
+            @Result(property = "port", column = "port"),
+            @Result(property = "git", column = "git")
     })
     MServiceDao getById(String serviceId);
 
-    @Insert("INSERT INTO services(id, name, version, image) VALUES(#{serviceId}, #{serviceName}, #{serviceVersion}, #{serviceImage})")
+    @Insert("INSERT INTO services(id, name, version, image, port, git)" +
+            " VALUES(#{serviceId}, #{serviceName}, #{serviceVersion}, #{serviceImage}, #{port}, #{git})")
     void insert(MServiceDao serviceDao);
 
     @Select("SELECT * FROM services WHERE name = #{serviceName}")
@@ -37,13 +43,15 @@ public interface ServicesMapper {
             @Result(property = "serviceId", column = "id"),
             @Result(property = "serviceName", column = "name"),
             @Result(property = "serviceVersion", column = "version"),
-            @Result(property = "serviceImage", column = "image")
+            @Result(property = "serviceImage", column = "image"),
+            @Result(property = "port", column = "port"),
+            @Result(property = "git", column = "git")
     })
     List<MServiceDao> getByName(String serviceName);
 
     @Delete("DELETE FROM services WHERE id = #{serviceId}")
     void deleteById(String serviceId);
 
-    @Update("UPDATE services SET name = #{serviceName}, version = #{serviceVersion}, image = #{serviceImage} WHERE id = #{serviceId}")
+    @Update("UPDATE services SET name = #{serviceName}, version = #{serviceVersion}, image = #{serviceImage}, port = #{port}, git = #{git} WHERE id = #{serviceId}")
     void update(MServiceDao serviceDao);
 }

@@ -236,7 +236,7 @@ public class GetServiceInfo {
                 }
                 paramerList.add(paramer);
             }
-            mServiceInterface.setParamers(paramerList);
+            mServiceInterface.setParams(paramerList);
             for(String string : pathurl){
                 mServiceInterface.setPatternUrl(string);
                 map.put(string,mServiceInterface);
