@@ -9,4 +9,5 @@ public class MserviceinfoApplication {
     public static void main(String[] args) {
         SpringApplication.run(MserviceinfoApplication.class, args);
     }
+
 }
