@@ -38,7 +38,7 @@ cache:
   script:
     - 'mvn $MAVEN_CLI_OPTS test-compile'
 
-.package: @package
+.validate: @validate
   stage: package
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
@@ -48,6 +48,6 @@ validate:jdk8:
   <<: *validate
   image: maven:3.3.9-jdk-8
 
-package:jdk8:
+validate:jdk8:
   <<: *package
   image: maven:3.3.9-jdk-8
