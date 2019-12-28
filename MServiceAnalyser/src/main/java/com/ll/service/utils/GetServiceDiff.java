@@ -90,10 +90,10 @@ public class GetServiceDiff {
             }else{
                 mServiceInterfaceDiff.setReturnTypeChange(share_version1.get(i).getReturnType()+"——>"+share_version2.get(i).getReturnType());
             }
-            if(share_version1.get(i).getFuncDescription().getFunctionName().equals(share_version2.get(i).getFuncDescription().getFunctionName())){
+            if(share_version1.get(i).getFuncDescription().getFeatureName().equals(share_version2.get(i).getFuncDescription().getFeatureName())){
                 mServiceInterfaceDiff.setFunctionDiscribe("no change");
             }else{
-                mServiceInterfaceDiff.setFunctionDiscribe(share_version1.get(i).getFuncDescription().getFunctionName()+"——>"+share_version2.get(i).getFuncDescription().getFunctionName());
+                mServiceInterfaceDiff.setFunctionDiscribe(share_version1.get(i).getFuncDescription().getFeatureName()+"——>"+share_version2.get(i).getFuncDescription().getFeatureName());
             }
             if(share_version1.get(i).getFuncDescription().getSlaLevel() == share_version2.get(i).getFuncDescription().getSlaLevel()){
                 mServiceInterfaceDiff.setSlaLevelDiff("no change");

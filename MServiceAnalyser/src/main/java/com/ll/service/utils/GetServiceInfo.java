@@ -187,7 +187,7 @@ public class GetServiceInfo {
                         lavael = Integer.parseInt(childNodes.get(2).getChildNodes().get(1).toString());
                     }
                     MFuncDescription mFuncDescription = new MFuncDescription();
-                    mFuncDescription.setFunctionName(functionDescribtion);
+                    mFuncDescription.setFeatureName(functionDescribtion);
                     mFuncDescription.setSlaLevel(lavael);
                     mServiceInterface.setFuncDescription(mFuncDescription);
                     continue;
