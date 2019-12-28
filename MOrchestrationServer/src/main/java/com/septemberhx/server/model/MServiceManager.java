@@ -9,4 +9,19 @@ import com.septemberhx.common.service.MService;
  * @date 2019/12/13
  */
 public class MServiceManager extends MUniqueObjectManager<MService> {
+
+    public boolean registerService(MService newService) {
+        boolean resultFlag = false;
+        if (this.containsById(newService.getId())) {
+            resultFlag = this.updateService(newService);
+        } else {
+
+        }
+        return resultFlag;
+    }
+
+    public boolean updateService(MService newService) {
+        return false;
+    }
+
 }

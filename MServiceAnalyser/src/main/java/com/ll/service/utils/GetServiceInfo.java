@@ -56,9 +56,9 @@ public class GetServiceInfo {
             mService.setPort((int)server.get("port"));
         }
         if(server.get("servlet") == null){
-            mService.setGirUrl("/");
+            mService.setGitUrl("/");
         }else{
-            mService.setGirUrl(((Map)server.get("servlet")).get("context-path").toString());
+            mService.setGitUrl(((Map)server.get("servlet")).get("context-path").toString());
         }
         Map spring = (Map) obj.get("spring");
         mService.setServiceName(((Map)spring.get("application")).get("name").toString());
@@ -76,9 +76,9 @@ public class GetServiceInfo {
             }
             mService.setServiceName(properties.getProperty("spring.application.name"));
             if(properties.getProperty("server.context-path") == null){
-                mService.setGirUrl("/");
+                mService.setGitUrl("/");
             }else{
-                mService.setGirUrl(properties.getProperty("server.context-path"));
+                mService.setGitUrl(properties.getProperty("server.context-path"));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();

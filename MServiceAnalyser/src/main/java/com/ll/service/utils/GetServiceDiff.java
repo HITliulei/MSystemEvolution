@@ -22,10 +22,10 @@ public class GetServiceDiff {
         }else{
             mServiceDiff.setPortChange(mService1.getPort() +"——>"+ mService2.getPort());
         }
-        if(mService1.getGirUrl().equals(mService2.getGirUrl())){
+        if(mService1.getGitUrl().equals(mService2.getGitUrl())){
             mServiceDiff.setUrlChange("no change");
         }else{
-            mServiceDiff.setUrlChange(mService1.getGirUrl() +"——>"+ mService2.getGirUrl());
+            mServiceDiff.setUrlChange(mService1.getGitUrl() +"——>"+ mService2.getGitUrl());
         }
         if(mService1.getServiceName().equals(mService2.getServiceName())){
             mServiceDiff.setServiceNameChange("no change");
