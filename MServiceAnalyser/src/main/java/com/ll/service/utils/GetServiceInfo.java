@@ -9,10 +9,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.ll.service.bean.MPathInfo;
-import com.septemberhx.common.service.MParamer;
-import com.septemberhx.common.service.MService;
-import com.septemberhx.common.service.MServiceInterface;
-import com.septemberhx.common.service.MServiceVersion;
+import com.septemberhx.common.service.*;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -143,6 +140,7 @@ public class GetServiceInfo {
         if(pathContexts.size() == 0){
             pathContexts.add("/");
         }
+
         /*得到interface方面*/
         List<MethodDeclaration> methodDeclarationList = c.getMethods();
 
@@ -174,6 +172,25 @@ public class GetServiceInfo {
                             }
                         }
                     }
+                }else if(annoName.equals("MFuncDescription ")){   // 功能描述
+                    String functionDescribtion = "";
+                    int lavael = 1;
+                    if(childNodes.size() == 2){
+                        int l = childNodes.get(1).getChildNodes().size();
+                        if(l == 0){
+                            functionDescribtion =  childNodes.get(1).toString();
+                        }else{
+                            functionDescribtion = childNodes.get(1).getChildNodes().get(1).toString();
+                        }
+                    }else{
+                        functionDescribtion = childNodes.get(1).getChildNodes().get(1).toString();
+                        lavael = Integer.parseInt(childNodes.get(2).getChildNodes().get(1).toString());
+                    }
+                    MFuncDescription mFuncDescription = new MFuncDescription();
+                    mFuncDescription.setFunctionName(functionDescribtion);
+                    mFuncDescription.setSlaLevel(lavael);
+                    mServiceInterface.setFuncDescription(mFuncDescription);
+                    continue;
                 }
                 for(String string1 :pathContexts){
                     for(String string2: pathContexts_function){

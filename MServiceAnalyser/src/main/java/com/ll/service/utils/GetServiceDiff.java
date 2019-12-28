@@ -90,17 +90,16 @@ public class GetServiceDiff {
             }else{
                 mServiceInterfaceDiff.setReturnTypeChange(share_version1.get(i).getReturnType()+"——>"+share_version2.get(i).getReturnType());
             }
-            // 暂时没有测试功能描述，暂时注释掉
-//            if(share_version1.get(i).getFuncDescription().getFunctionName().equals(share_version2.get(i).getFuncDescription().getFunctionName())){
-//                mServiceInterfaceDiff.setFunctionDiscribe("no change");
-//            }else{
-//                mServiceInterfaceDiff.setFunctionDiscribe(share_version1.get(i).getFuncDescription().getFunctionName()+"——>"+share_version2.get(i).getFuncDescription().getFunctionName());
-//            }
-//            if(share_version1.get(i).getFuncDescription().getSlaLevel() == share_version2.get(i).getFuncDescription().getSlaLevel()){
-//                mServiceInterfaceDiff.setSlaLevelDiff("no change");
-//            }else{
-//                mServiceInterfaceDiff.setFunctionDiscribe(share_version1.get(i).getFuncDescription().getSlaLevel()+"——>"+share_version2.get(i).getFuncDescription().getSlaLevel());
-//            }
+            if(share_version1.get(i).getFuncDescription().getFunctionName().equals(share_version2.get(i).getFuncDescription().getFunctionName())){
+                mServiceInterfaceDiff.setFunctionDiscribe("no change");
+            }else{
+                mServiceInterfaceDiff.setFunctionDiscribe(share_version1.get(i).getFuncDescription().getFunctionName()+"——>"+share_version2.get(i).getFuncDescription().getFunctionName());
+            }
+            if(share_version1.get(i).getFuncDescription().getSlaLevel() == share_version2.get(i).getFuncDescription().getSlaLevel()){
+                mServiceInterfaceDiff.setSlaLevelDiff("no change");
+            }else{
+                mServiceInterfaceDiff.setFunctionDiscribe(share_version1.get(i).getFuncDescription().getSlaLevel()+"——>"+share_version2.get(i).getFuncDescription().getSlaLevel());
+            }
             List<MParamerDiff> paramerDiffs = getParamerDiff(share_version1.get(i),share_version2.get(i));
             mServiceInterfaceDiff.setParameChanges(paramerDiffs);
             list.add(mServiceInterfaceDiff);
