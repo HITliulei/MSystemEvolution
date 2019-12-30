@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -24,6 +25,7 @@ public class MServiceInterface extends MUniqueObject {
     private List<MParamer> params;
     private String returnType;
     private String serviceId;
+    private List<MDependency> mDependencies;
 
     @Override
     public boolean equals(Object o) {

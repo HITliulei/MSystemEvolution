@@ -8,6 +8,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.stmt.BlockStmt;
 import com.ll.service.bean.MPathInfo;
 import com.septemberhx.common.service.*;
 import org.yaml.snakeyaml.Yaml;
@@ -253,7 +254,34 @@ public class GetServiceInfo {
                 }
                 paramerList.add(paramer);
             }
+
+            // 遍历函数内部寻找 版本依赖的调用方法
+            BlockStmt blockStmt = m.getBody().get();
+            List<Node> nodes = blockStmt.getChildNodes();
+            List<MDependency> dependences = new ArrayList<>();
+            for(Node node: nodes){  // 每一行的 代码
+                String string = node.toString();
+                if(string.contains("mSendRequest.sendRequest")){
+                    MDependency mDependency = new MDependency();
+                    String[] s = string.substring(string.indexOf("mSendRequest.sendRequest(") + 25,string.indexOf(");")).split(",");
+                    String version = s[1].trim().replace("\"","");
+                    MServiceVersion mServiceVersion = new MServiceVersion();
+                    String[] versions =version.split("\\.");
+                    mServiceVersion.setMainVersionNum(Integer.parseInt(versions[0]));
+                    mServiceVersion.setChildVersionNum(Integer.parseInt(versions[1]));
+                    mServiceVersion.setFixVersionNum(Integer.parseInt(versions[2]));
+                    String requst =s[0].trim().replace("\"","");
+                    String requestService = requst.split("/")[3];
+                    List<MServiceVersion> list = new  ArrayList<>();
+                    list.add(mServiceVersion);
+                    mDependency.setServiceName(requestService);
+                    mDependency.setPatternUrl(requst);
+                    mDependency.setVersions(list);
+                    dependences.add(mDependency);
+                }
+            }
             mServiceInterface.setParams(paramerList);
+            mServiceInterface.setMDependencies(dependences);  // add dependences
             for(String string : pathurl){
                 mServiceInterface.setPatternUrl(string);
                 map.put(string,mServiceInterface);
