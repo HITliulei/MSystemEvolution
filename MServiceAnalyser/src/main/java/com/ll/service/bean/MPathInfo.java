@@ -34,7 +34,6 @@ public class MPathInfo {
         this.controller_ListPath = controller_ListPath;
     }
 
-
     @Override
     public String toString() {
         return "MPathInfo{" +
