@@ -14,6 +14,7 @@
         <module>common</module>
         <module>MGateway</module>
         <module>MClientFramework</module>
+        <module>MClusterAgent</module>
     </modules>
 
     <properties>
