@@ -11,3 +11,18 @@ spring:
 mybatis:
   mapper-locations: classpath:mapping/*.xml
   type-aliases-package: com.septemberhx.server.dao
+
+server:
+  port: 8080
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${MCLUSTER_IP}:${MCLUSTER_PORT}/eureka
+
+spring:
+  application:
+    name: MOrchestrationServer
