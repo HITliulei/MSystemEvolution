@@ -7,6 +7,7 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.ll.service.bean.MPathInfo;
+import com.septemberhx.common.service.MParamer;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -42,6 +43,29 @@ public class GetSourceCode {
         }
         return map;
     }
+
+    /**
+     *
+     * @param url
+     * @param version
+     * @return
+     */
+    public static MPathInfo getCodeByVersion(String url,String version){
+        String workplace = "mserviceinfo/src/main/resources/workplace";
+        String[] urls = url.split("/");
+        String projectName =urls[urls.length-1].split("\\.")[0];
+        deleteWorkplace(workplace+"/"+projectName+"_"+version);
+        MPathInfo mPathInfo = null;
+        try {
+            Git.cloneRepository().setURI(url).setBranch(version).setDirectory(new File(workplace+"/"+projectName+"_"+version)).call();
+            mPathInfo = getMPathInfo(version,workplace,projectName);
+        }catch (GitAPIException g){
+            System.out.println("下载版本代码失败");
+            g.printStackTrace();
+        }
+        return mPathInfo;
+    }
+
 
     /**
      * get controller path info
