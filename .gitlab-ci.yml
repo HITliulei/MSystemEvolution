@@ -52,3 +52,4 @@ package:
 before_script:
   - export DOCKER_HOST="tcp://0.0.0.0:2375"
   - docker info
+  image: docker:git
