@@ -62,6 +62,9 @@ public class MClusterConfig {
     public final static String ANALYZE_ANALYZE_URI = "/analyzer";
     public final static String ANALYZE_COMPARE_URI = "/compare";
 
+    // -------
+    public final static String Code_Download_PATH = "MserviceAnalyser/src/main/resources/workplace";
+
     private static MClusterConfig ourInstance = new MClusterConfig();
 
     public static MClusterConfig getInstance() {

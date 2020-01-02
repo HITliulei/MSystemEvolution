@@ -1,2 +1,13 @@
 server:
   port: 8080
+spring:
+  application:
+    name: MServiceAnalyser
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${MCLUSTER_IP}:${MCLUSTER_PORT}/eureka
