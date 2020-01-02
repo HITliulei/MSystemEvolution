@@ -56,5 +56,6 @@ build:
   stage: deploy
   script:
     - docker info
-    - docker build $CI_PROJECT_DIR/MServiceAnalyser -t hitices/mserviceanalyser:v1.0
+    - docker build $CI_PROJECT_DIR/MServiceAnalyser -t 192.168.1.104:5000/hitices/mserviceanalyser:v1.0
+    - docker push 192.168.1.104:5000/hitices/mserviceanalyser:v1.0
   image: docker:git
