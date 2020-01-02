@@ -57,6 +57,11 @@ public class MClusterConfig {
 
     public final static String REQUEST_SHOULD_SEND_TO_CLOUD = "request should send to cloud";
 
+    // ------
+    public final static String SERVICE_NAME_ANALYZE = "MAnalyzer";
+    public final static String ANALYZE_ANALYZE_URI = "/analyzer";
+    public final static String ANALYZE_COMPARE_URI = "/compare";
+
     private static MClusterConfig ourInstance = new MClusterConfig();
 
     public static MClusterConfig getInstance() {
