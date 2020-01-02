@@ -48,3 +48,6 @@ package:
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
   image: maven:3.3.9-jdk-8
+
+before_script:
+  - docker info
