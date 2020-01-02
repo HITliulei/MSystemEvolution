@@ -4,12 +4,13 @@ spring:
   application:
     name: gateway
 eureka:
-  client:
-    service-url:
-#      defaultZone: http://root:root@localhost:8000/eureka/
-      defaultZone: http://192.168.1.104:30761//eureka/
   instance:
     prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${MCLUSTER_IP}:${MCLUSTER_PORT}/eureka
 management:
   endpoints:
     web:

@@ -17,6 +17,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.septemberhx.common.config.MClusterConfig.Code_Download_PATH;
+
 /**
  * Created by Lei on 2019/11/29 15:45
  */
@@ -26,7 +28,7 @@ public class GetSourceCode {
      * 下载源码 并得到路径信息
      */
     public static Map<String, MPathInfo> getCodeAndGetMPathInfo(String url){
-        String workplace = "mserviceinfo/src/main/resources/workplace";
+        String workplace = Code_Download_PATH;
         String[] urls = url.split("/");
         String projectName =urls[urls.length-1].split("\\.")[0];
         List<String> allTags = getAllTags(url,workplace,projectName);
@@ -51,17 +53,22 @@ public class GetSourceCode {
      * @return
      */
     public static MPathInfo getCodeByVersion(String url,String version){
-        String workplace = "mserviceinfo/src/main/resources/workplace";
+        String workplace = Code_Download_PATH;
         String[] urls = url.split("/");
         String projectName =urls[urls.length-1].split("\\.")[0];
         deleteWorkplace(workplace+"/"+projectName+"_"+version);
         MPathInfo mPathInfo = null;
-        try {
-            Git.cloneRepository().setURI(url).setBranch(version).setDirectory(new File(workplace+"/"+projectName+"_"+version)).call();
+        File file = new File(workplace+"/"+projectName+"_"+version);
+        if(file.exists()){
             mPathInfo = getMPathInfo(version,workplace,projectName);
-        }catch (GitAPIException g){
-            System.out.println("下载版本代码失败");
-            g.printStackTrace();
+        }else{
+            try {
+                Git.cloneRepository().setURI(url).setBranch(version).setDirectory(file).call();
+                mPathInfo = getMPathInfo(version,workplace,projectName);
+            }catch (GitAPIException g){
+                System.out.println("下载版本代码失败");
+                g.printStackTrace();
+            }
         }
         return mPathInfo;
     }
@@ -190,11 +197,5 @@ public class GetSourceCode {
         }
         git.close();
         return new ArrayList<>(git.getRepository().getTags().keySet());
-    }
-    public static void main(String[] args) {
-        getCodeAndGetMPathInfo("https://github.com/HITliulei/com-hitices-multiversion-test.git");
-//        List<File> pathList = getListFiles(new File("mserviceinfo/src/main/resources/workplace/com-hitices-multiversion-test_v1.0.1/src/main/java"));
-//        System.out.println(ifController(new File("mserviceinfo/src/main/resources/workplace/com-hitices-multiversion-test_v1.0.0/src/main/java/com/hitices/multiversion/controller/UserController.java")));
-//        System.out.println(ifController(new File("mserviceinfo/src/main/resources/workplace/com-hitices-multiversion-test_v1.0.0/src/main/java/com/hitices/multiversion/repository/UserRepository.java")));
     }
 }
