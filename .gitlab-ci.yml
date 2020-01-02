@@ -53,9 +53,6 @@ package:
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
   image: maven:3.3.9-jdk-8
-  artifacts:
-    paths:
-    - target/*.jar
 
 before_script:
   - export DOCKER_HOST="tcp://192.168.1.102:2375"
@@ -64,7 +61,6 @@ build:
   stage: deploy
   script:
     - docker info
-    - ls -l
     - docker build $CI_PROJECT_DIR/MServiceAnalyser -t 192.168.1.104:5000/hitices/mserviceanalyser:v1.0
     - docker push 192.168.1.104:5000/hitices/mserviceanalyser:v1.0
   image: docker:git
