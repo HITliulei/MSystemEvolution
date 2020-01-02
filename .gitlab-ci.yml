@@ -34,7 +34,7 @@ cache:
 # Because some enforcer rules might check dependency convergence and class duplications
 # we use `test-compile` here instead of `validate`, so the correct classpath is picked up.
 .validate: &validate
-  stage: test
+  stage: build
   script:
     - 'mvn $MAVEN_CLI_OPTS test-compile'
 
@@ -53,7 +53,8 @@ before_script:
   - export DOCKER_HOST="tcp://192.168.1.102:2375"
 
 build:
-  stage: build
+  stage: deploy
   script:
     - docker info
+    - docker build $CI_PROJECT_DIR/MServiceAnalyser -t hitices/mserviceanalyser:v1.0
   image: docker:git
