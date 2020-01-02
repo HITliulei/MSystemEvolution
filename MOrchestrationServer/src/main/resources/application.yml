@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: MOrchestrationServer
   datasource:
     name: service_evolution
     url: jdbc:mysql://10.11.1.102:3306/service_evolution
@@ -22,7 +24,3 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://${MCLUSTER_IP}:${MCLUSTER_PORT}/eureka
-
-spring:
-  application:
-    name: MOrchestrationServer
