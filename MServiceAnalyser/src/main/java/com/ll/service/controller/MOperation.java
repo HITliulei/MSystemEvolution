@@ -46,7 +46,7 @@ public class MOperation {
         return list;
     }
 
-    @RequestMapping("getVersionInfo1")
+    @RequestMapping("getVersionInfo")
     public Callable<MService> getVersionInfo1(@RequestBody MFetchServiceInfoBean mFetchServiceInfoBean){
         Callable<MService> result = new Callable<MService>(){
             public MService call() throws Exception {
