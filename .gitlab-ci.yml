@@ -50,4 +50,5 @@ package:
   image: maven:3.3.9-jdk-8
 
 before_script:
+  - export DOCKER_HOST="tcp://0.0.0.0:2375"
   - docker info
