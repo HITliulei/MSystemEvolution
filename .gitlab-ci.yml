@@ -53,6 +53,9 @@ package:
   script:
     - 'mvn $MAVEN_CLI_OPTS package'
   image: maven:3.3.9-jdk-8
+  artifacts:
+    paths:
+      - MServiceAnalyser/target/*.jar
 
 before_script:
   - export DOCKER_HOST="tcp://192.168.1.102:2375"
