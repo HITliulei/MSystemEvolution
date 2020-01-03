@@ -7,6 +7,7 @@ variables:
 
   SONAR_TOKEN: "750242887444af49d0df0ed38326757676679cd9"
   SONAR_HOST_URL: "http://192.168.1.102:30900"
+  SONAR_USER_HOME: /home/admin
   GIT_DEPTH: 0
   
 # Cache downloaded dependencies and plugins between builds.
