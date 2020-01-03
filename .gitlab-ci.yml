@@ -34,6 +34,9 @@ sonarqube-check:
   stage: test
   image: sonarsource/sonar-scanner-cli:latest
   script:
+    - ls /home
+    - whoami
+    - pwd
     - sonar-scanner -Dsonar.qualitygate.wait=true
   allow_failure: true
   only:
