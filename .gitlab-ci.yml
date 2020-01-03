@@ -37,7 +37,7 @@ sonarqube-check:
     - ls /home
     - whoami
     - pwd
-    - sonar-scanner -Dsonar.qualitygate.wait=true
+    - sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=MSystemEvolution:sonar -Dsonar.projectName=MSystemEvolution -Dsonar.sourceEncoding=UTF-8 -Dsonar.language=java -Dsonar.projectVersion=1.0
   allow_failure: true
   only:
     - merge_requests
