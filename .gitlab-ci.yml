@@ -34,7 +34,7 @@ sonarqube-check:
   stage: test
   image: maven:3.3.9-jdk-8
   script:
-    - mvn verify sonar:sonar -Dsonar.qualitygate.wait=true
+    - 'mvn $MAVEN_CLI_OPTS verify sonar:sonar -Dsonar.qualitygate.wait=true'
   allow_failure: true
   only:
     - merge_requests
