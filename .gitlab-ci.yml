@@ -32,12 +32,9 @@ stages:
 
 sonarqube-check:
   stage: test
-  image: sonarsource/sonar-scanner-cli:latest
+  image: maven:3.3.9-jdk-8
   script:
-    - ls /home
-    - whoami
-    - pwd
-    - sonar-scanner -Dsonar.qualitygate.wait=true -Dsonar.projectKey=MSystemEvolution:sonar -Dsonar.projectName=MSystemEvolution -Dsonar.sourceEncoding=UTF-8 -Dsonar.language=java -Dsonar.projectVersion=1.0
+    - mvn verify sonar:sonar -Dsonar.qualitygate.wait=true
   allow_failure: true
   only:
     - merge_requests
