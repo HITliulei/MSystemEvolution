@@ -7,7 +7,6 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.ll.service.bean.MPathInfo;
-import com.septemberhx.common.service.MParamer;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
@@ -17,28 +16,29 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.septemberhx.common.config.MClusterConfig.Code_Download_PATH;
-
 /**
  * Created by Lei on 2019/11/29 15:45
  */
 
 public class GetSourceCode {
+
+    public final static String Code_Download_PATH = "/Workplace/test";
+
     /**
      * 下载源码 并得到路径信息
      */
-    public static Map<String, MPathInfo> getCodeAndGetMPathInfo(String url){
+    public static Map<String, MPathInfo> getCodeAndGetMPathInfo(String url) {
         String workplace = Code_Download_PATH;
         String[] urls = url.split("/");
-        String projectName =urls[urls.length-1].split("\\.")[0];
-        List<String> allTags = getAllTags(url,workplace,projectName);
+        String projectName = urls[urls.length - 1].split("\\.")[0];
+        List<String> allTags = getAllTags(url, workplace, projectName);
         Map<String, MPathInfo> map = new HashMap<>();
-        for(String tag : allTags){
+        for (String tag : allTags) {
             try {
-                Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(workplace+"/"+projectName+"_"+tag)).call();
-                MPathInfo mPathInfo = getMPathInfo(tag,workplace,projectName);
-                map.put(tag,mPathInfo);
-            }catch (GitAPIException g){
+                Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(workplace + "/" + projectName + "_" + tag)).call();
+                MPathInfo mPathInfo = getMPathInfo(tag, workplace, projectName);
+                map.put(tag, mPathInfo);
+            } catch (GitAPIException g) {
                 System.out.println("下载版本代码失败");
                 g.printStackTrace();
             }
@@ -47,25 +47,24 @@ public class GetSourceCode {
     }
 
     /**
-     *
      * @param url
      * @param version
      * @return
      */
-    public static MPathInfo getCodeByVersion(String url,String version){
+    public static MPathInfo getCodeByVersion(String url, String version) {
         String workplace = Code_Download_PATH;
         String[] urls = url.split("/");
-        String projectName =urls[urls.length-1].split("\\.")[0];
-        deleteWorkplace(workplace+"/"+projectName+"_"+version);
+        String projectName = urls[urls.length - 1].split("\\.")[0];
+        deleteWorkplace(workplace + "/" + projectName + "_" + version);
         MPathInfo mPathInfo = null;
-        File file = new File(workplace+"/"+projectName+"_"+version);
-        if(file.exists()){
-            mPathInfo = getMPathInfo(version,workplace,projectName);
-        }else{
+        File file = new File(workplace + "/" + projectName + "_" + version);
+        if (file.exists()) {
+            mPathInfo = getMPathInfo(version, workplace, projectName);
+        } else {
             try {
                 Git.cloneRepository().setURI(url).setBranch(version).setDirectory(file).call();
-                mPathInfo = getMPathInfo(version,workplace,projectName);
-            }catch (GitAPIException g){
+                mPathInfo = getMPathInfo(version, workplace, projectName);
+            } catch (GitAPIException g) {
                 System.out.println("下载版本代码失败");
                 g.printStackTrace();
             }
@@ -76,43 +75,44 @@ public class GetSourceCode {
 
     /**
      * get controller path info
-     * @param version version
-     * @param workPlace workplace path
+     *
+     * @param version     version
+     * @param workPlace   workplace path
      * @param projectName projectName
      * @return path info(contains controller)
      */
-    public static MPathInfo getMPathInfo(String version,String workPlace,String projectName){
-        String path = workPlace+"/"+projectName+"_"+version+"/";
+    public static MPathInfo getMPathInfo(String version, String workPlace, String projectName) {
+        String path = workPlace + "/" + projectName + "_" + version + "/";
         MPathInfo MPathInfo = new MPathInfo();
         File file_findapplication = new File(path + "src/main/resources");
-        String version1_ymlconfig ="workplace/"+projectName+"_"+version+"/src/main/resources/"+getYmlPath(file_findapplication);
-        MPathInfo.setApplication_Path(version1_ymlconfig);
+        String version1_ymlconfig = "workplace/" + projectName + "_" + version + "/src/main/resources/" + getYmlPath(file_findapplication);
+        MPathInfo.setApplicationPath(version1_ymlconfig);
         List<File> pathList = getListFiles(new File(path + "src/main/java"));
         List<String> listPath = new ArrayList<>();
-        for (File file:pathList){
-            if(ifController(file)){
-                listPath.add(file.toString().replace("\\","/"));
+        for (File file : pathList) {
+            if (ifController(file)) {
+                listPath.add(file.toString().replace("\\", "/"));
             }
         }
-        MPathInfo.setController_ListPath(listPath);
+        MPathInfo.setControllerListPath(listPath);
         return MPathInfo;
     }
 
 
-    public static boolean ifController(File file){
+    public static boolean ifController(File file) {
         CompilationUnit compilationUnit = null;
-        try{
+        try {
             compilationUnit = JavaParser.parse(file);
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         String[] strings = file.toString().split("\\\\");
-        String className = strings[strings.length-1].split("\\.")[0];
-        if(compilationUnit.getClassByName(className).isPresent()){
+        String className = strings[strings.length - 1].split("\\.")[0];
+        if (compilationUnit.getClassByName(className).isPresent()) {
             ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
             NodeList<AnnotationExpr> annotations = c.getAnnotations();
-            for(Node node: annotations){
-                if(node.getChildNodes().get(0).toString().equals("RestController")){
+            for (Node node : annotations) {
+                if (node.getChildNodes().get(0).toString().equals("RestController")) {
                     return true;
                 }
             }
@@ -121,29 +121,31 @@ public class GetSourceCode {
     }
 
     /**
-     *  遍历得到
+     * 遍历得到
+     *
      * @param file
      * @return
      */
-    public static String getYmlPath(File file){
+    public static String getYmlPath(File file) {
         File[] files = file.listFiles();
-        for(File file1:files){
-            if (file1.isFile()){
-                if(file1.getName().equals("application.yml")){
+        for (File file1 : files) {
+            if (file1.isFile()) {
+                if (file1.getName().equals("application.yml")) {
                     return "application.yml";
-                }else if(file1.getName().equals("application.properties")){
+                } else if (file1.getName().equals("application.properties")) {
                     return "application.properties";
-                } else{
+                } else {
                     continue;
                 }
-            }else if(file1.isDirectory()){
-                return file1.getName() +"/" + getYmlPath(file1);
-            }else{
+            } else if (file1.isDirectory()) {
+                return file1.getName() + "/" + getYmlPath(file1);
+            } else {
                 continue;
             }
         }
         return "";
     }
+
     public static List<File> getListFiles(File directory) {
         List<File> files = new ArrayList<>();
         if (directory.isFile()) {
@@ -159,40 +161,43 @@ public class GetSourceCode {
         }
         return files;
     }
+
     /**
      * 删除工作目录下的所有文件，在git clone之前
      */
-    public static void deleteWorkplace(String workPlace){
+    public static void deleteWorkplace(String workPlace) {
         File file = new File(workPlace);
         deleteFile(file);
     }
+
     /**
      * 遍历删除文件
+     *
      * @param file
      */
-    public static void deleteFile(File file){
-        if (file == null || !file.exists()){
+    public static void deleteFile(File file) {
+        if (file == null || !file.exists()) {
             System.out.println("文件删除失败,请检查文件路径是否正确");
             return;
         }
         File[] files = file.listFiles();
-        for (File f: files){
-            if (f.isDirectory()){
+        for (File f : files) {
+            if (f.isDirectory()) {
                 deleteFile(f);
-            }else {
+            } else {
                 f.delete();
             }
         }
         file.delete();
     }
 
-    public static List<String> getAllTags(String url,String workplace ,String projectname){
+    public static List<String> getAllTags(String url, String workplace, String projectname) {
         deleteWorkplace(workplace);
-        String p = workplace+"/"+projectname;
+        String p = workplace + "/" + projectname;
         Git git = null;
-        try{
+        try {
             git = Git.cloneRepository().setURI(url).setDirectory(new File(p)).call();
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("url 地址错误");
         }
         git.close();

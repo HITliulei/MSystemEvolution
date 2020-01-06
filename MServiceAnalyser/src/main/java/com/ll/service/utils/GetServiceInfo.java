@@ -22,7 +22,7 @@ import java.util.*;
 public class GetServiceInfo {
 
     public static MService getMservice(String version, MPathInfo pathInfo){
-        MService mService = getConfig(pathInfo.getApplication_Path());
+        MService mService = getConfig(pathInfo.getApplicationPath());
         MServiceVersion mServiceVersion = new MServiceVersion();
         String[] versions =  version.replaceAll("[a-zA-Z]","").split("\\.");
         mServiceVersion.setMainVersionNum(Integer.parseInt(versions[0]));
@@ -30,7 +30,7 @@ public class GetServiceInfo {
         mServiceVersion.setFixVersionNum(Integer.parseInt(versions[2]));
         mService.setServiceVersion(mServiceVersion);
         Map<String, MServiceInterface> map = new HashMap<>();
-        for(String s : pathInfo.getController_ListPath()){
+        for(String s : pathInfo.getControllerListPath()){
             map.putAll(getServiceInfo(s));
         }
         mService.setServiceInterfaceMap(map);

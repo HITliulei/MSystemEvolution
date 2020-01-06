@@ -32,4 +32,8 @@ public class MResponse {
         response.setStatus("Fail");
         return response;
     }
+
+    public static MResponse successResponse() {
+        return new MResponse();
+    }
 }

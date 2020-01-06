@@ -7,38 +7,38 @@ import java.util.List;
  */
 public class MPathInfo {
 
-    private String application_Path;
-    private List<String> controller_ListPath;
+    private String applicationPath;
+    private List<String> controllerListPath;
 
     public MPathInfo(){
 
     }
-    public MPathInfo(String application_Path, List<String> controller_ListPath) {
-        this.application_Path = application_Path;
-        this.controller_ListPath = controller_ListPath;
+    public MPathInfo(String applicationPath, List<String> controllerListPath) {
+        this.applicationPath = applicationPath;
+        this.controllerListPath = controllerListPath;
     }
 
-    public String getApplication_Path() {
-        return application_Path;
+    public String getApplicationPath() {
+        return applicationPath;
     }
 
-    public void setApplication_Path(String application_Path) {
-        this.application_Path = application_Path;
+    public void setApplicationPath(String applicationPath) {
+        this.applicationPath = applicationPath;
     }
 
-    public List<String> getController_ListPath() {
-        return controller_ListPath;
+    public List<String> getControllerListPath() {
+        return controllerListPath;
     }
 
-    public void setController_ListPath(List<String> controller_ListPath) {
-        this.controller_ListPath = controller_ListPath;
+    public void setControllerListPath(List<String> controllerListPath) {
+        this.controllerListPath = controllerListPath;
     }
 
     @Override
     public String toString() {
         return "MPathInfo{" +
-                "application_Path='" + application_Path + '\'' +
-                ", controller_ListPath=" + controller_ListPath +
+                "application_Path='" + applicationPath + '\'' +
+                ", controller_ListPath=" + controllerListPath +
                 '}';
     }
 }
