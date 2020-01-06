@@ -1,11 +1,13 @@
 package com.septemberhx.server.model;
 
 import com.septemberhx.common.base.MUniqueObjectManager;
+import com.septemberhx.common.exception.MethodNotAllowException;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.server.utils.MDatabaseUtils;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -22,7 +24,7 @@ public class MServiceManager extends MUniqueObjectManager<MService> {
 
     @Override
     public void update(MService obj) {
-        throw new RuntimeException("Don't use this method in MServiceManager due to the DB operations");
+        throw new MethodNotAllowException("Don't use this method in MServiceManager due to the DB operations");
     }
 
     public boolean updateService(MService newService) {
@@ -38,9 +40,10 @@ public class MServiceManager extends MUniqueObjectManager<MService> {
     }
 
     public void updateImageUrl(String serviceId, String imageUrl) {
-        if (this.containsById(serviceId)) {
+        Optional<MService> serviceOptional = this.getById(serviceId);
+        if (serviceOptional.isPresent()) {
             MDatabaseUtils.databaseUtils.updateServiceImageUrl(serviceId, imageUrl);
-            this.getById(serviceId).get().setImageUrl(imageUrl);
+            serviceOptional.get().setImageUrl(imageUrl);
         }
     }
 }
