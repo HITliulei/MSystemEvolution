@@ -54,4 +54,7 @@ public interface ServicesMapper {
 
     @Update("UPDATE services SET name = #{serviceName}, version = #{serviceVersion}, image = #{serviceImage}, port = #{port}, git = #{git} WHERE id = #{serviceId}")
     void update(MServiceDao serviceDao);
+
+    @Update("UPDATE services SET image = #{imageUrl} WHERE id = #{serviceId}")
+    void updateImageUrl(String serviceId, String imageUrl);
 }

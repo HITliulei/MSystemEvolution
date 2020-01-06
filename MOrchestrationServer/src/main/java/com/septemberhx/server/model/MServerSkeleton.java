@@ -28,4 +28,12 @@ public class MServerSkeleton {
         }
         return instance;
     }
+
+    public static MServiceManager getCurrSvcManager() {
+        return MServerSkeleton.getInstance().getCurrSystemModel().getServiceManager();
+    }
+
+    public static MJobManager getCurrJobManager() {
+        return MServerSkeleton.getInstance().getCurrSystemModel().getJobManager();
+    }
 }

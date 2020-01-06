@@ -57,4 +57,8 @@ public class MServiceVersion {
     public String toString() {
         return String.format("%d.%d.%d", mainVersionNum, childVersionNum, fixVersionNum);
     }
+
+    public String toCommonStr() {
+        return String.format("v%s", this.toString());
+    }
 }

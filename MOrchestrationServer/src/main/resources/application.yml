@@ -6,8 +6,6 @@ spring:
     url: jdbc:mysql://10.11.1.102:3306/service_evolution
     username: root
     password: ices504
-    # 使用druid数据源
-#    type: com.alibaba.druid.pool.DruidDataSource
     driver-class-name: com.mysql.jdbc.Driver
 
 mybatis:
@@ -24,3 +22,9 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://${MCLUSTER_IP}:${MCLUSTER_PORT}/eureka
+
+msystemevolution:
+  orchestration:
+    buildCenter:
+      ip: ${BUILDCENTER_IP}
+      port: ${BUILDCENTER_PORT}

@@ -85,6 +85,10 @@ public class MDatabaseUtils {
         });
     }
 
+    public void updateServiceImageUrl(String serviceId, String imageUrl) {
+        databaseUtils.servicesMapper.updateImageUrl(serviceId, imageUrl);
+    }
+
     public MService getServiceById(String serviceId) {
         MServiceDao serviceDao = databaseUtils.servicesMapper.getById(serviceId);
         if (serviceDao == null) return null;

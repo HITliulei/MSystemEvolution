@@ -12,4 +12,11 @@ import lombok.Setter;
 @Setter
 public class MSystemModel {
     private MServiceManager serviceManager;
+    private MJobManager jobManager;
+
+    public MSystemModel() {
+        // todo: init service manager from the database
+        this.serviceManager = new MServiceManager();
+        this.jobManager = new MJobManager();
+    }
 }
