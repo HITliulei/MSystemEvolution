@@ -236,7 +236,7 @@ public class MClientSkeleton {
                             try {
                                 return MRequestUtils.sendRequest(remoteUri, JSONObject.stringToValue(paramJsonStr), Class.forName(returnTypeStr), RequestMethod.GET);
                             } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
+                                logger.error(e);
                             }
                         }
                     }

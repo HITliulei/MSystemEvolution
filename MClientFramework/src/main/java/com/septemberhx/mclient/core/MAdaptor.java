@@ -48,7 +48,7 @@ public class MAdaptor {
             MAdaptor.getInstance().registerProxy(tmpObject.getId(), mObjectProxy);
             return tClass.cast(mObjectProxy.getInstance(tmpObject));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
         return null;
@@ -70,7 +70,7 @@ public class MAdaptor {
             MAdaptor.getInstance().registerProxy(tmpObject.getId(), mObjectProxy);
             return MObject.class.cast(mObjectProxy.getInstance(tmpObject));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
 
         return null;

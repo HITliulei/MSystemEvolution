@@ -18,7 +18,7 @@ import java.util.Map;
 public class MRequestUtils {
 
     private static RestTemplate restTemplate = new RestTemplate();
-    private static Logger logger = LogManager.getLogger(MRequestUtils.class);
+    private static final Logger logger = LogManager.getLogger(MRequestUtils.class);
 
     public static <T> T sendRequest(URI uri, @Nullable Object paramObj, Class<T> returnClass, RequestMethod method) {
         return sendRequest(uri, paramObj, returnClass, method, new HashMap<>());

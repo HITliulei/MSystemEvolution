@@ -48,13 +48,13 @@ public abstract class MObject {
                             field.setAccessible(true);
                             field.set(this, tmpProxy.getInstance((obj)));
                         } catch (IllegalAccessException e1) {
-                            e1.printStackTrace();
+                            logger.error(e1);
                         } catch (InstantiationException e2) {
-                            e2.printStackTrace();
+                            logger.error(e2);
                         } catch (NoSuchMethodException e3) {
-                            e3.printStackTrace();
+                            logger.error(e3);
                         } catch (InvocationTargetException e4) {
-                            e4.printStackTrace();
+                            logger.error(e4);
                         }
                     }
                 }
