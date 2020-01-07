@@ -18,6 +18,7 @@ import java.util.*;
 
 /**
  * Created by Lei on 2019/11/29 15:45
+ * @author
  */
 public class GetServiceInfo {
 
@@ -39,7 +40,7 @@ public class GetServiceInfo {
 
     public static MService getConfig(String path) {
         String[] paths = path.split("\\.");
-        if (paths[paths.length - 1].equals("yml")) {
+        if ("yml".equals(paths[paths.length - 1])) {
             return getInfoFromyml(path);
         } else {
             return getInfoFromproperties(path);
@@ -116,13 +117,15 @@ public class GetServiceInfo {
         ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
         NodeList<AnnotationExpr> annotations = c.getAnnotations();
 
-        List<String> pathContexts = new ArrayList<>();   // 所有的基础路径
+        // 所有的基础路径
+        List<String> pathContexts = new ArrayList<>();
         /*得到服务注释方面*/
         Map<String, MServiceInterface> map = new HashMap<>();
         for (AnnotationExpr annotationExpr : annotations) {
             List<Node> childNodes = annotationExpr.getChildNodes();
             String annoName = childNodes.get(0).toString();
-            if (annoName.equals("RequestMapping")) {  // 在此得到路径信息
+            if ("RequestMapping".equals(annoName)) {
+                // 在此得到路径信息
                 Node s = childNodes.get(1);
                 if (s.getChildNodes().size() == 0) {
                     String h = s.toString();
@@ -148,35 +151,36 @@ public class GetServiceInfo {
         /*得到interface方面*/
         List<MethodDeclaration> methodDeclarationList = c.getMethods();
 
-        for (MethodDeclaration m : methodDeclarationList) {   // 遍历每一个方法
+        // 遍历每一个方法
+        for (MethodDeclaration m : methodDeclarationList) {
             MServiceInterface mServiceInterface = new MServiceInterface();
-            mServiceInterface.setFunctionName(m.getName().toString());  //  函数名称
-            mServiceInterface.setReturnType(m.getType().toString());   //返回值
-            List<String> pathurl = new ArrayList<>();  // interface的url
+            mServiceInterface.setFunctionName(m.getName().toString());
+            mServiceInterface.setReturnType(m.getType().toString());
+            List<String> pathurl = new ArrayList<>();
             NodeList<AnnotationExpr> anno = m.getAnnotations();
-            List<String> pathContexts_function = new ArrayList<>();
-            for (AnnotationExpr annotationExpr : anno) {  // 注解
+            List<String> pathContextsFunction = new ArrayList<>();
+            for (AnnotationExpr annotationExpr : anno) {
                 List<Node> childNodes = annotationExpr.getChildNodes();
                 String annoName = childNodes.get(0).toString();
-                if (annoName.equals("RequestMapping") || annoName.equals("GetMapping") || annoName.equals("PostMapping") || annoName.equals("DeleteMapping") || annoName.equals("PutMapping")) {
+                if ("RequestMapping".equals(annoName) || "GetMapping".equals(annoName) || "PostMapping".equals(annoName) || "DeleteMapping".equals(annoName) || "PutMapping".equals(annoName)) {
                     Node s = childNodes.get(1);
-                    List<Node> s_url = s.getChildNodes();
-                    if (s_url.size() == 0) {
+                    List<Node> sUrl = s.getChildNodes();
+                    if (sUrl.size() == 0) {
                         String h = s.toString();
-                        pathContexts_function.add(h.substring(1, h.length() - 1));
+                        pathContextsFunction.add(h.substring(1, h.length() - 1));
                     } else {
-                        Node node1 = s_url.get(1);
+                        Node node1 = sUrl.get(1);
                         if (node1.getChildNodes().size() == 0) {
                             String h = node1.toString();
-                            pathContexts_function.add(h.substring(1, h.length() - 1));
+                            pathContextsFunction.add(h.substring(1, h.length() - 1));
                         } else {
                             for (Node node : node1.getChildNodes()) {
                                 String h = node.toString();
-                                pathContexts_function.add(h.substring(1, h.length() - 1));
+                                pathContextsFunction.add(h.substring(1, h.length() - 1));
                             }
                         }
                     }
-                } else if (annoName.equals("MFuncDescription ")) {   // 功能描述
+                } else if ("MFuncDescription ".equals(annoName)) {
                     String functionDescribtion = "";
                     int lavael = 1;
                     if (childNodes.size() == 2) {
@@ -197,7 +201,7 @@ public class GetServiceInfo {
                     continue;
                 }
                 for (String string1 : pathContexts) {
-                    for (String string2 : pathContexts_function) {
+                    for (String string2 : pathContextsFunction) {
                         if (!string1.contains("/")) {
                             pathurl.add(string1 + "/" + string2);
                         } else {
@@ -205,25 +209,25 @@ public class GetServiceInfo {
                         }
                     }
                 }
-                if (annoName.equals("RequestMapping")) {  // 方法名称
-                    if (childNodes.size() == 2) {                      //Request有对方法的描述
+                if ("RequestMapping".equals(annoName)) {
+                    if (childNodes.size() == 2) {
                         mServiceInterface.setRequestMethod("RequestMethod");
                     } else {
                         String[] requestmethods = childNodes.get(2).toString().split("=");
                         String requestmethod = requestmethods[1].trim();
                         mServiceInterface.setRequestMethod(requestmethod);
                     }
-                } else if (annoName.equals("GetMapping")) {
+                } else if ("GetMapping".equals(annoName)) {
                     mServiceInterface.setRequestMethod(" RequestMethod.GET");
-                } else if (annoName.equals("PostMapping")) {
+                } else if ("PostMapping".equals(annoName)) {
                     mServiceInterface.setRequestMethod(" RequestMethod.POST");
-                } else if (annoName.equals("DeleteMapping")) {
+                } else if ("DeleteMapping".equals(annoName)) {
                     mServiceInterface.setRequestMethod("RequestMethod.DELETE");
-                } else if (annoName.equals("PutMapping")) {
+                } else if ("PutMapping".equals(annoName)) {
                     mServiceInterface.setRequestMethod("RequestMethod.PUT");
                 }
             }
-            if (pathurl.size() == 0) {   // 判断不是rest接口类
+            if (pathurl.size() == 0) {
                 continue;
             }
             /*获取  接口层级的参数*/
@@ -232,17 +236,17 @@ public class GetServiceInfo {
             for (Parameter parameter : parameters) {
                 MParamer paramer = new MParamer();
                 List<Node> childNodes = parameter.getChildNodes();
-                paramer.setName(childNodes.get(2).toString());  // 参数名称
-                paramer.setType(childNodes.get(1).toString());  // 参数类型
+                paramer.setName(childNodes.get(2).toString());
+                paramer.setType(childNodes.get(1).toString());
                 Node node = childNodes.get(0);
                 List<Node> annoInfo = node.getChildNodes();
                 String method = annoInfo.get(0).toString();
-                if (method.equals("RequestBody")) {   // requestBody方式单独列出来
+                if ("RequestBody".equals(method)) {
                     paramer.setMethod(method);
                     paramer.setRequestname("实体类");
                     paramer.setDefaultObject("");
                 } else {
-                    paramer.setMethod(method);  // 参数的请求方式
+                    paramer.setMethod(method);
                     String name = annoInfo.get(1).toString();
                     if (annoInfo.size() == 2) {
                         String trueName = name.trim().replace("\"", "");
@@ -262,7 +266,7 @@ public class GetServiceInfo {
             BlockStmt blockStmt = m.getBody().get();
             List<Node> nodes = blockStmt.getChildNodes();
             List<MDependency> dependences = new ArrayList<>();
-            for (Node node : nodes) {  // 每一行的 代码
+            for (Node node : nodes) {
                 String string = node.toString();
                 if (string.contains("mSendRequest.sendRequest")) {
                     MDependency mDependency = new MDependency();
@@ -284,7 +288,7 @@ public class GetServiceInfo {
                 }
             }
             mServiceInterface.setParams(paramerList);
-            mServiceInterface.setMDependencies(dependences);  // add dependences
+            mServiceInterface.setMDependencies(dependences);
             for (String string : pathurl) {
                 mServiceInterface.setPatternUrl(string);
                 map.put(string, mServiceInterface);
@@ -292,9 +296,8 @@ public class GetServiceInfo {
         }
         return map;
     }
-
-
     public static void main(String[] args) {
-        System.out.println(getConfig("workplace/com-hitices-multiversion-test_v1.0.3/src/main/resources/application.yml"));
+//        System.out.println(getServiceInfo("src/main/resources/workplace/com-hitices-multiversion-test_v1.0.0/src/main/java/com/hitices/multiversion/controller/UserController.java"));
+        System.out.println(getConfig("./workplace/com-hitices-multiversion-test_v1.0.3/src/main/resources/application.yml"));
     }
 }

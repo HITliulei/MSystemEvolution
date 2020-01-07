@@ -22,13 +22,14 @@ import java.util.Map;
 
 public class GetSourceCode {
 
-    public final static String Code_Download_PATH = "/Workplace/test";
+//    public final static String CODE_DIWNLOAD_PATH = "/Workplace/test";
+    private final static String CODE_DIWNLOAD_PATH  = "src/main/resources/workplace";
 
     /**
      * 下载源码 并得到路径信息
      */
     public static Map<String, MPathInfo> getCodeAndGetMPathInfo(String url) {
-        String workplace = Code_Download_PATH;
+        String workplace = CODE_DIWNLOAD_PATH;
         String[] urls = url.split("/");
         String projectName = urls[urls.length - 1].split("\\.")[0];
         List<String> allTags = getAllTags(url, workplace, projectName);
@@ -52,7 +53,7 @@ public class GetSourceCode {
      * @return
      */
     public static MPathInfo getCodeByVersion(String url, String version) {
-        String workplace = Code_Download_PATH;
+        String workplace = CODE_DIWNLOAD_PATH;
         String[] urls = url.split("/");
         String projectName = urls[urls.length - 1].split("\\.")[0];
         deleteWorkplace(workplace + "/" + projectName + "_" + version);
@@ -112,7 +113,7 @@ public class GetSourceCode {
             ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
             NodeList<AnnotationExpr> annotations = c.getAnnotations();
             for (Node node : annotations) {
-                if (node.getChildNodes().get(0).toString().equals("RestController")) {
+                if ("RestController".equals(node.getChildNodes().get(0).toString())) {
                     return true;
                 }
             }
@@ -130,9 +131,9 @@ public class GetSourceCode {
         File[] files = file.listFiles();
         for (File file1 : files) {
             if (file1.isFile()) {
-                if (file1.getName().equals("application.yml")) {
+                if ("application.yml".equals(file1.getName())) {
                     return "application.yml";
-                } else if (file1.getName().equals("application.properties")) {
+                } else if ("application.properties".equals(file1.getName())) {
                     return "application.properties";
                 } else {
                     continue;
