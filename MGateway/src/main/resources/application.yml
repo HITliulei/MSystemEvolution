@@ -19,3 +19,5 @@ management:
   endpoint:
     health:
       show-details: ALWAYS
+zuul:
+  sensitive-headers: Access-Control-Allow-Origin,Access-Control-Allow-Methods
