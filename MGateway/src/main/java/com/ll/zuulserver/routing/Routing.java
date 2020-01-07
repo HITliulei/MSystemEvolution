@@ -10,6 +10,7 @@ import org.springframework.cloud.netflix.zuul.filters.support.FilterConstants;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URI;
 import java.util.List;
 import java.util.Random;
 
@@ -50,8 +51,8 @@ public class Routing extends ZuulFilter {
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletResponse response = ctx.getResponse();
         HttpServletRequest request = ctx.getRequest();
-        System.out.println("请求头部");
         String version = request.getHeader("version");
+        System.out.println("请求头部:" + version);
         String requestURI = request.getRequestURI();  // uri
         System.out.println("请求的路径为 : " + requestURI );
         String servicename =  requestURI.split("/")[1];
@@ -59,14 +60,14 @@ public class Routing extends ZuulFilter {
 //        System.out.println(rout);
         List<ServiceInstance> serviceInstances = MGetExample.getExammpleByVersion(discoveryClient,version, servicename);   // 是这个版本的信息的所有实例
         ServiceInstance getServiceInstance = serviceInstances.get(new Random().nextInt(serviceInstances.size()));
-        System.out.println("得到的serviceinstance的 id " + getServiceInstance.getUri().toString());
-        String changeUri = getServiceInstance.getUri().toString() + requestURI.replaceFirst("/"+servicename,"");
-        System.out.println("更改后的请求路径为 " + changeUri);
+        String getUri = getServiceInstance.getUri().toString();
+        System.out.println("获得的实例为：" + getUri);
         try{
-            response.sendRedirect(changeUri);
+            ctx.setRouteHost(new URI(getUri+"/").toURL());
         }catch (Exception e){
             e.printStackTrace();
         }
+        ctx.put(FilterConstants.REQUEST_URI_KEY, requestURI.replaceFirst("/"+servicename+"/",""));
         return null;
     }
 }
