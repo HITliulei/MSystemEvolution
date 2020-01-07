@@ -49,7 +49,6 @@ public class Routing extends ZuulFilter {
     @Override
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
-        HttpServletResponse response = ctx.getResponse();
         HttpServletRequest request = ctx.getRequest();
         String version = request.getHeader("version");
         System.out.println("请求头部:" + version);
