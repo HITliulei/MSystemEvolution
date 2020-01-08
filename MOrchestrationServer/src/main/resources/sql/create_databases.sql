@@ -30,7 +30,7 @@ CREATE TABLE `params` (
     `defaultValue` varchar(100) NOT NULL COMMENT '默认值',
     `type` varchar(100) NOT NULL COMMENT '参数类型',
     `method` varchar(10) NOT NULL COMMENT '参数传递类型',
-    `serviceId` varchar(100),
+    `interfaceId` varchar(100),
     `order` INTEGER NOT NULL COMMENT '参数序号',
     FOREIGN KEY(`interfaceId`) REFERENCES `interfaces`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
