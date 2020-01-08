@@ -57,6 +57,8 @@ package:
   artifacts:
     paths:
       - MServiceAnalyser/target/*.jar
+      - MGateway/target/*.jar
+      - MOrchestrationServer/target/*.jar
 
 before_script:
   - export DOCKER_HOST="tcp://192.168.1.102:2375"
@@ -67,4 +69,8 @@ build:
     - docker info
     - docker build $CI_PROJECT_DIR/MServiceAnalyser -t 192.168.1.104:5000/hitices/mserviceanalyser:v1.0
     - docker push 192.168.1.104:5000/hitices/mserviceanalyser:v1.0
+    - docker build $CI_PROJECT_DIR/MGateway -t 192.168.1.104:5000/hitices/mgateway:v1.0
+    - docker push 192.168.1.104:5000/hitices/mgateway:v1.0
+    - docker build $CI_PROJECT_DIR/MOrchestrationServer -t 192.168.1.104:5000/hitices/morchestrationserver:v1.0
+    - docker push 192.168.1.104:5000/hitices/morchestrationserver:v1.0
   image: docker:git
