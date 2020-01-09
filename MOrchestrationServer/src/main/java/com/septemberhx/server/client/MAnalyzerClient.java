@@ -4,7 +4,7 @@ import com.septemberhx.common.bean.server.MServiceCompareBean;
 import com.septemberhx.common.bean.server.MServiceRegisterBean;
 import com.septemberhx.common.config.MClusterConfig;
 import com.septemberhx.common.service.MService;
-import com.septemberhx.common.service.MServiceDiff;
+import com.septemberhx.common.service.diff.MServiceDiff;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

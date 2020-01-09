@@ -15,22 +15,21 @@ import lombok.ToString;
 @Setter
 @ToString
 public class MDiff {
-    /*
+    /**
      * Type of the difference
      */
     private MDiffType type;
-
-    /*
+    /**
      * Previous value
      */
-    private String preValue;
+    private Object preValue;
 
-    /*
+    /**
      * Current value
      */
-    private String curValue;
+    private Object curValue;
 
-    public MDiff(MDiffType type, String preValue, String curValue) {
+    public MDiff(MDiffType type, Object preValue, Object curValue) {
         this.type = type;
         this.preValue = preValue;
         this.curValue = curValue;
