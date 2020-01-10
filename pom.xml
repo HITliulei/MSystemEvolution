@@ -15,6 +15,7 @@
         <module>MGateway</module>
         <module>MClientFramework</module>
         <module>MClusterAgent</module>
+        <module>MEurekaServer</module>
     </modules>
 
     <properties>
