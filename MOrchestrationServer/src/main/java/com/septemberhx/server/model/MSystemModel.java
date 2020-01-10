@@ -13,10 +13,12 @@ import lombok.Setter;
 public class MSystemModel {
     private MServiceManager serviceManager;
     private MJobManager jobManager;
+    private MClusterManager nodeManager;
 
     public MSystemModel() {
         // todo: init service manager from the database
         this.serviceManager = new MServiceManager();
         this.jobManager = new MJobManager();
+        this.nodeManager = new MClusterManager();
     }
 }

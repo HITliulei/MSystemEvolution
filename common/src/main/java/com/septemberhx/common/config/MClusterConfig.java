@@ -59,7 +59,7 @@ public class MClusterConfig {
 
     // ------
     public final static String SERVICE_NAME_SERVER = "MOrchestrationServer";
-    public final static String SERVER_SERVICE_INFO_CALLBACK_URI = "/pushServiceInfos";
+    public final static String SERVER_SERVICE_INFO_CALLBACK_URI = "/service/pushServiceInfos";
     // ------
     public final static String SERVICE_NAME_ANALYZE = "MServiceAnalyzer";
     public final static String ANALYZE_ANALYZE_URI = "/analyzer";

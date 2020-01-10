@@ -36,4 +36,8 @@ public class MServerSkeleton {
     public static MJobManager getCurrJobManager() {
         return MServerSkeleton.getInstance().getCurrSystemModel().getJobManager();
     }
+
+    public static MClusterManager getCurrNodeManager() {
+        return MServerSkeleton.getInstance().getCurrSystemModel().getNodeManager();
+    }
 }
