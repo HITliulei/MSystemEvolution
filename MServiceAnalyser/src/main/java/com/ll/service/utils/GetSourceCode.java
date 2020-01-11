@@ -22,7 +22,7 @@ import java.util.Map;
 
 public class GetSourceCode {
 
-    public final static String CODE_DIWNLOAD_PATH = "/Workplace/test";
+    public final static String CODE_DIWNLOAD_PATH = "/tmp/MServiceAnalyzer/";
 
     /**
      * 下载源码 并得到路径信息
@@ -198,6 +198,7 @@ public class GetSourceCode {
         try {
             git = Git.cloneRepository().setURI(url).setDirectory(new File(p)).call();
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("url 地址错误");
         }
         git.close();

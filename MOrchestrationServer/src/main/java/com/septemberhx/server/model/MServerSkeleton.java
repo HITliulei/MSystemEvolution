@@ -16,7 +16,9 @@ public class MServerSkeleton {
 
     private static volatile MServerSkeleton instance;
 
-    private MServerSkeleton() { }
+    private MServerSkeleton() {
+        this.currSystemModel = new MSystemModel();
+    }
 
     public static MServerSkeleton getInstance() {
         if (instance == null) {
