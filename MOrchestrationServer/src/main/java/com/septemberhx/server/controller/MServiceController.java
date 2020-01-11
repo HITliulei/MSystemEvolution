@@ -43,6 +43,8 @@ public class MServiceController {
 
         // step 2, if the image url doesn't exist, build it.
         for (MService service : serviceList) {
+            service.setId(service.getServiceName());
+
             // construct the build job and execute it
             MBuildJob buildJob = new MBuildJob(
                     service.getServiceName(),
@@ -52,7 +54,6 @@ public class MServiceController {
             );
             MServerSkeleton.getCurrJobManager().update(buildJob);
             MJobExecutor.start(buildJob);
-            service.setId(service.getServiceName());
         }
 
         // todo: step 3, join compare the services, and store the differences
