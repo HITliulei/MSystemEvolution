@@ -22,8 +22,7 @@ import java.util.Map;
 
 public class GetSourceCode {
 
-//    public final static String CODE_DIWNLOAD_PATH = "/Workplace/test";
-    private final static String CODE_DIWNLOAD_PATH  = "src/main/resources/workplace";
+    public final static String CODE_DIWNLOAD_PATH = "/Workplace/test";
 
     /**
      * 下载源码 并得到路径信息
@@ -86,7 +85,7 @@ public class GetSourceCode {
         String path = workPlace + "/" + projectName + "_" + version + "/";
         MPathInfo MPathInfo = new MPathInfo();
         File file_findapplication = new File(path + "src/main/resources");
-        String version1_ymlconfig = "workplace/" + projectName + "_" + version + "/src/main/resources/" + getYmlPath(file_findapplication);
+        String version1_ymlconfig = path + "/src/main/resources/" + getYmlPath(file_findapplication);
         MPathInfo.setApplicationPath(version1_ymlconfig);
         List<File> pathList = getListFiles(new File(path + "src/main/java"));
         List<String> listPath = new ArrayList<>();

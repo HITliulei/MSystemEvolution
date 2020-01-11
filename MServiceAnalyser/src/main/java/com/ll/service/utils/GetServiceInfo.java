@@ -50,21 +50,25 @@ public class GetServiceInfo {
     public static MService getInfoFromyml(String path) {
         MService mService = new MService();
         Yaml yaml = new Yaml();
-        InputStream inputStream = GetServiceInfo.class.getClassLoader().getResourceAsStream(path);
-        Map obj = yaml.loadAs(inputStream, LinkedHashMap.class);
-        Map server = (Map) obj.get("server");
-        if (server.get("port") == null) {
-            mService.setPort(8080);
-        } else {
-            mService.setPort((int) server.get("port"));
+        try {
+            FileInputStream fileInputStream = new FileInputStream(path);
+            Map obj = yaml.loadAs(fileInputStream, LinkedHashMap.class);
+            Map server = (Map) obj.get("server");
+            if (server.get("port") == null) {
+                mService.setPort(8080);
+            } else {
+                mService.setPort((int) server.get("port"));
+            }
+            if (server.get("servlet") == null) {
+                mService.setGitUrl("/");
+            } else {
+                mService.setGitUrl(((Map) server.get("servlet")).get("context-path").toString());
+            }
+            Map spring = (Map) obj.get("spring");
+            mService.setServiceName(((Map) spring.get("application")).get("name").toString());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if (server.get("servlet") == null) {
-            mService.setGitUrl("/");
-        } else {
-            mService.setGitUrl(((Map) server.get("servlet")).get("context-path").toString());
-        }
-        Map spring = (Map) obj.get("spring");
-        mService.setServiceName(((Map) spring.get("application")).get("name").toString());
         return mService;
     }
 
