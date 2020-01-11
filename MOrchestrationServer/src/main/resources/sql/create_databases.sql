@@ -12,16 +12,16 @@ CREATE TABLE `services` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `interfaces` (
-                              `id` varchar(100) NOT NULL COMMENT '接口ID',
-                              `patternUrl` varchar(100) NOT NULL COMMENT '请求路径',
-                              `functionName` varchar(100) NOT NULL COMMENT '函数名称',
-                              `requestMethod` varchar(100) NOT NULL COMMENT '请求类型',
-                              `returnType` varchar(10) NOT NULL COMMENT '返回值类型',
-                              `serviceId` varchar(100),
-                              `featureName` varchar(100) NOT NULL COMMENT '功能',
-                              `slaLevel` integer NOT NULL COMMENT 'SLA等级',
-                              PRIMARY KEY (`id`),
-                              FOREIGN KEY(`serviceId`) REFERENCES `services`(`id`)
+    `id` varchar(100) NOT NULL COMMENT '接口ID',
+    `patternUrl` varchar(100) NOT NULL COMMENT '请求路径',
+    `functionName` varchar(100) NOT NULL COMMENT '函数名称',
+    `requestMethod` varchar(100) NOT NULL COMMENT '请求类型',
+    `returnType` varchar(10) NOT NULL COMMENT '返回值类型',
+    `serviceId` varchar(100),
+    `featureName` varchar(100) NOT NULL COMMENT '功能',
+    `slaLevel` integer NOT NULL COMMENT 'SLA等级',
+    PRIMARY KEY (`id`),
+    FOREIGN KEY(`serviceId`) REFERENCES `services`(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `params` (

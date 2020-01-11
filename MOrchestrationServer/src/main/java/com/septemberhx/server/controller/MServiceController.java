@@ -52,6 +52,7 @@ public class MServiceController {
             );
             MServerSkeleton.getCurrJobManager().update(buildJob);
             MJobExecutor.start(buildJob);
+            service.setId(service.getServiceName());
         }
 
         // todo: step 3, join compare the services, and store the differences
