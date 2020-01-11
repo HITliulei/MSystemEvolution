@@ -59,11 +59,13 @@ public class GetServiceInfo {
             } else {
                 mService.setPort((int) server.get("port"));
             }
-            if (server.get("servlet") == null) {
-                mService.setGitUrl("/");
-            } else {
-                mService.setGitUrl(((Map) server.get("servlet")).get("context-path").toString());
-            }
+
+            // 这是什么？
+//            if (server.get("servlet") == null) {
+//                mService.setGitUrl("/");
+//            } else {
+//                mService.setGitUrl(((Map) server.get("servlet")).get("context-path").toString());
+//            }
             Map spring = (Map) obj.get("spring");
             mService.setServiceName(((Map) spring.get("application")).get("name").toString());
         } catch (Exception e) {

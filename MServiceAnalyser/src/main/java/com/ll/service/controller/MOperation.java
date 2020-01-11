@@ -49,6 +49,8 @@ public class MOperation {
             List<MService> serviceList = new ArrayList<>();
             for (Map.Entry<String, MPathInfo> entry : map.entrySet()) {
                 MService service = GetServiceInfo.getMservice(entry.getKey(), entry.getValue());
+                service.setImageUrl(mServiceRegisterBean.getGitUrl());
+                service.setServiceName(mServiceRegisterBean.getServiceName());
                 logger.info(service.toString());
                 serviceList.add(service);
             }

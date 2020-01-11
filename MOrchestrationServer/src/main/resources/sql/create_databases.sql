@@ -5,7 +5,7 @@ CREATE TABLE `services` (
     `id` varchar(100) NOT NULL COMMENT '服务ID',
     `name` varchar(100) NOT NULL COMMENT '服务名称',
     `version` varchar(100) NOT NULL COMMENT '版本号',
-    `image` varchar(100) NOT NULL COMMENT '镜像地址',
+    `image` varchar(100) COMMENT '镜像地址',
     `port` integer  NOT NULL COMMENT '端口号',
     `git` varchar(100) NOT NULL COMMENT 'git仓库地址',
     PRIMARY KEY (`id`)
