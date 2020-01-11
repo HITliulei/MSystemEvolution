@@ -40,13 +40,15 @@ public class ServicesMapperTest {
                 8080,
                 "git"
         );
+        int rawSize = servicesMapper.getByName(serviceDao.getServiceName()).size();
+
         servicesMapper.insert(serviceDao);
 
         MServiceDao result = servicesMapper.getById(serviceDao.getServiceId());
         assert result.equals(serviceDao);
 
         List<MServiceDao> resultList = servicesMapper.getByName(serviceDao.getServiceName());
-        assert resultList.size() == 1;
+        assert resultList.size() == 1 + rawSize;
         assert servicesMapper.getAll().size() == 1;
 
         result.setServiceImage("hello-world");
