@@ -26,8 +26,7 @@ public class GetSourceCode {
 
     private static Logger logger = LogManager.getLogger(GetSourceCode.class);
 
-//    private final static String CODE_DIWNLOAD_PATH  = "src/main/resources/workplace";
-    public final static String CODE_DIWNLOAD_PATH = "/tmp/MServiceAnalyzer/";
+    private final static String CODE_DIWNLOAD_PATH  = "/tmp/MServiceAnalyzer";
 
 
     /**
@@ -42,6 +41,7 @@ public class GetSourceCode {
             try {
                 Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + tag)).call();
                 MPathInfo mPathInfo = getMPathInfo(tag, projectName);
+                mPathInfo.setGitUrl(url);
                 map.put(tag, mPathInfo);
             } catch (GitAPIException g) {
                 logger.error(g);
@@ -77,7 +77,6 @@ public class GetSourceCode {
 
     /**
      * get controller path info
-     *
      * @param version     version
      * @param projectName projectName
      * @return path info(contains controller)
@@ -86,7 +85,7 @@ public class GetSourceCode {
         String path = CODE_DIWNLOAD_PATH + "/" + projectName + "_" + version + "/";
         MPathInfo MPathInfo = new MPathInfo();
         File file_findapplication = new File(path + "src/main/resources");
-        String version1_ymlconfig = path + "/src/main/resources/" + getYmlPath(file_findapplication);
+        String version1_ymlconfig = path + "src/main/resources/" + getYmlPath(file_findapplication);
         MPathInfo.setApplicationPath(version1_ymlconfig);
         List<File> pathList = getListFiles(new File(path + "src/main/java"));
         List<String> listPath = new ArrayList<>();
@@ -127,8 +126,7 @@ public class GetSourceCode {
     }
 
     /**
-     * 遍历得到
-     *
+     * 遍历得到配置文件
      * @param file
      * @return
      */
@@ -214,9 +212,7 @@ public class GetSourceCode {
         try {
             git = Git.cloneRepository().setURI(url).setDirectory(new File(p)).call();
         } catch (Exception e) {
-
             logger.error(e);
-
         }
         git.close();
         return new ArrayList<>(git.getRepository().getTags().keySet());
