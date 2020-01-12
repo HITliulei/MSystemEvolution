@@ -58,7 +58,6 @@ public class GetSourceCode {
     public static MPathInfo getCodeByVersion(String url, String version) {
         String[] urls = url.split("/");
         String projectName = urls[urls.length - 1].split("\\.")[0];
-        deleteWorkplace(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + version);
         MPathInfo mPathInfo = null;
         File file = new File(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + version);
         if (file.exists()) {
