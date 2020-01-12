@@ -37,9 +37,10 @@ public class GetSourceCode {
         String projectName = urls[urls.length - 1].split("\\.")[0];
         List<String> allTags = getAllTags(url, projectName);
         Map<String, MPathInfo> map = new HashMap<>();
+        Git git = null;
         for (String tag : allTags) {
             try {
-                Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + tag)).call();
+                git = Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + tag)).call();
                 MPathInfo mPathInfo = getMPathInfo(tag, projectName);
                 mPathInfo.setGitUrl(url);
                 map.put(tag, mPathInfo);
@@ -47,6 +48,7 @@ public class GetSourceCode {
                 logger.error(g);
             }
         }
+        git.close();
         return map;
     }
 
@@ -170,32 +172,25 @@ public class GetSourceCode {
         return files;
     }
 
-    /**
-     * 删除工作目录下的所有文件，在git clone之前
-     */
-    public static void deleteWorkplace(String workPlace) {
-        File file = new File(workPlace);
-        deleteFile(file);
-    }
-
-    /**
-     * 遍历删除文件
-     * @param file
-     */
-    public static void deleteFile(File file) {
-        if (file == null || !file.exists()) {
-            logger.debug ("文件删除失败,请检查文件路径是否正确");
-            return;
+    public static boolean deleteDir(String path){
+        File file = new File(path);
+        if(!file.exists()){
+            return false;
         }
-        File[] files = file.listFiles();
-        for (File f : files) {
-            if (f.isDirectory()) {
-                deleteFile(f);
-            } else {
-                f.delete();
+        String[] content = file.list();
+        for(String name : content){
+            File temp = new File(path, name);
+            if(temp.isDirectory()){
+                deleteDir(temp.getAbsolutePath());
+                temp.delete();//删除空目录
+            }else{
+                System.gc();
+                if(!temp.delete()){
+                    System.err.println("Failed to delete " + name);
+                }
             }
         }
-        file.delete();
+        return true;
     }
 
     /**
@@ -205,7 +200,7 @@ public class GetSourceCode {
      * @return
      */
     public static List<String> getAllTags(String url, String projectname) {
-        deleteWorkplace(CODE_DIWNLOAD_PATH);
+        deleteDir(CODE_DIWNLOAD_PATH);
         String p = CODE_DIWNLOAD_PATH + "/" + projectname;
         Git git = null;
         try {
