@@ -16,7 +16,9 @@ public class MServerSkeleton {
 
     private static volatile MServerSkeleton instance;
 
-    private MServerSkeleton() { }
+    private MServerSkeleton() {
+        this.currSystemModel = new MSystemModel();
+    }
 
     public static MServerSkeleton getInstance() {
         if (instance == null) {
@@ -35,5 +37,9 @@ public class MServerSkeleton {
 
     public static MJobManager getCurrJobManager() {
         return MServerSkeleton.getInstance().getCurrSystemModel().getJobManager();
+    }
+
+    public static MClusterManager getCurrNodeManager() {
+        return MServerSkeleton.getInstance().getCurrSystemModel().getNodeManager();
     }
 }

@@ -1,6 +1,7 @@
 package com.septemberhx.server.job;
 
 import com.septemberhx.common.bean.MResponse;
+import com.septemberhx.common.exception.JobExecutionFailedException;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import com.septemberhx.server.utils.MServiceUtils;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class MJobExecutor {
     public static void start(MBaseJob job) {
         if (job.getStatus() != MJobStatus.PENDING) {
-            throw new RuntimeException(String.format("Cannot execute job: %s", job.toString()));
+            throw new JobExecutionFailedException(String.format("Cannot execute job: %s", job.toString()));
         }
 
         switch (job.getType()) {
@@ -24,7 +25,7 @@ public class MJobExecutor {
                 MJobExecutor.startBuildJob((MBuildJob) job);
                 break;
             default:
-                throw new RuntimeException(String.format("Unknown job type: %s", job.getType()));
+                throw new JobExecutionFailedException(String.format("Unknown job type: %s", job.getType()));
         }
     }
 
@@ -41,7 +42,7 @@ public class MJobExecutor {
         );
 
         if (r == null) {
-            throw new RuntimeException(String.format("Failed to send MBuildJob: %s", buildJob));
+            throw new JobExecutionFailedException(String.format("Failed to send MBuildJob: %s", buildJob));
         } else {
             buildJob.markAsDoing();
         }

@@ -26,8 +26,8 @@ public class GetSourceCode {
 
     private static Logger logger = LogManager.getLogger(GetSourceCode.class);
 
-//    public final static String CODE_DIWNLOAD_PATH = "/Workplace/test";
-    private final static String CODE_DIWNLOAD_PATH  = "src/main/resources/workplace";
+//    private final static String CODE_DIWNLOAD_PATH  = "src/main/resources/workplace";
+    public final static String CODE_DIWNLOAD_PATH = "/tmp/MServiceAnalyzer/";
 
 
     /**
@@ -86,7 +86,7 @@ public class GetSourceCode {
         String path = CODE_DIWNLOAD_PATH + "/" + projectName + "_" + version + "/";
         MPathInfo MPathInfo = new MPathInfo();
         File file_findapplication = new File(path + "src/main/resources");
-        String version1_ymlconfig = "workplace/" + projectName + "_" + version + "/src/main/resources/" + getYmlPath(file_findapplication);
+        String version1_ymlconfig = path + "/src/main/resources/" + getYmlPath(file_findapplication);
         MPathInfo.setApplicationPath(version1_ymlconfig);
         List<File> pathList = getListFiles(new File(path + "src/main/java"));
         List<String> listPath = new ArrayList<>();
@@ -214,7 +214,9 @@ public class GetSourceCode {
         try {
             git = Git.cloneRepository().setURI(url).setDirectory(new File(p)).call();
         } catch (Exception e) {
+
             logger.error(e);
+
         }
         git.close();
         return new ArrayList<>(git.getRepository().getTags().keySet());

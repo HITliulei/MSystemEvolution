@@ -62,11 +62,11 @@ public class MDatabaseUtilsTest {
         service.setServiceInterfaceMap(interfaceMap);
 
         List<MService> services = MDatabaseUtils.databaseUtils.getAllServices();
-        assertEquals(0, services.size());
+        int rawSize = services.size();
 
         MDatabaseUtils.databaseUtils.insertService(service);
         List<MService> serviceList = MDatabaseUtils.databaseUtils.getAllServices();
-        assertEquals(1, serviceList.size());
+        assertEquals(1 + rawSize, serviceList.size());
         assertEquals(service, serviceList.get(0));
 
         MService targetService = MDatabaseUtils.databaseUtils.getServiceById(service.getId());
