@@ -112,8 +112,7 @@ public class GetSourceCode {
         } catch (Exception e) {
             logger.error(e);
         }
-        String[] strings = file.toString().split("\\\\");
-        String className = strings[strings.length - 1].split("\\.")[0];
+        String className = file.getName().split("\\.")[0];
         if (compilationUnit.getClassByName(className).isPresent()) {
             ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
             NodeList<AnnotationExpr> annotations = c.getAnnotations();
