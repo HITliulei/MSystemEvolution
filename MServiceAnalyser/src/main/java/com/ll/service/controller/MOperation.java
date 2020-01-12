@@ -49,12 +49,12 @@ public class MOperation {
             List<MService> serviceList = new ArrayList<>();
             for (Map.Entry<String, MPathInfo> entry : map.entrySet()) {
                 MService service = GetServiceInfo.getMservice(entry.getKey(), entry.getValue());
-                logger.info(service.toString());
+                logger.debug (service.toString());
                 serviceList.add(service);
             }
 
             MResponse response = this.serverClient.pushServiceInfos(new MServiceAnalyzeResultBean(serviceList));
-            logger.info(String.format("Receive %s from server", response.getStatus()));
+            logger.debug (String.format("Receive %s from server", response.getStatus()));
         });
         return MResponse.successResponse();
     }
@@ -62,12 +62,12 @@ public class MOperation {
     @PostMapping("/analyzeOne")
     public Callable<MService> getVersionInfo1(@RequestBody MFetchServiceInfoBean mFetchServiceInfoBean) {
         return () -> {
-            logger.info("异步处理得到源码信息");
+            logger.debug ("异步处理得到源码信息");
             String callback = mFetchServiceInfoBean.getCallBackUrl();
             String version = mFetchServiceInfoBean.getVersion().toString();
             MPathInfo mPathInfo = GetSourceCode.getCodeByVersion(mFetchServiceInfoBean.getGitUrl(), "v" + version);
             MService mService = GetServiceInfo.getMservice(version, mPathInfo);
-            logger.info("将结果返回到callback中");
+            logger.debug ("将结果返回到callback中");
             new RestTemplate().postForLocation(callback, mService);
             return mService;
         };
@@ -75,13 +75,13 @@ public class MOperation {
 
     @PostMapping(MClusterConfig.ANALYZE_COMPARE_URI)
     public MServiceDiff getServiceDiff(@RequestBody MServiceCompareBean mServiceCompareBean) {
-        logger.info("分析版本间的差异");
+        logger.debug ("分析版本间的差异");
         return GetServiceDiff.getDiff(mServiceCompareBean.getFixedService(), mServiceCompareBean.getComparedService());
     }
 
     @PostMapping("GetDiffTwoVersions1")
     public MServiceDiff getServiceDiff1(@RequestBody MService mService1, @RequestBody MService mService2) {
-        logger.info("分析版本间的差异");
+        logger.debug ("分析版本间的差异");
         return GetServiceDiff.getDiff(mService1, mService2);
     }
 }

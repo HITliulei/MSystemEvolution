@@ -11,6 +11,8 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.ll.service.bean.MPathInfo;
 import com.septemberhx.common.service.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -21,6 +23,8 @@ import java.util.*;
  * @author
  */
 public class GetServiceInfo {
+
+    private static Logger logger = LogManager.getLogger(GetSourceCode.class);
 
     public static MService getMservice(String version, MPathInfo pathInfo) {
         MService mService = getConfig(pathInfo.getApplicationPath());
@@ -85,8 +89,10 @@ public class GetServiceInfo {
                 mService.setGitUrl(properties.getProperty("server.context-path"));
             }
         } catch (FileNotFoundException e) {
+            logger.error(e);
             e.printStackTrace();
         } catch (IOException e) {
+            logger.error(e);
             e.printStackTrace();
         }
         return mService;
@@ -104,12 +110,12 @@ public class GetServiceInfo {
         try {
             file = new File(codepath);
             if (!file.exists()) {
-                System.out.println("源代码路径不对");
+                logger.debug ("源码路径错误");
             } else {
                 compilationUnit = JavaParser.parse(file);
             }
         } catch (Exception e) {
-            System.out.println("读取code路径失败");
+            logger.error(e);
             return null;
         }
         String[] strings = codepath.split("/");
@@ -297,7 +303,7 @@ public class GetServiceInfo {
         return map;
     }
     public static void main(String[] args) {
-//        System.out.println(getServiceInfo("src/main/resources/workplace/com-hitices-multiversion-test_v1.0.0/src/main/java/com/hitices/multiversion/controller/UserController.java"));
-        System.out.println(getConfig("./workplace/com-hitices-multiversion-test_v1.0.3/src/main/resources/application.yml"));
+        System.out.println(getServiceInfo("/tmp/MServiceAnalyzer/src/main/resources/workplace/com-hitices-multiversion-test_v1.0.0/src/main/java/com/hitices/multiversion/controller/UserController.java"));
+//        System.out.println(getConfig("/tmp/MServiceAnalyzer/src/main/resources/workplace/com-hitices-multiversion-test_v1.0.3/src/main/resources/application.yml"));
     }
 }
