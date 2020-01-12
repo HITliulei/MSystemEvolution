@@ -7,8 +7,10 @@ import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.ll.service.bean.MPathInfo;
+import org.apache.logging.log4j.LogManager;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -22,25 +24,27 @@ import java.util.Map;
 
 public class GetSourceCode {
 
-    public final static String CODE_DIWNLOAD_PATH = "/tmp/MServiceAnalyzer/";
+    private static Logger logger = LogManager.getLogger(GetSourceCode.class);
+
+    private final static String CODE_DIWNLOAD_PATH  = "/tmp/MServiceAnalyzer";
+
 
     /**
      * 下载源码 并得到路径信息
      */
     public static Map<String, MPathInfo> getCodeAndGetMPathInfo(String url) {
-        String workplace = CODE_DIWNLOAD_PATH;
         String[] urls = url.split("/");
         String projectName = urls[urls.length - 1].split("\\.")[0];
-        List<String> allTags = getAllTags(url, workplace, projectName);
+        List<String> allTags = getAllTags(url, projectName);
         Map<String, MPathInfo> map = new HashMap<>();
         for (String tag : allTags) {
             try {
-                Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(workplace + "/" + projectName + "_" + tag)).call();
-                MPathInfo mPathInfo = getMPathInfo(tag, workplace, projectName);
+                Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + tag)).call();
+                MPathInfo mPathInfo = getMPathInfo(tag, projectName);
+                mPathInfo.setGitUrl(url);
                 map.put(tag, mPathInfo);
             } catch (GitAPIException g) {
-                System.out.println("下载版本代码失败");
-                g.printStackTrace();
+                logger.error(g);
             }
         }
         return map;
@@ -52,21 +56,19 @@ public class GetSourceCode {
      * @return
      */
     public static MPathInfo getCodeByVersion(String url, String version) {
-        String workplace = CODE_DIWNLOAD_PATH;
         String[] urls = url.split("/");
         String projectName = urls[urls.length - 1].split("\\.")[0];
-        deleteWorkplace(workplace + "/" + projectName + "_" + version);
+        deleteWorkplace(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + version);
         MPathInfo mPathInfo = null;
-        File file = new File(workplace + "/" + projectName + "_" + version);
+        File file = new File(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + version);
         if (file.exists()) {
-            mPathInfo = getMPathInfo(version, workplace, projectName);
+            mPathInfo = getMPathInfo(version, projectName);
         } else {
             try {
                 Git.cloneRepository().setURI(url).setBranch(version).setDirectory(file).call();
-                mPathInfo = getMPathInfo(version, workplace, projectName);
+                mPathInfo = getMPathInfo(version, projectName);
             } catch (GitAPIException g) {
-                System.out.println("下载版本代码失败");
-                g.printStackTrace();
+                logger.error(g);
             }
         }
         return mPathInfo;
@@ -75,17 +77,15 @@ public class GetSourceCode {
 
     /**
      * get controller path info
-     *
      * @param version     version
-     * @param workPlace   workplace path
      * @param projectName projectName
      * @return path info(contains controller)
      */
-    public static MPathInfo getMPathInfo(String version, String workPlace, String projectName) {
-        String path = workPlace + "/" + projectName + "_" + version + "/";
+    public static MPathInfo getMPathInfo(String version, String projectName) {
+        String path = CODE_DIWNLOAD_PATH + "/" + projectName + "_" + version + "/";
         MPathInfo MPathInfo = new MPathInfo();
         File file_findapplication = new File(path + "src/main/resources");
-        String version1_ymlconfig = path + "/src/main/resources/" + getYmlPath(file_findapplication);
+        String version1_ymlconfig = path + "src/main/resources/" + getYmlPath(file_findapplication);
         MPathInfo.setApplicationPath(version1_ymlconfig);
         List<File> pathList = getListFiles(new File(path + "src/main/java"));
         List<String> listPath = new ArrayList<>();
@@ -99,12 +99,17 @@ public class GetSourceCode {
     }
 
 
+    /**
+     * 判断文件是否是由restcontroller注解的对外提供rest接口的类
+     * @param file 文件
+     * @return true or false
+     */
     public static boolean ifController(File file) {
         CompilationUnit compilationUnit = null;
         try {
             compilationUnit = JavaParser.parse(file);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e);
         }
         String[] strings = file.toString().split("\\\\");
         String className = strings[strings.length - 1].split("\\.")[0];
@@ -121,8 +126,7 @@ public class GetSourceCode {
     }
 
     /**
-     * 遍历得到
-     *
+     * 遍历得到配置文件
      * @param file
      * @return
      */
@@ -146,6 +150,11 @@ public class GetSourceCode {
         return "";
     }
 
+    /**
+     * 得到一个文件夹下的所有文件
+     * @param directory 目录
+     * @return 文件
+     */
     public static List<File> getListFiles(File directory) {
         List<File> files = new ArrayList<>();
         if (directory.isFile()) {
@@ -172,12 +181,11 @@ public class GetSourceCode {
 
     /**
      * 遍历删除文件
-     *
      * @param file
      */
     public static void deleteFile(File file) {
         if (file == null || !file.exists()) {
-            System.out.println("文件删除失败,请检查文件路径是否正确");
+            logger.debug ("文件删除失败,请检查文件路径是否正确");
             return;
         }
         File[] files = file.listFiles();
@@ -191,15 +199,20 @@ public class GetSourceCode {
         file.delete();
     }
 
-    public static List<String> getAllTags(String url, String workplace, String projectname) {
-        deleteWorkplace(workplace);
-        String p = workplace + "/" + projectname;
+    /**
+     *
+     * @param url 仓库地址
+     * @param projectname 项目名称
+     * @return
+     */
+    public static List<String> getAllTags(String url, String projectname) {
+        deleteWorkplace(CODE_DIWNLOAD_PATH);
+        String p = CODE_DIWNLOAD_PATH + "/" + projectname;
         Git git = null;
         try {
             git = Git.cloneRepository().setURI(url).setDirectory(new File(p)).call();
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("url 地址错误");
+            logger.error(e);
         }
         git.close();
         return new ArrayList<>(git.getRepository().getTags().keySet());

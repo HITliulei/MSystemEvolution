@@ -11,6 +11,9 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.ll.service.bean.MPathInfo;
 import com.septemberhx.common.service.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -22,6 +25,8 @@ import java.util.*;
  */
 public class GetServiceInfo {
 
+    private static Logger logger = LogManager.getLogger(GetSourceCode.class);
+
     public static MService getMservice(String version, MPathInfo pathInfo) {
         MService mService = getConfig(pathInfo.getApplicationPath());
         MServiceVersion mServiceVersion = new MServiceVersion();
@@ -32,45 +37,44 @@ public class GetServiceInfo {
         mService.setServiceVersion(mServiceVersion);
         Map<String, MServiceInterface> map = new HashMap<>();
         for (String s : pathInfo.getControllerListPath()) {
-            map.putAll(getServiceInfo(s));
+            map.putAll(getServiceInfo(s,mService.getGitUrl()));
         }
         mService.setServiceInterfaceMap(map);
+        mService.setGitUrl(pathInfo.getGitUrl());
         return mService;
     }
 
     public static MService getConfig(String path) {
         String[] paths = path.split("\\.");
         if ("yml".equals(paths[paths.length - 1])) {
-            return getInfoFromyml(path);
+            try {
+                return getFromYml(new File(path));
+            } catch (IOException e) {
+               logger.error(e);
+               return null;
+            }
         } else {
             return getInfoFromproperties(path);
         }
     }
-
-    public static MService getInfoFromyml(String path) {
+    public static MService getFromYml(File source) throws IOException {
         MService mService = new MService();
-        Yaml yaml = new Yaml();
-        try {
-            FileInputStream fileInputStream = new FileInputStream(path);
-            Map obj = yaml.loadAs(fileInputStream, LinkedHashMap.class);
-            Map server = (Map) obj.get("server");
-            if (server.get("port") == null) {
-                mService.setPort(8080);
-            } else {
-                mService.setPort((int) server.get("port"));
-            }
-
-            // 这是什么？
-//            if (server.get("servlet") == null) {
-//                mService.setGitUrl("/");
-//            } else {
-//                mService.setGitUrl(((Map) server.get("servlet")).get("context-path").toString());
-//            }
-            Map spring = (Map) obj.get("spring");
-            mService.setServiceName(((Map) spring.get("application")).get("name").toString());
-        } catch (Exception e) {
-            e.printStackTrace();
+        DumperOptions OPTIONS = new DumperOptions();
+        Yaml yaml = new Yaml(OPTIONS);
+        Map obj = (Map) yaml.load(new FileReader(source));
+        Map server = (Map) obj.get("server");
+        if (server.get("port") == null) {
+            mService.setPort(8080);
+        } else {
+            mService.setPort((int) server.get("port"));
         }
+        if (server.get("servlet") == null) {
+            mService.setGitUrl("/");
+        } else {
+            mService.setGitUrl(((Map) server.get("servlet")).get("context-path").toString());
+        }
+        Map spring = (Map) obj.get("spring");
+        mService.setServiceName(((Map) spring.get("application")).get("name").toString());
         return mService;
     }
 
@@ -91,8 +95,10 @@ public class GetServiceInfo {
                 mService.setGitUrl(properties.getProperty("server.context-path"));
             }
         } catch (FileNotFoundException e) {
+            logger.error(e);
             e.printStackTrace();
         } catch (IOException e) {
+            logger.error(e);
             e.printStackTrace();
         }
         return mService;
@@ -104,59 +110,32 @@ public class GetServiceInfo {
      *
      * @return Service类，返回该类的信息
      */
-    public static Map<String, MServiceInterface> getServiceInfo(String codepath) {
+    public static Map<String, MServiceInterface> getServiceInfo(String codepath, String contextPath) {
+        Map<String, MServiceInterface> map = new HashMap<>();
         CompilationUnit compilationUnit = null;
         File file;
         try {
             file = new File(codepath);
             if (!file.exists()) {
-                System.out.println("源代码路径不对");
+                logger.debug ("源码路径错误");
             } else {
                 compilationUnit = JavaParser.parse(file);
             }
         } catch (Exception e) {
-            System.out.println("读取code路径失败");
+            logger.error(e);
             return null;
         }
         String[] strings = codepath.split("/");
         String className = strings[strings.length - 1].split("\\.")[0];
         ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
         NodeList<AnnotationExpr> annotations = c.getAnnotations();
-
         // 所有的基础路径
-        List<String> pathContexts = new ArrayList<>();
-        /*得到服务注释方面*/
-        Map<String, MServiceInterface> map = new HashMap<>();
-        for (AnnotationExpr annotationExpr : annotations) {
-            List<Node> childNodes = annotationExpr.getChildNodes();
-            String annoName = childNodes.get(0).toString();
-            if ("RequestMapping".equals(annoName)) {
-                // 在此得到路径信息
-                Node s = childNodes.get(1);
-                if (s.getChildNodes().size() == 0) {
-                    String h = s.toString();
-                    pathContexts.add(h.substring(1, h.length() - 1));
-                } else {
-                    Node node1 = s.getChildNodes().get(1);
-                    if (node1.getChildNodes().size() == 0) {
-                        String h = node1.toString();
-                        pathContexts.add(h.substring(1, h.length() - 1));
-                    } else {
-                        for (Node node : node1.getChildNodes()) {
-                            String h = node.toString();
-                            pathContexts.add(h.substring(1, h.length() - 1));
-                        }
-                    }
-                }
-            }
-        }
+        List<String> pathContexts = getContextPath(contextPath,annotations);
         if (pathContexts.size() == 0) {
             pathContexts.add("/");
         }
-
         /*得到interface方面*/
         List<MethodDeclaration> methodDeclarationList = c.getMethods();
-
         // 遍历每一个方法
         for (MethodDeclaration m : methodDeclarationList) {
             MServiceInterface mServiceInterface = new MServiceInterface();
@@ -208,11 +187,8 @@ public class GetServiceInfo {
                 }
                 for (String string1 : pathContexts) {
                     for (String string2 : pathContextsFunction) {
-                        if (!string1.contains("/")) {
-                            pathurl.add(string1 + "/" + string2);
-                        } else {
-                            pathurl.add(string1 + string2);
-                        }
+                        String p = string1 + string2;
+                        pathurl.add(p.replaceAll("/+","/"));
                     }
                 }
                 if ("RequestMapping".equals(annoName)) {
@@ -237,62 +213,9 @@ public class GetServiceInfo {
                 continue;
             }
             /*获取  接口层级的参数*/
-            NodeList<Parameter> parameters = m.getParameters();
-            List<MParamer> paramerList = new ArrayList<>();
-            for (Parameter parameter : parameters) {
-                MParamer paramer = new MParamer();
-                List<Node> childNodes = parameter.getChildNodes();
-                paramer.setName(childNodes.get(2).toString());
-                paramer.setType(childNodes.get(1).toString());
-                Node node = childNodes.get(0);
-                List<Node> annoInfo = node.getChildNodes();
-                String method = annoInfo.get(0).toString();
-                if ("RequestBody".equals(method)) {
-                    paramer.setMethod(method);
-                    paramer.setRequestname("实体类");
-                    paramer.setDefaultObject("");
-                } else {
-                    paramer.setMethod(method);
-                    String name = annoInfo.get(1).toString();
-                    if (annoInfo.size() == 2) {
-                        String trueName = name.trim().replace("\"", "");
-                        paramer.setRequestname(trueName);
-                        paramer.setDefaultObject("");
-                    } else {
-                        String trueName = name.split("=")[1].trim().replace("\"", "");
-                        String defauleValue = annoInfo.get(2).toString().split("=")[1].trim().replace("\"", "");
-                        paramer.setRequestname(trueName);
-                        paramer.setDefaultObject(defauleValue);
-                    }
-                }
-                paramerList.add(paramer);
-            }
-
-            // 遍历函数内部寻找 版本依赖的调用方法
-            BlockStmt blockStmt = m.getBody().get();
-            List<Node> nodes = blockStmt.getChildNodes();
-            List<MDependency> dependences = new ArrayList<>();
-            for (Node node : nodes) {
-                String string = node.toString();
-                if (string.contains("mSendRequest.sendRequest")) {
-                    MDependency mDependency = new MDependency();
-                    String[] s = string.substring(string.indexOf("mSendRequest.sendRequest(") + 25, string.indexOf(");")).split(",");
-                    String version = s[1].trim().replace("\"", "");
-                    MServiceVersion mServiceVersion = new MServiceVersion();
-                    String[] versions = version.split("\\.");
-                    mServiceVersion.setMainVersionNum(Integer.parseInt(versions[0]));
-                    mServiceVersion.setChildVersionNum(Integer.parseInt(versions[1]));
-                    mServiceVersion.setFixVersionNum(Integer.parseInt(versions[2]));
-                    String requst = s[0].trim().replace("\"", "");
-                    String requestService = requst.split("/")[3];
-                    List<MServiceVersion> list = new ArrayList<>();
-                    list.add(mServiceVersion);
-                    mDependency.setServiceName(requestService);
-                    mDependency.setPatternUrl(requst);
-                    mDependency.setVersions(list);
-                    dependences.add(mDependency);
-                }
-            }
+            List<MParamer> paramerList = getParamers(m.getParameters());
+            /* 遍历函数内部寻找 版本依赖的调用方法 */
+            List<MDependency> dependences  = getDependence(m.getBody().get());
             mServiceInterface.setParams(paramerList);
             mServiceInterface.setMDependencies(dependences);
             for (String string : pathurl) {
@@ -302,8 +225,93 @@ public class GetServiceInfo {
         }
         return map;
     }
-    public static void main(String[] args) {
-//        System.out.println(getServiceInfo("src/main/resources/workplace/com-hitices-multiversion-test_v1.0.0/src/main/java/com/hitices/multiversion/controller/UserController.java"));
-        System.out.println(getConfig("./workplace/com-hitices-multiversion-test_v1.0.3/src/main/resources/application.yml"));
+
+    public static List<String> getContextPath(String contextPath,NodeList<AnnotationExpr> annotations){
+        List<String> pathContexts = new ArrayList<>();
+        for (AnnotationExpr annotationExpr : annotations) {
+            List<Node> childNodes = annotationExpr.getChildNodes();
+            String annoName = childNodes.get(0).toString();
+            if ("RequestMapping".equals(annoName)) {
+                // 在此得到路径信息
+                Node s = childNodes.get(1);
+                if (s.getChildNodes().size() == 0) {
+                    String h = s.toString();
+                    pathContexts.add(contextPath+h.substring(1, h.length() - 1));
+                } else {
+                    Node node1 = s.getChildNodes().get(1);
+                    if (node1.getChildNodes().size() == 0) {
+                        String h = node1.toString();
+                        pathContexts.add(contextPath+h.substring(1, h.length() - 1));
+                    } else {
+                        for (Node node : node1.getChildNodes()) {
+                            String h = node.toString();
+                            pathContexts.add(contextPath+h.substring(1, h.length() - 1));
+                        }
+                    }
+                }
+            }
+        }
+        return pathContexts;
+    }
+
+    public static List<MParamer> getParamers(NodeList<Parameter> parameters){
+        List<MParamer> paramerList = new ArrayList<>();
+        for (Parameter parameter : parameters) {
+            MParamer paramer = new MParamer();
+            List<Node> childNodes = parameter.getChildNodes();
+            paramer.setName(childNodes.get(2).toString());
+            paramer.setType(childNodes.get(1).toString());
+            Node node = childNodes.get(0);
+            List<Node> annoInfo = node.getChildNodes();
+            String method = annoInfo.get(0).toString();
+            if ("RequestBody".equals(method)) {
+                paramer.setMethod(method);
+                paramer.setRequestname("实体类");
+                paramer.setDefaultObject("");
+            } else {
+                paramer.setMethod(method);
+                String name = annoInfo.get(1).toString();
+                if (annoInfo.size() == 2) {
+                    String trueName = name.trim().replace("\"", "");
+                    paramer.setRequestname(trueName);
+                    paramer.setDefaultObject("");
+                } else {
+                    String trueName = name.split("=")[1].trim().replace("\"", "");
+                    String defauleValue = annoInfo.get(2).toString().split("=")[1].trim().replace("\"", "");
+                    paramer.setRequestname(trueName);
+                    paramer.setDefaultObject(defauleValue);
+                }
+            }
+            paramerList.add(paramer);
+        }
+        return paramerList;
+    }
+
+
+    public static List<MDependency> getDependence(BlockStmt blockStmt){
+        List<Node> nodes = blockStmt.getChildNodes();
+        List<MDependency> dependences = new ArrayList<>();
+        for (Node node : nodes) {
+            String string = node.toString();
+            if (string.contains("mSendRequest.sendRequest")) {
+                MDependency mDependency = new MDependency();
+                String[] s = string.substring(string.indexOf("mSendRequest.sendRequest(") + 25, string.indexOf(");")).split(",");
+                String version = s[1].trim().replace("\"", "");
+                MServiceVersion mServiceVersion = new MServiceVersion();
+                String[] versions = version.split("\\.");
+                mServiceVersion.setMainVersionNum(Integer.parseInt(versions[0]));
+                mServiceVersion.setChildVersionNum(Integer.parseInt(versions[1]));
+                mServiceVersion.setFixVersionNum(Integer.parseInt(versions[2]));
+                String requst = s[0].trim().replace("\"", "");
+                String requestService = requst.split("/")[3];
+                List<MServiceVersion> list = new ArrayList<>();
+                list.add(mServiceVersion);
+                mDependency.setServiceName(requestService);
+                mDependency.setPatternUrl(requst);
+                mDependency.setVersions(list);
+                dependences.add(mDependency);
+            }
+        }
+        return dependences;
     }
 }
