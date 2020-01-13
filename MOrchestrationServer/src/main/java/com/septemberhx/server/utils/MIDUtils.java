@@ -1,6 +1,7 @@
 package com.septemberhx.server.utils;
 
 import com.septemberhx.server.job.MJobType;
+import org.apache.commons.lang.RandomStringUtils;
 
 /**
  * @author SeptemberHX
@@ -21,5 +22,9 @@ public class MIDUtils {
         }
 
         return String.format("%s_%s_%s", jobType.toString(), MIDUtils.lastJobIdTimeMills, MIDUtils.jobCountEachMill);
+    }
+
+    public static String uniqueInterfaceId(String serviceName, String interfaceName) {
+        return String.format("%s_%s_%s", serviceName, interfaceName, RandomStringUtils.randomAlphanumeric(6));
     }
 }

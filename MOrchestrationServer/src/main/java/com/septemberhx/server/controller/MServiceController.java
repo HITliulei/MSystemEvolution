@@ -4,10 +4,12 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.server.MServiceAnalyzeResultBean;
 import com.septemberhx.common.bean.server.MServiceRegisterBean;
 import com.septemberhx.common.service.MService;
+import com.septemberhx.common.service.MServiceInterface;
 import com.septemberhx.server.client.MAnalyzerClient;
 import com.septemberhx.server.job.MBuildJob;
 import com.septemberhx.server.job.MJobExecutor;
 import com.septemberhx.server.model.MServerSkeleton;
+import com.septemberhx.server.utils.MIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,6 +46,9 @@ public class MServiceController {
         // step 2, if the image url doesn't exist, build it.
         for (MService service : serviceList) {
             service.setId(service.getServiceName());
+            for (MServiceInterface serviceInterface : service.getServiceInterfaceMap().values()) {
+                serviceInterface.setId(MIDUtils.uniqueInterfaceId(service.getServiceName(), serviceInterface.getFunctionName()));
+            }
 
             // construct the build job and execute it
             MBuildJob buildJob = new MBuildJob(
