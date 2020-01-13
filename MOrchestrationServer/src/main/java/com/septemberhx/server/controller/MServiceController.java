@@ -48,6 +48,7 @@ public class MServiceController {
             service.setId(service.getServiceName());
             for (MServiceInterface serviceInterface : service.getServiceInterfaceMap().values()) {
                 serviceInterface.setId(MIDUtils.uniqueInterfaceId(service.getServiceName(), serviceInterface.getFunctionName()));
+                serviceInterface.setServiceId(service.getId());
             }
 
             // construct the build job and execute it
