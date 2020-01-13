@@ -60,6 +60,13 @@ public class MInterfaceDao {
     }
 
     public static MInterfaceDao fromDto(MServiceInterface serviceInterface) {
+        String featureName = null;
+        Integer slaLevel = null;
+        if (serviceInterface.getFuncDescription() != null) {
+            featureName = serviceInterface.getFuncDescription().getFeatureName();
+            slaLevel = serviceInterface.getFuncDescription().getSlaLevel();
+        }
+
         return new MInterfaceDao(
             serviceInterface.getId(),
             serviceInterface.getPatternUrl(),
@@ -67,8 +74,8 @@ public class MInterfaceDao {
             serviceInterface.getRequestMethod(),
             serviceInterface.getReturnType(),
             serviceInterface.getServiceId(),
-            serviceInterface.getFuncDescription().getFeatureName(),
-            serviceInterface.getFuncDescription().getSlaLevel()
+            featureName,
+            slaLevel
         );
     }
 
