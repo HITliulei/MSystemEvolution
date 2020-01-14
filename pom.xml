@@ -16,6 +16,7 @@
         <module>MClientFramework</module>
         <module>MClusterAgent</module>
         <module>MEurekaServer</module>
+        <module>MInfoCollector</module>
     </modules>
 
     <properties>
