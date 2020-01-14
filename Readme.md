@@ -14,6 +14,10 @@
 * `MServiceAnalyser`：从源码层面解析一个微服务项目，来自动获取微服务相关信息
 * `MInfoCollector`：收集该节点上的日志信息，并发送给 logstash
 
+## 边缘的日志收集
+
+![](./pic/structure.png)
+
 ## 使用
 
 1. 部署 `MEurekaServer`
