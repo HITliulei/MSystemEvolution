@@ -1,6 +1,9 @@
 # MSystemEvolution
 
-[![警报](http://192.168.1.102:30900/api/project_badges/measure?project=com.septemberhx%3AMSystemEvolution&metric=alert_status)](http://192.168.1.102:30900/dashboard?id=com.septemberhx%3AMSystemEvolution)
+[![警报](http://10.11.1.102:30900/api/project_badges/measure?project=com.septemberhx%3AMSystemEvolution&metric=alert_status)](http://192.168.1.102:30900/dashboard?id=com.septemberhx%3AMSystemEvolution)
+[![Bugs](http://10.11.1.102:30900/api/project_badges/measure?project=com.septemberhx%3AMSystemEvolution&metric=bugs)](http://10.111.1.102:30900/dashboard?id=com.septemberhx%3AMSystemEvolution)
+[![异味](http://10.11.1.102:30900/api/project_badges/measure?project=com.septemberhx%3AMSystemEvolution&metric=code_smells)](http://10.111.1.102:30900/dashboard?id=com.septemberhx%3AMSystemEvolution)
+[![SQALE评级](http://10.11.1.102:30900/api/project_badges/measure?project=com.septemberhx%3AMSystemEvolution&metric=sqale_rating)](http://10.111.1.102:30900/dashboard?id=com.septemberhx%3AMSystemEvolution)
 
 自适应演化的微服务系统，目标是提供一套完整的编程框架以及微服务系统，让整个微服务系统能够自动遵循 MAPE-K 模型，对整个服务系统进行 Monitor，Analyze，Plan 以及 Execute，进而让整个系统具备针对用户需求变化的自适应能力，以维持 QoS 稳定。
 
