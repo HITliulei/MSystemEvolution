@@ -12,6 +12,9 @@ public class MIDUtils {
     private static Long lastJobIdTimeMills = 0L;
     private static int jobCountEachMill = 0;
 
+    private static Long lastInstanceIdTimeMills = 0L;
+    private static int instanceCountEachMill = 0;
+
     public static synchronized String uniqueJobId(MJobType jobType) {
         long currTimeMills = System.currentTimeMillis();
         if (currTimeMills != lastJobIdTimeMills) {
@@ -26,5 +29,18 @@ public class MIDUtils {
 
     public static String uniqueInterfaceId(String serviceName, String interfaceName) {
         return String.format("%s_%s_%s", serviceName, interfaceName, RandomStringUtils.randomAlphanumeric(6));
+    }
+
+    public static synchronized String uniqueInstanceId(String serviceName, String version) {
+        long currTimeMills = System.currentTimeMillis();
+        if (currTimeMills != lastInstanceIdTimeMills) {
+            MIDUtils.instanceCountEachMill = 0;
+            MIDUtils.lastInstanceIdTimeMills = currTimeMills;
+        } else {
+            ++MIDUtils.instanceCountEachMill;
+        }
+
+        return String.format(
+                "%s-%s-%s-%s", serviceName, version, MIDUtils.lastJobIdTimeMills, MIDUtils.instanceCountEachMill);
     }
 }

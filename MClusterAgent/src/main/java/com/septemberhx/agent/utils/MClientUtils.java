@@ -42,6 +42,9 @@ public class MClientUtils {
     @Value("${mclientagent.server.port}")
     private Integer serverPort;
 
+    @Value("${mclientagent.cluster}")
+    private String clusterId;
+
     private static MDockerManager dockerManager = new MDockerManagerK8SImpl();
     private Map<String, MDeployPodRequest> podDuringDeploying = new HashMap<>();  // deployed but not running
     private static Logger logger = LogManager.getLogger(MClientUtils.class);
@@ -155,7 +158,7 @@ public class MClientUtils {
             return null;
         }
 
-        instanceInfoBean.setId(instanceInfo.getId());
+        instanceInfoBean.setRegistryId(instanceInfo.getId());
         instanceInfoBean.setIp(instanceInfo.getIPAddr());
 
         int instancePort = instanceInfo.getPort();
@@ -182,6 +185,9 @@ public class MClientUtils {
             return instanceInfoBean;
         }
         instanceInfoBean.setDockerInfo(dockerManager.getDockerInfoByIpAddr(instanceInfo.getIPAddr()));
+
+        instanceInfoBean.setClusterId(this.clusterId);
+        instanceInfoBean.setServiceName(instanceInfo.getAppName());
         return instanceInfoBean;
     }
 

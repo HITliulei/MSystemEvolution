@@ -15,9 +15,12 @@ import java.util.*;
 @Getter
 @Setter
 public class MInstanceInfoBean {
-    private String id;
+    private String registryId;          // Unique id that the register server assigns to it
     private String ip;
     private int port;
+    private String clusterId;
+    private String version;
+    private String serviceName;
     /**
      * to build the topology
      */
@@ -29,9 +32,12 @@ public class MInstanceInfoBean {
     @Override
     public String toString() {
         return "MInstanceInfoBean{" +
-                "id='" + id + '\'' +
+                "registryId='" + registryId + '\'' +
                 ", ip='" + ip + '\'' +
                 ", port=" + port +
+                ", clusterId='" + clusterId + '\'' +
+                ", version='" + version + '\'' +
+                ", serviceName='" + serviceName + '\'' +
                 ", parentIdMap=" + parentIdMap +
                 ", apiMap=" + apiMap +
                 ", mObjectIdMap=" + mObjectIdMap +
@@ -45,7 +51,10 @@ public class MInstanceInfoBean {
         if (o == null || getClass() != o.getClass()) return false;
         MInstanceInfoBean infoBean = (MInstanceInfoBean) o;
 
-        if (!Objects.equals(this.id, infoBean.id) || !Objects.equals(this.ip, infoBean.ip) || !Objects.equals(this.port, infoBean.port)) return false;
+        if (!Objects.equals(this.registryId, infoBean.registryId) || !Objects.equals(this.ip, infoBean.ip)
+                || !Objects.equals(this.port, infoBean.port) || !Objects.equals(this.clusterId, infoBean.clusterId)
+                || !Objects.equals(this.serviceName, infoBean.serviceName))
+            return false;
 
         if (this.parentIdMap.size() != infoBean.parentIdMap.size()) return false;
         if (!this.parentIdMap.keySet().containsAll(infoBean.parentIdMap.keySet())) return false;

@@ -11,7 +11,7 @@ import java.util.Objects;
 @ToString
 public class MDockerInfoBean {
     private String hostIp;
-    private String instanceId;
+    private String instanceId;      // instance id that k8s assigns to it
 
     @Override
     public boolean equals(Object o) {

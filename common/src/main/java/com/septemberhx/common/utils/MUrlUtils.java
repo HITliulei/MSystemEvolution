@@ -51,7 +51,7 @@ public class MUrlUtils {
     }
 
     public static URI getMServerLoadInstanceInfoUri(String serverIpAddr, int serverPort) {
-        return MUrlUtils.getRemoteUri(serverIpAddr, serverPort, MClusterConfig.MSERVER_LOAD_INSTANCEINFO);
+        return MUrlUtils.getRemoteUri(serverIpAddr, serverPort, MClusterConfig.MSERVER_CLUSTER_REPORT_INSTANCEINFO);
     }
 
     public static URI getBuildCenterBuildUri(String buildCenterIpAddr, int buildCenterPort) {

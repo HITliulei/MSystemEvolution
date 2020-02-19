@@ -46,4 +46,13 @@ public class MServiceManager extends MUniqueObjectManager<MService> {
             serviceOptional.get().setImageUrl(imageUrl);
         }
     }
+
+    public Optional<MService> getByServiceNameAndVersion(String serviceName, String version) {
+        for (MService service : this.objectMap.values()) {
+            if (service.getServiceName().equals(serviceName) && service.getServiceVersion().toString().equals(version)) {
+                return Optional.of(service);
+            }
+        }
+        return Optional.empty();
+    }
 }

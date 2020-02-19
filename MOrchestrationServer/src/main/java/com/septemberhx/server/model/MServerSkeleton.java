@@ -1,7 +1,14 @@
 package com.septemberhx.server.model;
 
+import com.septemberhx.common.base.node.MServerNode;
+import com.septemberhx.common.bean.agent.MInstanceInfoBean;
+import com.septemberhx.common.service.MService;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Optional;
 
 /**
  * @author SeptemberHX
@@ -12,9 +19,14 @@ public class MServerSkeleton {
 
     @Getter
     @Setter
-    private MSystemModel currSystemModel;
+    private MSystemModel currSystemModel;       // record current info about the system
+
+    @Getter
+    @Setter
+    private MSystemModel nextSystemModel;       // record the system info after evolution
 
     private static volatile MServerSkeleton instance;
+    private static Logger logger = LogManager.getLogger(MServerSkeleton.class);
 
     private MServerSkeleton() {
         this.currSystemModel = new MSystemModel();
@@ -31,8 +43,70 @@ public class MServerSkeleton {
         return instance;
     }
 
+    public void syncInstanceInfo(MInstanceInfoBean instanceInfo) {
+        String nodeId = null;
+        if (instanceInfo.getDockerInfo() != null) {
+            MServerNode node = MServerSkeleton.getCurrNodeManager().getByIp(
+                    instanceInfo.getClusterId(), instanceInfo.getDockerInfo().getHostIp());
+            if (node != null) {
+                nodeId = node.getId();
+            }
+
+            // check if the instance is alive. The mObjectIdMap will not be null if alive
+            String containerInstanceId = instanceInfo.getDockerInfo().getInstanceId();
+            if (instanceInfo.getMObjectIdMap() != null) {
+                MServiceInstance instance = new MServiceInstance(
+                        instanceInfo.getParentIdMap(),
+                        instanceInfo.getClusterId(),
+                        nodeId,
+                        instanceInfo.getIp(),
+                        instanceInfo.getPort(),
+                        containerInstanceId,
+                        instanceInfo.getMObjectIdMap(),
+                        "",
+                        "",
+                        instanceInfo.getRegistryId(),
+                        instanceInfo.getVersion()
+                );
+
+                // get actual serviceId of the service instance
+                Optional<MServiceInstance> instanceOptional = MServerSkeleton.getNextInstManager().getById(containerInstanceId);
+                if (instanceOptional.isPresent()) {
+                    MServiceInstance currInstance = instanceOptional.get();
+                    instance.setServiceId(currInstance.getServiceId());
+                    instance.setServiceName(currInstance.getServiceName());
+                } else {  // this means the instance was created in before running. We have to get the real serviceId of it
+                    Optional<MService> serviceOptional = MServerSkeleton.getCurrSvcManager().getByServiceNameAndVersion(
+                            instanceInfo.getServiceName(), instanceInfo.getVersion());
+                    if (serviceOptional.isPresent()) {
+                        instance.setServiceName(serviceOptional.get().getServiceName());
+                        instance.setServiceId(serviceOptional.get().getId());
+                    } else {
+                        return;  // if we can't recognise the service, then ignore it
+                    }
+                }
+
+                MServerSkeleton.getCurrInstManager().update(instance);
+            }
+        } else {
+            Optional<MServiceInstance> instanceOptional = MServerSkeleton.getCurrInstManager().getByClusterIdAndRegistryId(
+                    instanceInfo.getClusterId(), instanceInfo.getRegistryId()
+            );
+            if (instanceOptional.isPresent()){
+                // remove the useless info when the instance is dead
+                String containerInstanceId = instanceOptional.get().getId();
+                MServerSkeleton.getCurrInstManager().remove(containerInstanceId);
+                logger.info(String.format("Instance %s is deleted due to empty docker info", containerInstanceId));
+            }
+        }
+    }
+
     public static MServiceManager getCurrSvcManager() {
         return MServerSkeleton.getInstance().getCurrSystemModel().getServiceManager();
+    }
+
+    public static MServiceManager getNextSvcManager() {
+        return MServerSkeleton.getInstance().getNextSystemModel().getServiceManager();
     }
 
     public static MJobManager getCurrJobManager() {
@@ -41,5 +115,13 @@ public class MServerSkeleton {
 
     public static MClusterManager getCurrNodeManager() {
         return MServerSkeleton.getInstance().getCurrSystemModel().getNodeManager();
+    }
+
+    public static MServiceInstanceManager getCurrInstManager() {
+        return MServerSkeleton.getInstance().getCurrSystemModel().getInstanceManager();
+    }
+
+    public static MServiceInstanceManager getNextInstManager() {
+        return MServerSkeleton.getInstance().getNextSystemModel().getInstanceManager();
     }
 }

@@ -34,7 +34,6 @@ public class MClusterConfig {
 
     public final static String MCLUSTERAGENT_FETCH_CLIENT_INFO = "/mclient/info";
     public final static String MSERVER_GET_REMOTE_URI = "/mserver/remoteuri";
-    public final static String MSERVER_LOAD_INSTANCEINFO = "/mserver/loadInstanceInfo";
     public final static String MSERVER_JOB_NOTIFY_URI = "/mserver/notifyJob";
     public final static String MSERVER_DEPLOY_JOB_NOTIFY_URI = "/mserver/notifyDeployJob";
     public final static String MSERVER_FETCH_REQUEST_URL = "/mserver/fetchRequestUrl";
@@ -65,6 +64,9 @@ public class MClusterConfig {
     public final static String ANALYZE_ANALYZE_URI = "/analyzer";
     public final static String ANALYZE_COMPARE_URI = "/compare";
 
+    // --- new version ---
+    public final static String MSERVER_CLUSTER_REPORT_INSTANCEINFO = "/cluster/reportInstanceInfo";
+    public final static String MSERVER_CLUSTER_REGISTER = "/cluster/registerCluster";
 
     private static MClusterConfig ourInstance = new MClusterConfig();
 

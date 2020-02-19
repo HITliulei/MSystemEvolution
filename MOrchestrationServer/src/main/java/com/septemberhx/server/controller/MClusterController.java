@@ -1,9 +1,13 @@
 package com.septemberhx.server.controller;
 
+import com.septemberhx.common.bean.agent.MInstanceInfoBean;
 import com.septemberhx.server.bean.MConnectionJson;
 import com.septemberhx.server.bean.MRegisterClusterBean;
 import com.septemberhx.server.model.MServerSkeleton;
+import com.septemberhx.server.utils.MServiceUtils;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author SeptemberHX
@@ -13,11 +17,12 @@ import org.springframework.web.bind.annotation.*;
  * The controller used for accepting system information like edge servers and so on.
  */
 @RestController
+@RequestMapping(value = "/cluster")
 public class MClusterController {
 
     /**
      * Reset the node information and init the current node manager with the new one
-     * @param nodesBean
+     * @param clusterBean
      */
     @PostMapping(path = "/registerCluster")
     public void registerCluster(@RequestBody MRegisterClusterBean clusterBean) {
@@ -32,6 +37,15 @@ public class MClusterController {
                     connection.getSuccessor()
             );
         }
-        // todo: do something if a new cluster attaches to the system
+        // do something if a new cluster attaches to the system, i.e., sync the instance info with the cluster
+        List<MInstanceInfoBean> beanList = MServiceUtils.getInstanceInfoListByClusterId(clusterBean.getServerCluster().getId());
+        for (MInstanceInfoBean infoBean : beanList) {
+            this.loadInstanceInfo(infoBean);
+        }
+    }
+
+    @RequestMapping(path = "/reportInstanceInfo", method = RequestMethod.POST)
+    public void loadInstanceInfo(@RequestBody MInstanceInfoBean instanceInfo) {
+        MServerSkeleton.getInstance().syncInstanceInfo(instanceInfo);
     }
 }

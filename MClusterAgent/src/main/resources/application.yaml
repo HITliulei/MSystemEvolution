@@ -19,3 +19,4 @@ mclientagent:
   elasticsearch:
     ip: 192.168.1.102
     port: 4000
+  cluster: cluster-01

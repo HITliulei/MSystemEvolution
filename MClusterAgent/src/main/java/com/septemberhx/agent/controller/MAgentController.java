@@ -188,7 +188,7 @@ public class MAgentController {
     }
 
     synchronized private boolean checkIfInstanceInfoHasSend(MInstanceInfoBean infoBean) {
-        return instanceInfoBeanMap.containsKey(infoBean.getId()) && instanceInfoBeanMap.get(infoBean.getId()).equals(infoBean);
+        return instanceInfoBeanMap.containsKey(infoBean.getRegistryId()) && instanceInfoBeanMap.get(infoBean.getRegistryId()).equals(infoBean);
     }
 
     synchronized private void recordInstanceInfo(MInstanceInfoBean infoBean) {
@@ -196,6 +196,6 @@ public class MAgentController {
             instanceInfoBeanMap.clear();
         }
 
-        instanceInfoBeanMap.put(infoBean.getId(), infoBean);
+        instanceInfoBeanMap.put(infoBean.getRegistryId(), infoBean);
     }
 }
