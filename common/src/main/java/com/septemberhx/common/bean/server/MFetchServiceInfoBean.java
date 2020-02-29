@@ -1,6 +1,6 @@
 package com.septemberhx.common.bean.server;
 
-import com.septemberhx.common.service.MServiceVersion;
+import com.septemberhx.common.service.MSvcVersion;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -24,7 +24,7 @@ public class MFetchServiceInfoBean {
     /**
      * target version
      **/
-    private MServiceVersion version;
+    private MSvcVersion version;
 
     /**
      * Since the analyser takes some time to analyse the source code,

@@ -1,7 +1,7 @@
 package com.septemberhx.server.dao;
 
 import com.septemberhx.common.service.MService;
-import com.septemberhx.common.service.MServiceVersion;
+import com.septemberhx.common.service.MSvcVersion;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -68,7 +68,7 @@ public class MServiceDao {
         MService service = new MService();
         service.setId(this.serviceId);
         service.setServiceName(this.serviceName);
-        service.setServiceVersion(MServiceVersion.fromStr(this.serviceVersion));
+        service.setServiceVersion(MSvcVersion.fromStr(this.serviceVersion));
         service.setImageUrl(this.serviceImage);
         service.setPort(this.port);
         service.setGitUrl(this.git);

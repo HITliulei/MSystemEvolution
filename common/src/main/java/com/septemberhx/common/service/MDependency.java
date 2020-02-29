@@ -15,5 +15,5 @@ import java.util.List;
 public class MDependency {
     private String serviceName;
     private String patternUrl;
-    private List<MServiceVersion> versions;
+    private List<MSvcVersion> versions;
 }

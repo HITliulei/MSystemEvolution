@@ -1,7 +1,7 @@
 package com.septemberhx.server.dao;
 
 import com.septemberhx.common.service.MFuncDescription;
-import com.septemberhx.common.service.MServiceInterface;
+import com.septemberhx.common.service.MSvcInterface;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -59,12 +59,12 @@ public class MInterfaceDao {
         return Objects.hash(id, patternUrl, requestMethod, returnType, serviceId, functionName, featureName, slaLevel);
     }
 
-    public static MInterfaceDao fromDto(MServiceInterface serviceInterface) {
+    public static MInterfaceDao fromDto(MSvcInterface serviceInterface) {
         String featureName = null;
         Integer slaLevel = null;
         if (serviceInterface.getFuncDescription() != null) {
-            featureName = serviceInterface.getFuncDescription().getFeatureName();
-            slaLevel = serviceInterface.getFuncDescription().getSlaLevel();
+            featureName = serviceInterface.getFuncDescription().getFunc().getFunctionName();
+            slaLevel = serviceInterface.getFuncDescription().getSla().getLevel();
         }
 
         return new MInterfaceDao(
@@ -79,8 +79,8 @@ public class MInterfaceDao {
         );
     }
 
-    public MServiceInterface toDto() {
-        MServiceInterface serviceInterface = new MServiceInterface();
+    public MSvcInterface toDto() {
+        MSvcInterface serviceInterface = new MSvcInterface();
         serviceInterface.setId(this.id);
         serviceInterface.setPatternUrl(this.patternUrl);
         serviceInterface.setFunctionName(this.functionName);
@@ -88,9 +88,7 @@ public class MInterfaceDao {
         serviceInterface.setReturnType(this.returnType);
         serviceInterface.setServiceId(this.serviceId);
 
-        MFuncDescription funcDescription = new MFuncDescription();
-        funcDescription.setFeatureName(this.featureName);
-        funcDescription.setSlaLevel(this.slaLevel);
+        MFuncDescription funcDescription = new MFuncDescription(this.featureName, this.slaLevel);
         serviceInterface.setFuncDescription(funcDescription);
 
         return serviceInterface;

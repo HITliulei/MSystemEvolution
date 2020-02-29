@@ -22,11 +22,11 @@ public class MService extends MUniqueObject {
      * For two services, they can have the same service name with different version.
      */
     private String serviceName;
-    private MServiceVersion serviceVersion;
+    private MSvcVersion serviceVersion;
     private String gitUrl;
     private int port;
     private String imageUrl;
-    private Map<String, MServiceInterface> serviceInterfaceMap;
+    private Map<String, MSvcInterface> serviceInterfaceMap;
 
     @Override
     public boolean equals(Object o) {

@@ -4,7 +4,7 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.server.MServiceAnalyzeResultBean;
 import com.septemberhx.common.bean.server.MServiceRegisterBean;
 import com.septemberhx.common.service.MService;
-import com.septemberhx.common.service.MServiceInterface;
+import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.server.client.MAnalyzerClient;
 import com.septemberhx.server.job.MBuildJob;
 import com.septemberhx.server.job.MJobExecutor;
@@ -46,7 +46,7 @@ public class MServiceController {
         // step 2, if the image url doesn't exist, build it.
         for (MService service : serviceList) {
             service.setId(service.getServiceName());
-            for (MServiceInterface serviceInterface : service.getServiceInterfaceMap().values()) {
+            for (MSvcInterface serviceInterface : service.getServiceInterfaceMap().values()) {
                 serviceInterface.setId(MIDUtils.uniqueInterfaceId(service.getServiceName(), serviceInterface.getFunctionName()));
                 serviceInterface.setServiceId(service.getId());
             }

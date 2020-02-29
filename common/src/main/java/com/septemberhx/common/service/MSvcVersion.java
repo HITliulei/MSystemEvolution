@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 @Getter
 @Setter
-public class MServiceVersion {
+public class MSvcVersion {
 
     private int mainVersionNum;
     private int childVersionNum;
@@ -25,19 +25,19 @@ public class MServiceVersion {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MServiceVersion that = (MServiceVersion) o;
+        MSvcVersion that = (MSvcVersion) o;
         return mainVersionNum == that.mainVersionNum &&
                 childVersionNum == that.childVersionNum &&
                 fixVersionNum == that.fixVersionNum;
     }
 
-    public static MServiceVersion fromStr(String versionStr) {
+    public static MSvcVersion fromStr(String versionStr) {
         String[] numArr = versionStr.split("\\.");
         if (numArr.length != 3) {
             throw new RuntimeException("Illegal version: " + versionStr);
         }
 
-        MServiceVersion version = new MServiceVersion();
+        MSvcVersion version = new MSvcVersion();
         try {
             version.setMainVersionNum(Integer.valueOf(numArr[0]));
             version.setChildVersionNum(Integer.valueOf(numArr[1]));

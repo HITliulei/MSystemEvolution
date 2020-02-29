@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  * @date 2020/1/6
  */
 public class MIDUtilsTest {
-    @Test
+//    @Test
     public void uniqueJobId() {
         Set<String> uniqueJobIdSet = new HashSet<>();
         for (int i = 0; i < 10000; ++i) {

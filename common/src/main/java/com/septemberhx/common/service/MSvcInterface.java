@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -17,7 +16,7 @@ import java.util.Objects;
 @Getter
 @Setter
 @ToString
-public class MServiceInterface extends MUniqueObject {
+public class MSvcInterface extends MUniqueObject {
     private String patternUrl;
     private MFuncDescription funcDescription;
     private String functionName;
@@ -31,7 +30,7 @@ public class MServiceInterface extends MUniqueObject {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MServiceInterface that = (MServiceInterface) o;
+        MSvcInterface that = (MSvcInterface) o;
 
         if (this.params.size() != that.params.size()) return false;
         for (int i = 0; i < this.params.size(); ++i) {

@@ -11,16 +11,19 @@ import java.util.Objects;
  * @date 2019/12/13
  */
 @Getter
-@Setter
 public class MFuncDescription {
 
-    private String featureName;
+    private MFunc func;
 
     /*
      * We can change the sla definition in the future
      */
-    private int slaLevel;
+    private MSla sla;
 
+    public MFuncDescription(String func, int sla) {
+        this.func = new MFunc(func);
+        this.sla = new MSla(sla);
+    }
 
     /**
      * Check whether this function can satisfy demand
@@ -39,12 +42,12 @@ public class MFuncDescription {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MFuncDescription that = (MFuncDescription) o;
-        return slaLevel == that.slaLevel &&
-                Objects.equals(featureName, that.featureName);
+        return func.equals(that.func) &&
+                sla.equals(that.sla);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(featureName, slaLevel);
+        return Objects.hash(func, sla);
     }
 }

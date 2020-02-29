@@ -29,13 +29,13 @@ public class GetServiceInfo {
 
     public static MService getMservice(String version, MPathInfo pathInfo) {
         MService mService = getConfig(pathInfo.getApplicationPath());
-        MServiceVersion mServiceVersion = new MServiceVersion();
+        MSvcVersion mSvcVersion = new MSvcVersion();
         String[] versions = version.replaceAll("[a-zA-Z]", "").split("\\.");
-        mServiceVersion.setMainVersionNum(Integer.parseInt(versions[0]));
-        mServiceVersion.setChildVersionNum(Integer.parseInt(versions[1]));
-        mServiceVersion.setFixVersionNum(Integer.parseInt(versions[2]));
-        mService.setServiceVersion(mServiceVersion);
-        Map<String, MServiceInterface> map = new HashMap<>();
+        mSvcVersion.setMainVersionNum(Integer.parseInt(versions[0]));
+        mSvcVersion.setChildVersionNum(Integer.parseInt(versions[1]));
+        mSvcVersion.setFixVersionNum(Integer.parseInt(versions[2]));
+        mService.setServiceVersion(mSvcVersion);
+        Map<String, MSvcInterface> map = new HashMap<>();
         for (String s : pathInfo.getControllerListPath()) {
             map.putAll(getServiceInfo(s,mService.getGitUrl()));
         }
@@ -110,8 +110,8 @@ public class GetServiceInfo {
      *
      * @return Service类，返回该类的信息
      */
-    public static Map<String, MServiceInterface> getServiceInfo(String codepath, String contextPath) {
-        Map<String, MServiceInterface> map = new HashMap<>();
+    public static Map<String, MSvcInterface> getServiceInfo(String codepath, String contextPath) {
+        Map<String, MSvcInterface> map = new HashMap<>();
         CompilationUnit compilationUnit = null;
         File file;
         try {
@@ -138,9 +138,9 @@ public class GetServiceInfo {
         List<MethodDeclaration> methodDeclarationList = c.getMethods();
         // 遍历每一个方法
         for (MethodDeclaration m : methodDeclarationList) {
-            MServiceInterface mServiceInterface = new MServiceInterface();
-            mServiceInterface.setFunctionName(m.getName().toString());
-            mServiceInterface.setReturnType(m.getType().toString());
+            MSvcInterface mSvcInterface = new MSvcInterface();
+            mSvcInterface.setFunctionName(m.getName().toString());
+            mSvcInterface.setReturnType(m.getType().toString());
             List<String> pathurl = new ArrayList<>();
             NodeList<AnnotationExpr> anno = m.getAnnotations();
             List<String> pathContextsFunction = new ArrayList<>();
@@ -179,10 +179,8 @@ public class GetServiceInfo {
                         functionDescribtion = childNodes.get(1).getChildNodes().get(1).toString();
                         lavael = Integer.parseInt(childNodes.get(2).getChildNodes().get(1).toString());
                     }
-                    MFuncDescription mFuncDescription = new MFuncDescription();
-                    mFuncDescription.setFeatureName(functionDescribtion);
-                    mFuncDescription.setSlaLevel(lavael);
-                    mServiceInterface.setFuncDescription(mFuncDescription);
+                    MFuncDescription mFuncDescription = new MFuncDescription(functionDescribtion, lavael);
+                    mSvcInterface.setFuncDescription(mFuncDescription);
                     continue;
                 }
                 for (String string1 : pathContexts) {
@@ -193,20 +191,20 @@ public class GetServiceInfo {
                 }
                 if ("RequestMapping".equals(annoName)) {
                     if (childNodes.size() == 2) {
-                        mServiceInterface.setRequestMethod("RequestMethod");
+                        mSvcInterface.setRequestMethod("RequestMethod");
                     } else {
                         String[] requestmethods = childNodes.get(2).toString().split("=");
                         String requestmethod = requestmethods[1].trim();
-                        mServiceInterface.setRequestMethod(requestmethod);
+                        mSvcInterface.setRequestMethod(requestmethod);
                     }
                 } else if ("GetMapping".equals(annoName)) {
-                    mServiceInterface.setRequestMethod(" RequestMethod.GET");
+                    mSvcInterface.setRequestMethod(" RequestMethod.GET");
                 } else if ("PostMapping".equals(annoName)) {
-                    mServiceInterface.setRequestMethod(" RequestMethod.POST");
+                    mSvcInterface.setRequestMethod(" RequestMethod.POST");
                 } else if ("DeleteMapping".equals(annoName)) {
-                    mServiceInterface.setRequestMethod("RequestMethod.DELETE");
+                    mSvcInterface.setRequestMethod("RequestMethod.DELETE");
                 } else if ("PutMapping".equals(annoName)) {
-                    mServiceInterface.setRequestMethod("RequestMethod.PUT");
+                    mSvcInterface.setRequestMethod("RequestMethod.PUT");
                 }
             }
             if (pathurl.size() == 0) {
@@ -216,11 +214,11 @@ public class GetServiceInfo {
             List<MParamer> paramerList = getParamers(m.getParameters());
             /* 遍历函数内部寻找 版本依赖的调用方法 */
             List<MDependency> dependences  = getDependence(m.getBody().get());
-            mServiceInterface.setParams(paramerList);
-            mServiceInterface.setMDependencies(dependences);
+            mSvcInterface.setParams(paramerList);
+            mSvcInterface.setMDependencies(dependences);
             for (String string : pathurl) {
-                mServiceInterface.setPatternUrl(string);
-                map.put(string, mServiceInterface);
+                mSvcInterface.setPatternUrl(string);
+                map.put(string, mSvcInterface);
             }
         }
         return map;
@@ -297,15 +295,15 @@ public class GetServiceInfo {
                 MDependency mDependency = new MDependency();
                 String[] s = string.substring(string.indexOf("mSendRequest.sendRequest(") + 25, string.indexOf(");")).split(",");
                 String version = s[1].trim().replace("\"", "");
-                MServiceVersion mServiceVersion = new MServiceVersion();
+                MSvcVersion mSvcVersion = new MSvcVersion();
                 String[] versions = version.split("\\.");
-                mServiceVersion.setMainVersionNum(Integer.parseInt(versions[0]));
-                mServiceVersion.setChildVersionNum(Integer.parseInt(versions[1]));
-                mServiceVersion.setFixVersionNum(Integer.parseInt(versions[2]));
+                mSvcVersion.setMainVersionNum(Integer.parseInt(versions[0]));
+                mSvcVersion.setChildVersionNum(Integer.parseInt(versions[1]));
+                mSvcVersion.setFixVersionNum(Integer.parseInt(versions[2]));
                 String requst = s[0].trim().replace("\"", "");
                 String requestService = requst.split("/")[3];
-                List<MServiceVersion> list = new ArrayList<>();
-                list.add(mServiceVersion);
+                List<MSvcVersion> list = new ArrayList<>();
+                list.add(mSvcVersion);
                 mDependency.setServiceName(requestService);
                 mDependency.setPatternUrl(requst);
                 mDependency.setVersions(list);

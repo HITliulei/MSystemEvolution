@@ -15,14 +15,14 @@ import java.util.List;
  * @version 0.1
  * @date 2019/12/20
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+//@SpringBootTest
 public class ServicesMapperTest {
 
     @Autowired
     private ServicesMapper servicesMapper;
 
-    @Test
+//    @Test
     public void getAll() {
         List<MServiceDao> serviceDaoList = servicesMapper.getAll();
         for (MServiceDao serviceDao : serviceDaoList) {
@@ -30,7 +30,7 @@ public class ServicesMapperTest {
         }
     }
 
-    @Test
+//    @Test
     public void test1() {
         MServiceDao serviceDao = new MServiceDao(
                 "service-test-123321",

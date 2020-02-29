@@ -2,7 +2,7 @@ package com.septemberhx.server.utils;
 
 import com.septemberhx.common.service.MParamer;
 import com.septemberhx.common.service.MService;
-import com.septemberhx.common.service.MServiceInterface;
+import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.server.dao.MInterfaceDao;
 import com.septemberhx.server.dao.MParamDao;
 import com.septemberhx.server.dao.MServiceDao;
@@ -56,7 +56,7 @@ public class MDatabaseUtils {
         transactionTemplate.execute(txStatus -> {
             databaseUtils.servicesMapper.insert(serviceDao);
 
-            for (MServiceInterface serviceInterface : service.getServiceInterfaceMap().values()) {
+            for (MSvcInterface serviceInterface : service.getServiceInterfaceMap().values()) {
                 MInterfaceDao interfaceDao = MInterfaceDao.fromDto(serviceInterface);
                 databaseUtils.interfacesMapper.insert(interfaceDao);
 
@@ -76,7 +76,7 @@ public class MDatabaseUtils {
     public void deleteService(MService service) {
         TransactionTemplate transactionTemplate = new TransactionTemplate(databaseUtils.transactionManager);
         transactionTemplate.execute(txStatus -> {
-            for (MServiceInterface serviceInterface : service.getServiceInterfaceMap().values()) {
+            for (MSvcInterface serviceInterface : service.getServiceInterfaceMap().values()) {
                 databaseUtils.paramsMapper.deleteByInterfaceId(serviceInterface.getId());
             }
             databaseUtils.interfacesMapper.deleteByServiceId(service.getId());
@@ -107,9 +107,9 @@ public class MDatabaseUtils {
     private MService getServiceByDao(MServiceDao serviceDao) {
         MService service = serviceDao.toDto();
         List<MInterfaceDao> interfaceDaoList = databaseUtils.interfacesMapper.getByServiceId(service.getId());
-        Map<String, MServiceInterface> interfaceMap = new HashMap<>();
+        Map<String, MSvcInterface> interfaceMap = new HashMap<>();
         for (MInterfaceDao interfaceDao : interfaceDaoList) {
-            MServiceInterface serviceInterface = interfaceDao.toDto();
+            MSvcInterface serviceInterface = interfaceDao.toDto();
             List<MParamDao> paramDaoList = databaseUtils.paramsMapper.getByInterfaceId(serviceInterface.getId());
             paramDaoList.sort(Comparator.comparingInt(MParamDao::getOrder));
             List<MParamer> paramerList = new ArrayList<>();

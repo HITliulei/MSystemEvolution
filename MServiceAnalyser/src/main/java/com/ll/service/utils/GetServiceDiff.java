@@ -32,8 +32,8 @@ public class GetServiceDiff {
         }
         mServiceDiff.setList(list);
         List<MServiceInterfaceDiff> mServiceInterfaceDiffs = new ArrayList<>();
-        List<MServiceInterface> shareversion1 = new ArrayList<>();
-        List<MServiceInterface> shareversion2 = new ArrayList<>();
+        List<MSvcInterface> shareversion1 = new ArrayList<>();
+        List<MSvcInterface> shareversion2 = new ArrayList<>();
         Set<String> set1 = mService1.getServiceInterfaceMap().keySet();
         Set<String> set2 = mService2.getServiceInterfaceMap().keySet();
         for (String string : set1) {
@@ -44,14 +44,14 @@ public class GetServiceDiff {
             } else {
                 // verison1 独有
                 MServiceInterfaceNumDiff mServiceInterfaceNumDiff = new MServiceInterfaceNumDiff(MDiffInterface.INTERFACE_REDUCE);
-                mServiceInterfaceNumDiff.setMServiceInterface(mService1.getServiceInterfaceMap().get(string));
+                mServiceInterfaceNumDiff.setMSvcInterface(mService1.getServiceInterfaceMap().get(string));
                 mServiceInterfaceDiffs.add(mServiceInterfaceNumDiff);
             }
         }
         // version2 独有
         for (String string : set2) {
             MServiceInterfaceNumDiff mServiceInterfaceNumDiff = new MServiceInterfaceNumDiff(MDiffInterface.INTERFACE_ADD);
-            mServiceInterfaceNumDiff.setMServiceInterface(mService2.getServiceInterfaceMap().get(string));
+            mServiceInterfaceNumDiff.setMSvcInterface(mService2.getServiceInterfaceMap().get(string));
             mServiceInterfaceDiffs.add(mServiceInterfaceNumDiff);
         }
         set1.clear();
@@ -62,7 +62,7 @@ public class GetServiceDiff {
         return mServiceDiff;
     }
 
-    public static List<MServiceInterfaceDiff> getInterfaceDiff(List<MServiceInterface> shareversion1, List<MServiceInterface> shareversion2) {
+    public static List<MServiceInterfaceDiff> getInterfaceDiff(List<MSvcInterface> shareversion1, List<MSvcInterface> shareversion2) {
         List<MServiceInterfaceDiff> list = new ArrayList<>();
         int size = shareversion1.size();
         for (int i = 0; i < size; i++) {
@@ -78,11 +78,11 @@ public class GetServiceDiff {
             if (!shareversion1.get(i).getReturnType().equals(shareversion2.get(i).getReturnType())) {
                 mDiffs.add(new MDiff(MDiffType.INTERFACE_RETURNTYPE_DIFF,shareversion1.get(i).getReturnType(),shareversion2.get(i).getReturnType()));
             }
-            if (!shareversion1.get(i).getFuncDescription().getFeatureName().equals(shareversion2.get(i).getFuncDescription().getFeatureName())) {
-                mDiffs.add(new MDiff(MDiffType.INTERFACE_FUNCTION_FEATURE_DIFF,shareversion1.get(i).getFuncDescription().getFeatureName(),shareversion2.get(i).getFuncDescription().getFeatureName()));
+            if (!shareversion1.get(i).getFuncDescription().getFunc().equals(shareversion2.get(i).getFuncDescription().getFunc())) {
+                mDiffs.add(new MDiff(MDiffType.INTERFACE_FUNCTION_FEATURE_DIFF,shareversion1.get(i).getFuncDescription().getFunc(),shareversion2.get(i).getFuncDescription().getFunc()));
             }
-            if (shareversion1.get(i).getFuncDescription().getSlaLevel() != shareversion2.get(i).getFuncDescription().getSlaLevel()) {
-                mDiffs.add(new MDiff(MDiffType.INTERFACE_FUNCTION_LEVEL_DIFF,shareversion1.get(i).getFuncDescription().getSlaLevel(),shareversion2.get(i).getFuncDescription().getSlaLevel()));
+            if (shareversion1.get(i).getFuncDescription().getSla() != shareversion2.get(i).getFuncDescription().getSla()) {
+                mDiffs.add(new MDiff(MDiffType.INTERFACE_FUNCTION_LEVEL_DIFF,shareversion1.get(i).getFuncDescription().getSla(),shareversion2.get(i).getFuncDescription().getSla()));
             }
             mServiceInterfaceChangeDiff.setList(mDiffs);
             List<MParamerDiff> paramerDiffs = getParamerDiff(shareversion1.get(i), shareversion2.get(i));
@@ -92,10 +92,10 @@ public class GetServiceDiff {
         return list;
     }
 
-    public static List<MParamerDiff> getParamerDiff(MServiceInterface mServiceInterface1, MServiceInterface mServiceInterface2) {
+    public static List<MParamerDiff> getParamerDiff(MSvcInterface mSvcInterface1, MSvcInterface mSvcInterface2) {
         List<MParamerDiff> list = new ArrayList<>();
-        List<MParamer> interfaceversion1 = mServiceInterface1.getParams();
-        List<MParamer> interfaceversion2 = mServiceInterface2.getParams();
+        List<MParamer> interfaceversion1 = mSvcInterface1.getParams();
+        List<MParamer> interfaceversion2 = mSvcInterface2.getParams();
         List<MParamer> all1 = new ArrayList<>();
         List<MParamer> all2 = new ArrayList<>();
         for (int i = 0; i < interfaceversion1.size(); i++) {

@@ -55,8 +55,8 @@ public class MApiTypeProcessor extends AbstractProcessor {
             JCTree.JCMethodDecl jcMethodDecl = (JCTree.JCMethodDecl) elementUtils.getTree(element);
             JCTree.JCClassDecl jcClassDecl = (JCTree.JCClassDecl) elementUtils.getTree((element.getEnclosingElement()));
 
-//            JCTree.JCMethodDecl newMethodDecl = makeRestOverloadFunction(jcMethodDecl);
-//            jcClassDecl.defs = jcClassDecl.defs.prepend(newMethodDecl);
+            JCTree.JCMethodDecl newMethodDecl = makeRestOverloadFunction(jcMethodDecl);
+            jcClassDecl.defs = jcClassDecl.defs.prepend(newMethodDecl);
 
             if (this.addHttpServletRequestToFunctionParameter(jcMethodDecl)) {
                 JCTree.JCMethodDecl newMethodDecl1 = makeOverloadFunctionWithoutRequester(jcMethodDecl);

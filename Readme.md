@@ -26,3 +26,5 @@
 1. 部署 `MEurekaServer`
 2. 部署 elasticsearch, logstash（参见[github](https://github.com/SeptemberHX/scripts/tree/master/yml/elasticsearch_logstash_kibana)）, 以及 每个kubernetes上都要部署一个 `MInfoCollector`
 3. 部署 `MClusterAgent` 到 kubernetes master 节点上(懒得改代码，在 `MClientUtils` 里初始化 `MDockerManagerK8SImpl` 那里，可以指定 Kubernetes API Server 地址，理论上应该填上地址，这样才能够跑多个 agent 进行负载均衡)
+
+## 部分细节

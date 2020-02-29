@@ -1,7 +1,9 @@
 package com.septemberhx.common.base.user;
 
 import com.septemberhx.common.base.MUniqueObject;
-import com.septemberhx.common.service.MServiceInterface;
+import com.septemberhx.common.service.MFunc;
+import com.septemberhx.common.service.MSla;
+import com.septemberhx.common.service.MSvcInterface;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,26 +17,26 @@ import lombok.Setter;
 public class MUserDemand extends MUniqueObject {
     private String userId;      // user id
     private String functionId;  // unique ID for functions. It will be used when try to map demands to services
-    private Integer slaLevel;   // the SLA level that users expect for
+    private MSla sla;   // the SLA level that users expect for
     private String serviceId;   // service name actually
 
-    public MUserDemand(String userId, String functionId, Integer slaLevel, String serviceId) {
+    public MUserDemand(String userId, String functionId, Integer sla, String serviceId) {
         this.userId = userId;
         this.functionId = functionId;
-        this.slaLevel = slaLevel;
-        this.id = userId + "_" + functionId + "_" + slaLevel;
+        this.sla = new MSla(sla);
+        this.id = userId + "_" + functionId + "_" + sla;
         this.serviceId = serviceId;
     }
 
     public MUserDemand() {}
 
-    public boolean isDemandMet(String functionIdProvided, Integer slaLevelProvided) {
-        return functionIdProvided.equals(functionId) && slaLevelProvided >= slaLevel;
+    public boolean isDemandMet(MFunc functionIdProvided, MSla slaLevelProvided) {
+        return functionIdProvided.equals(functionId) && slaLevelProvided == sla;
     }
 
-    public boolean isServiceInterfaceMet(MServiceInterface serviceInterface) {
+    public boolean isServiceInterfaceMet(MSvcInterface serviceInterface) {
         if (this.serviceId != null && !serviceInterface.getServiceId().startsWith(this.serviceId)) return false;
-        return this.isDemandMet(serviceInterface.getFuncDescription().getFeatureName(), serviceInterface.getFuncDescription().getSlaLevel());
+        return this.isDemandMet(serviceInterface.getFuncDescription().getFunc(), serviceInterface.getFuncDescription().getSla());
     }
 
     @Override
@@ -42,7 +44,7 @@ public class MUserDemand extends MUniqueObject {
         return "MUserDemand{" +
                 "userId='" + userId + '\'' +
                 ", functionId='" + functionId + '\'' +
-                ", slaLevel=" + slaLevel +
+                ", slaLevel=" + sla +
                 ", serviceId='" + serviceId + '\'' +
                 ", id='" + id + '\'' +
                 '}';
