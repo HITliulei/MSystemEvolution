@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 
 import static com.septemberhx.agent.utils.MClientUtils.readPodYaml;
-import static com.septemberhx.common.config.MClusterConfig.K8S_NAMESPACE;
+import static com.septemberhx.common.config.MConfig.K8S_NAMESPACE;
 
 public class MDockerManagerK8SImpl implements MDockerManager {
 

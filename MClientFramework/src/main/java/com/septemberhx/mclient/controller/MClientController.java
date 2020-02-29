@@ -2,7 +2,7 @@ package com.septemberhx.mclient.controller;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.EurekaClient;
-import com.septemberhx.common.config.MClusterConfig;
+import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.bean.mclient.MApiContinueRequest;
 import com.septemberhx.common.bean.mclient.MApiSplitBean;
 import com.septemberhx.common.bean.mclient.MClientInfoBean;
@@ -10,6 +10,7 @@ import com.septemberhx.common.bean.mclient.MInstanceRestInfoBean;
 import com.septemberhx.mclient.core.MClientSkeleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -46,14 +47,21 @@ public class MClientController {
     @Autowired
     private RequestMappingHandlerMapping handlerMapping;
 
+    @Value("${mvf4ms.version}")
+    private String serviceVersion;
+
     /**
      * Do something for MClient App:
      *   * Register new metadata so we can identify whether it is a MClient app or not
+     *
+     *   2020/02/29
+     *   * Register version info that extracted from application.[yaml|properties]
      */
     @PostConstruct
     public void init() {
         Map<String, String> map = aim.getInfo().getMetadata();
-        map.put(MClusterConfig.MCLUSTER_SERVICE_METADATA_NAME, MClusterConfig.MCLUSTER_SERVICE_METADATA_VALUE);
+        map.put(MConfig.MCLUSTER_SVC_METADATA_NAME, MConfig.MCLUSTER_SVC_METADATA_VALUE);
+        map.put(MConfig.MCLUSTER_SVC_VER_NAME, this.serviceVersion);
         MClientSkeleton.getInstance().setDiscoveryClient(this.discoveryClient);
         MClientSkeleton.getInstance().setRequestMappingHandlerMapping(this.handlerMapping);
     }

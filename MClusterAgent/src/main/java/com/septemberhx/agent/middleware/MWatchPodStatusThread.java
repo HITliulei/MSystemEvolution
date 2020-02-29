@@ -12,12 +12,11 @@ import io.kubernetes.client.util.Watch;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static com.septemberhx.common.config.MClusterConfig.K8S_NAMESPACE;
+import static com.septemberhx.common.config.MConfig.K8S_NAMESPACE;
 
 
 public class MWatchPodStatusThread extends Thread {

@@ -3,7 +3,7 @@ package com.septemberhx.eureka;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.septemberhx.common.bean.agent.MInstanceRegisterNotifyRequest;
-import com.septemberhx.common.config.MClusterConfig;
+import com.septemberhx.common.config.MConfig;
 import com.septemberhx.eureka.client.MClusterAgentClient;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -42,7 +42,7 @@ public class EurekaStateChangeListener {
     public void listen(EurekaInstanceRegisteredEvent event) {
         InstanceInfo instanceInfo = event.getInstanceInfo();
         System.out.println(instanceInfo.getAppName()+"|"+instanceInfo.getInstanceId()+"|"+instanceInfo.getIPAddr()+"|"+instanceInfo.getPort());
-        if (!instanceInfo.getAppName().equalsIgnoreCase(MClusterConfig.MCLUSTERAGENT_NAME) && instanceInfo.getPort() != 0) {
+        if (!instanceInfo.getAppName().equalsIgnoreCase(MConfig.MCLUSTERAGENT_NAME) && instanceInfo.getPort() != 0) {
             try {
                 MInstanceRegisterNotifyRequest notifyRequest = new MInstanceRegisterNotifyRequest();
                 notifyRequest.setIp(instanceInfo.getIPAddr());

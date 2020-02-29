@@ -9,7 +9,7 @@ import com.septemberhx.common.bean.agent.MDeployPodRequest;
 import com.septemberhx.common.bean.agent.MInstanceInfoBean;
 import com.septemberhx.common.bean.mclient.MClientInfoBean;
 import com.septemberhx.common.bean.mclient.MInstanceRestInfoBean;
-import com.septemberhx.common.config.MClusterConfig;
+import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import io.kubernetes.client.models.*;
@@ -36,13 +36,13 @@ public class MClientUtils {
     @Autowired
     private MServiceManager clusterMiddleware;
 
-    @Value("${mclientagent.server.ip}")
+    @Value("${mvf4ms.center.ip}")
     private String serverIpAddr;
 
-    @Value("${mclientagent.server.port}")
+    @Value("${mvf4ms.center.port}")
     private Integer serverPort;
 
-    @Value("${mclientagent.cluster}")
+    @Value("${mvf4ms.cluster.name}")
     private String clusterId;
 
     private static MDockerManager dockerManager = new MDockerManagerK8SImpl();
@@ -84,7 +84,7 @@ public class MClientUtils {
                     .withApiVersion("extensions/v1beta1")
                     .withKind("Deployment")
                     .withNewMetadata()
-                    .withNamespace(MClusterConfig.MCLUSTER_DOCKER_NAMESPACE)
+                    .withNamespace(MConfig.MCLUSTER_DOCKER_NAMESPACE)
                     .withName(deploymentName)
                     .endMetadata()
                     .withNewSpec()
@@ -152,9 +152,9 @@ public class MClientUtils {
     public MInstanceInfoBean transformInstance(InstanceInfo instanceInfo, int backwardPort) {
         MInstanceInfoBean instanceInfoBean = new MInstanceInfoBean();
 
-        if (!instanceInfo.getMetadata().containsKey(MClusterConfig.MCLUSTER_SERVICE_METADATA_NAME)
-                || !instanceInfo.getMetadata().get(MClusterConfig.MCLUSTER_SERVICE_METADATA_NAME).equals(
-                MClusterConfig.MCLUSTER_SERVICE_METADATA_VALUE)) {
+        if (!instanceInfo.getMetadata().containsKey(MConfig.MCLUSTER_SVC_METADATA_NAME)
+                || !instanceInfo.getMetadata().get(MConfig.MCLUSTER_SVC_METADATA_NAME).equals(
+                MConfig.MCLUSTER_SVC_METADATA_VALUE)) {
             return null;
         }
 
@@ -188,6 +188,7 @@ public class MClientUtils {
 
         instanceInfoBean.setClusterId(this.clusterId);
         instanceInfoBean.setServiceName(instanceInfo.getAppName());
+        instanceInfoBean.setVersion(instanceInfo.getMetadata().get(MConfig.MCLUSTER_SVC_VER_NAME));
         return instanceInfoBean;
     }
 

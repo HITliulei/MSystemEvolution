@@ -10,7 +10,7 @@ import com.septemberhx.common.bean.server.MFetchServiceInfoBean;
 import com.septemberhx.common.bean.server.MServiceAnalyzeResultBean;
 import com.septemberhx.common.bean.server.MServiceCompareBean;
 import com.septemberhx.common.bean.server.MServiceRegisterBean;
-import com.septemberhx.common.config.MClusterConfig;
+import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.diff.MServiceDiff;
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +43,7 @@ public class MOperation {
     private static ExecutorService executorService = Executors.newFixedThreadPool(8);
 
     @ResponseBody
-    @PostMapping(MClusterConfig.ANALYZE_ANALYZE_URI)
+    @PostMapping(MConfig.ANALYZE_ANALYZE_URI)
     public MResponse getAllVersionInfo(@RequestBody MServiceRegisterBean mServiceRegisterBean) {
         executorService.submit(() -> {
             Map<String, MPathInfo> map = GetSourceCode.getCodeAndGetMPathInfo(mServiceRegisterBean.getGitUrl());
@@ -78,7 +78,7 @@ public class MOperation {
     }
 
     @ResponseBody
-    @PostMapping(MClusterConfig.ANALYZE_COMPARE_URI)
+    @PostMapping(MConfig.ANALYZE_COMPARE_URI)
     public MServiceDiff getServiceDiff(@RequestBody MServiceCompareBean mServiceCompareBean) {
         logger.info ("分析版本间的差异");
         return GetServiceDiff.getDiff(mServiceCompareBean.getFixedService(), mServiceCompareBean.getComparedService());
