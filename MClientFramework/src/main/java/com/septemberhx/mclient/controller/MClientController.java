@@ -7,10 +7,10 @@ import com.septemberhx.common.bean.mclient.MApiContinueRequest;
 import com.septemberhx.common.bean.mclient.MApiSplitBean;
 import com.septemberhx.common.bean.mclient.MClientInfoBean;
 import com.septemberhx.common.bean.mclient.MInstanceRestInfoBean;
+import com.septemberhx.mclient.config.Mvf4msConfig;
 import com.septemberhx.mclient.core.MClientSkeleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -37,7 +37,7 @@ public class MClientController {
     @ResponseBody
     @RequestMapping(path = "/getMObjectIdList", method = RequestMethod.GET)
     public List<String> getMObjectIdList() {
-        return MClientSkeleton.getInstance().getMObjectIdList();
+        return MClientSkeleton.inst().getMObjectIdList();
     }
 
     @Qualifier("eurekaClient")
@@ -47,8 +47,8 @@ public class MClientController {
     @Autowired
     private RequestMappingHandlerMapping handlerMapping;
 
-    @Value("${mvf4ms.version}")
-    private String serviceVersion;
+    @Autowired
+    private Mvf4msConfig mvf4msConfig;
 
     /**
      * Do something for MClient App:
@@ -61,36 +61,38 @@ public class MClientController {
     public void init() {
         Map<String, String> map = aim.getInfo().getMetadata();
         map.put(MConfig.MCLUSTER_SVC_METADATA_NAME, MConfig.MCLUSTER_SVC_METADATA_VALUE);
-        map.put(MConfig.MCLUSTER_SVC_VER_NAME, this.serviceVersion);
-        MClientSkeleton.getInstance().setDiscoveryClient(this.discoveryClient);
-        MClientSkeleton.getInstance().setRequestMappingHandlerMapping(this.handlerMapping);
+        map.put(MConfig.MCLUSTER_SVC_VER_NAME, this.mvf4msConfig.getVersion());
+        MClientSkeleton.inst().setDiscoveryClient(this.discoveryClient);
+        MClientSkeleton.inst().setRequestMappingHandlerMapping(this.handlerMapping);
+        MClientSkeleton.inst().setMvf4msConfig(this.mvf4msConfig);
+        System.out.println(this.mvf4msConfig.toString());
     }
 
     @ResponseBody
     @RequestMapping(path = "/info", method = RequestMethod.GET)
     public MClientInfoBean getInfo() {
         MClientInfoBean infoBean = new MClientInfoBean();
-        infoBean.setApiMap(MClientSkeleton.getInstance().getObjectId2ApiSet());
-        infoBean.setParentIdMap(MClientSkeleton.getInstance().getParentIdMap());
-        infoBean.setMObjectIdSet(new HashSet<>(MClientSkeleton.getInstance().getMObjectIdList()));
+        infoBean.setApiMap(MClientSkeleton.inst().getObjectId2ApiSet());
+        infoBean.setParentIdMap(MClientSkeleton.inst().getParentIdMap());
+        infoBean.setMObjectIdSet(new HashSet<>(MClientSkeleton.inst().getMObjectIdList()));
         return infoBean;
     }
 
     @RequestMapping(path = "/setRestInfo", method = RequestMethod.POST)
     public void setRestInfo(@RequestBody MInstanceRestInfoBean restInfoBean) {
-        MClientSkeleton.getInstance().addRestInfo(restInfoBean);
+        MClientSkeleton.inst().addRestInfo(restInfoBean);
     }
 
     @RequestMapping(path = "/setApiContinueStatus", method = RequestMethod.POST)
     public void setApiContinueStatus(@RequestBody MApiContinueRequest continueStatus) {
         for (MApiSplitBean splitBean : continueStatus.getSplitBeans()) {
-            MClientSkeleton.getInstance().setApiContinueStatus(splitBean);
+            MClientSkeleton.inst().setApiContinueStatus(splitBean);
         }
     }
 
     @ResponseBody
     @RequestMapping(path = "/getRestInfoList", method = RequestMethod.GET)
     public List<MInstanceRestInfoBean> getRestInfoList() {
-        return MClientSkeleton.getInstance().getRestInfoBeanList();
+        return MClientSkeleton.inst().getRestInfoBeanList();
     }
 }

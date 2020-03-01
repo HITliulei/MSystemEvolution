@@ -69,6 +69,10 @@ public class MConfig {
     public final static String MCLUSTER_SVC_METADATA_VALUE = "true";
     public final static String MCLUSTER_SVC_VER_NAME = "serviceVersion";
 
+    public final static String MGATEWAY_NAME = "MGateway";
+    public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";
+    public final static String MGATEWAY_DEPENDENCY_ID = "__dependency_id";
+
     private static MConfig ourInstance = new MConfig();
 
     public static MConfig getInstance() {

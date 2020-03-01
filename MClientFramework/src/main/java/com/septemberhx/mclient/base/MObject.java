@@ -42,7 +42,7 @@ public abstract class MObject {
                             Class<?> clazz = field.getType();
                             Constructor<?> ctor = clazz.getConstructor();
                             MObject obj = (MObject) ctor.newInstance(new Object[]{});
-                            MClientSkeleton.getInstance().registerParent(obj, this.getId());
+                            MClientSkeleton.inst().registerParent(obj, this.getId());
 
                             // set the proxy object
                             field.setAccessible(true);
@@ -62,12 +62,12 @@ public abstract class MObject {
 
             for (Method method : this.getClass().getDeclaredMethods()) {
                 if (method.getAnnotation(MApiFunction.class) != null) {
-                    MClientSkeleton.getInstance().registerObjectAndApi(this.getId(), method.getName());
+                    MClientSkeleton.inst().registerObjectAndApi(this.getId(), method.getName());
                 }
             }
-            MClientSkeleton.getInstance().registerMObject(this);
+            MClientSkeleton.inst().registerMObject(this);
             logger.debug(this.getId() + " created");
-            MClientSkeleton.getInstance().printParentIdMap();
+            MClientSkeleton.inst().printParentIdMap();
         }
     }
 

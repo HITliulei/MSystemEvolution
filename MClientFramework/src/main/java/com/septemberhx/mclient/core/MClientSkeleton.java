@@ -12,6 +12,8 @@ import com.septemberhx.common.utils.MLogUtils;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import com.septemberhx.mclient.base.MObject;
+import com.septemberhx.mclient.config.Mvf4msConfig;
+import com.septemberhx.mclient.config.Mvf4msDep;
 import com.septemberhx.mclient.utils.RequestUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -55,6 +57,9 @@ public class MClientSkeleton {
     @Setter
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
+    @Setter
+    private Mvf4msConfig mvf4msConfig;
+
     private MClientSkeleton() {
         this.mObjectMap = new HashMap<>();
         this.parentIdMap = new HashMap<>();
@@ -63,7 +68,7 @@ public class MClientSkeleton {
         this.apiContinueMap = new HashMap<>();
     }
 
-    public static MClientSkeleton getInstance() {
+    public static MClientSkeleton inst() {
         if (instance == null) {
             synchronized (MClientSkeleton.class) {
                 if (instance == null) {
@@ -72,6 +77,16 @@ public class MClientSkeleton {
             }
         }
         return instance;
+    }
+
+    public InstanceInfo getRandomServiceInstance(String serviceName) {
+        Application app = this.discoveryClient.getApplication(serviceName);
+        if (app != null) {
+            Random r = new Random();
+            int rInt = r.nextInt(app.getInstances().size());
+            return app.getInstances().get(rInt);
+        }
+        return null;
     }
 
     /*
@@ -147,7 +162,7 @@ public class MClientSkeleton {
      * @return boolean
      */
     public static boolean isRestNeeded(String mObjectId, String functionName) {
-        return MClientSkeleton.getInstance().checkIfHasRestInfo(mObjectId, functionName);
+        return MClientSkeleton.inst().checkIfHasRestInfo(mObjectId, functionName);
     }
 
     public void setApiContinueStatus(MApiSplitBean apiSplitBean) {
@@ -158,8 +173,8 @@ public class MClientSkeleton {
     }
 
     public static boolean checkIfContinue(String mObjectId, String functionName) {
-        if (!MClientSkeleton.getInstance().apiContinueMap.containsKey(mObjectId)) return true;
-        return MClientSkeleton.getInstance().apiContinueMap.get(mObjectId).getOrDefault(functionName, true);
+        if (!MClientSkeleton.inst().apiContinueMap.containsKey(mObjectId)) return true;
+        return MClientSkeleton.inst().apiContinueMap.get(mObjectId).getOrDefault(functionName, true);
     }
 
     public static void logFunctionCall(String mObjectId, String functionName, HttpServletRequest request) {
@@ -208,8 +223,8 @@ public class MClientSkeleton {
         }
         String paramJsonStr = RequestUtils.methodParamToJsonString(paramNameList, paramValueList);
 
-        if (MClientSkeleton.getInstance().discoveryClient != null) {
-            Application clusterAgent = MClientSkeleton.getInstance().discoveryClient.getApplication("MClusterAgent");
+        if (MClientSkeleton.inst().discoveryClient != null) {
+            Application clusterAgent = MClientSkeleton.inst().discoveryClient.getApplication("MClusterAgent");
             if (clusterAgent != null) {
                 List<InstanceInfo> clusterAgentInstances = clusterAgent.getInstances();
                 if (clusterAgentInstances.size() > 0) {
@@ -218,7 +233,7 @@ public class MClientSkeleton {
                     logger.debug(requestUri);
                     if (requestUri != null) {
                         String rawPatterns = null;
-                        Map<RequestMappingInfo, HandlerMethod> mapping = MClientSkeleton.getInstance().requestMappingHandlerMapping.getHandlerMethods();
+                        Map<RequestMappingInfo, HandlerMethod> mapping = MClientSkeleton.inst().requestMappingHandlerMapping.getHandlerMethods();
                         for (RequestMappingInfo mappingInfo : mapping.keySet()) {
                             if (mapping.get(mappingInfo).getMethod().getName().equals(functionName)) {
                                 rawPatterns = mappingInfo.getPatternsCondition().toString();

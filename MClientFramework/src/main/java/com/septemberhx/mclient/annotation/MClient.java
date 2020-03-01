@@ -1,6 +1,6 @@
 package com.septemberhx.mclient.annotation;
 
-import com.septemberhx.mclient.core.MClientAutoConfiguration;
+import com.septemberhx.mclient.config.Mvf4msConfig;
 import org.springframework.context.annotation.Import;
 
 import java.lang.annotation.*;
@@ -8,6 +8,6 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import(MClientAutoConfiguration.class)
+@Import(Mvf4msConfig.class)
 public @interface MClient {
 }
