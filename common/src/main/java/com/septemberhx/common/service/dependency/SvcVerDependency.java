@@ -13,15 +13,6 @@ import lombok.ToString;
 @ToString
 public class SvcVerDependency extends BaseSvcDependency {
 
-    // service name
-    private String serviceName;
-
-    // pattern url for the API
-    private String patternUrl;
-
-    // the version of ${serviceName}
-    private MSvcVersion version;
-
     public SvcVerDependency(String id, String serviceName, String patternUrl, MSvcVersion version) {
         this.id = id;
         this.serviceName = serviceName;

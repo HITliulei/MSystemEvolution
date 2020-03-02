@@ -13,10 +13,13 @@ import lombok.ToString;
 @ToString
 public class SvcFuncDependency extends BaseSvcDependency {
 
-    private MFuncDescription funcDescription;
-
     public SvcFuncDependency(String id, String funcName, int slaLevel) {
         this.id = id;
         this.funcDescription = new MFuncDescription(funcName, slaLevel);
+    }
+
+    public SvcFuncDependency(String id, MFuncDescription funcDescription) {
+        this.id = id;
+        this.funcDescription = funcDescription;
     }
 }

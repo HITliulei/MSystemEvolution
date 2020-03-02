@@ -1,4 +1,4 @@
-package com.septemberhx.mclient.config;
+package com.septemberhx.common.config;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,4 +19,8 @@ public class Mvf4msDep {
     private String version;
     private String function;
     private String sla;
+
+    // For json parsing
+    public Mvf4msDep() {
+    }
 }

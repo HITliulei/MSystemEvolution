@@ -13,7 +13,7 @@ import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import com.septemberhx.mclient.base.MObject;
 import com.septemberhx.mclient.config.Mvf4msConfig;
-import com.septemberhx.mclient.config.Mvf4msDep;
+import com.septemberhx.common.config.Mvf4msDep;
 import com.septemberhx.mclient.utils.RequestUtils;
 import lombok.Getter;
 import lombok.Setter;
@@ -77,6 +77,10 @@ public class MClientSkeleton {
             }
         }
         return instance;
+    }
+
+    public List<Mvf4msDep> getDepListById(String depId) {
+        return this.mvf4msConfig.getDepListById(depId);
     }
 
     public InstanceInfo getRandomServiceInstance(String serviceName) {

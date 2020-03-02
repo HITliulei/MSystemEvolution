@@ -1,5 +1,6 @@
 package com.septemberhx.common.service.dependency;
 
+import com.septemberhx.common.service.MSla;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -12,19 +13,10 @@ import lombok.ToString;
 @ToString
 public class SvcSlaDependency extends BaseSvcDependency {
 
-    // service name
-    private String serviceName;
-
-    // prefer sla level
-    private int slaLevel;
-
-    // API url
-    private String patternUrl;
-
-    public SvcSlaDependency(String id, String serviceName, int slaLevel, String patternUrl) {
+    public SvcSlaDependency(String id, String serviceName, MSla sla, String patternUrl) {
         this.id = id;
         this.serviceName = serviceName;
-        this.slaLevel = slaLevel;
+        this.sla = sla;
         this.patternUrl = patternUrl;
     }
 }

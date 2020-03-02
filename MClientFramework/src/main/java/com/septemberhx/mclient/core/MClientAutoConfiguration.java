@@ -7,22 +7,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-@Configuration
+/*
+ * Abandoned. Please see Mvf4msConfig.
+ */
+
+//@Configuration
 public class MClientAutoConfiguration {
-    @Bean
-    public MClientController mClientController() {
-        return new MClientController();
-    }
-
-
-    @Bean
-    public MGatewayRequest mSendRequest(){
-        return new MGatewayRequest();
-    }
-
-    @Bean
-    @LoadBalanced
-    RestTemplate initRestTemplate() {
-        return new RestTemplate();
-    }
+//    @Bean
+//    public MClientController mClientController() {
+//        return new MClientController();
+//    }
+//
+//
+//    @Bean
+//    public MGatewayRequest mSendRequest(){
+//        return new MGatewayRequest();
+//    }
+//
+//    @Bean
+//    @LoadBalanced
+//    RestTemplate initRestTemplate() {
+//        return new RestTemplate();
+//    }
 }

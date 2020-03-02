@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
  */
 public class MVerRequestUtils {
 
-    public MResponse request(String requestId, MResponse parameters, RequestMethod requestMethod) {
-        parameters.set(MConfig.MGATEWAY_DEPENDENCY_ID, requestId);
+    public static MResponse request(String requestId, MResponse parameters, RequestMethod requestMethod) {
+        // Send the request dependence to the gateway in order to determine which instance should be requested
+        parameters.set(MConfig.MGATEWAY_DEPENDENCY_ID, MClientSkeleton.inst().getDepListById(requestId));
+
+        // Get an online MGateway instance randomly, and send the request to it
         InstanceInfo gatewayInstance = MClientSkeleton.inst().getRandomServiceInstance(MConfig.MGATEWAY_NAME);
         MResponse response = null;
         if (gatewayInstance != null) {
@@ -24,7 +27,7 @@ public class MVerRequestUtils {
                     MUrlUtils.getRemoteUri(gatewayInstance.getIPAddr(),
                             gatewayInstance.getPort(),
                             MConfig.MGATEWAY_DEPENDENCY_CALL),
-                    MResponse.class,
+                    parameters,
                     MResponse.class,
                     requestMethod
             );
