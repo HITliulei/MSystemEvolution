@@ -125,100 +125,111 @@ public class GetServiceInfo {
             logger.error(e);
             return null;
         }
+
+        if (compilationUnit == null) {
+            throw new RuntimeException("Failed to parse java file " + file.getAbsolutePath());
+        }
+
         String[] strings = codepath.split("/");
         String className = strings[strings.length - 1].split("\\.")[0];
-        ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
-        NodeList<AnnotationExpr> annotations = c.getAnnotations();
-        // 所有的基础路径
-        List<String> pathContexts = getContextPath(contextPath,annotations);
-        if (pathContexts.size() == 0) {
-            pathContexts.add("/");
-        }
-        /*得到interface方面*/
-        List<MethodDeclaration> methodDeclarationList = c.getMethods();
-        // 遍历每一个方法
-        for (MethodDeclaration m : methodDeclarationList) {
-            MSvcInterface mSvcInterface = new MSvcInterface();
-            mSvcInterface.setFunctionName(m.getName().toString());
-            mSvcInterface.setReturnType(m.getType().toString());
-            List<String> pathurl = new ArrayList<>();
-            NodeList<AnnotationExpr> anno = m.getAnnotations();
-            List<String> pathContextsFunction = new ArrayList<>();
-            for (AnnotationExpr annotationExpr : anno) {
-                List<Node> childNodes = annotationExpr.getChildNodes();
-                String annoName = childNodes.get(0).toString();
-                if ("RequestMapping".equals(annoName) || "GetMapping".equals(annoName) || "PostMapping".equals(annoName) || "DeleteMapping".equals(annoName) || "PutMapping".equals(annoName)) {
-                    Node s = childNodes.get(1);
-                    List<Node> sUrl = s.getChildNodes();
-                    if (sUrl.size() == 0) {
-                        String h = s.toString();
-                        pathContextsFunction.add(h.substring(1, h.length() - 1));
-                    } else {
-                        Node node1 = sUrl.get(1);
-                        if (node1.getChildNodes().size() == 0) {
-                            String h = node1.toString();
+
+        if (compilationUnit.getClassByName(className).isPresent()) {
+            ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
+            NodeList<AnnotationExpr> annotations = c.getAnnotations();
+            // 所有的基础路径
+            List<String> pathContexts = getContextPath(contextPath, annotations);
+            if (pathContexts.size() == 0) {
+                pathContexts.add("/");
+            }
+            /*得到interface方面*/
+            List<MethodDeclaration> methodDeclarationList = c.getMethods();
+            // 遍历每一个方法
+            for (MethodDeclaration m : methodDeclarationList) {
+                MSvcInterface mSvcInterface = new MSvcInterface();
+                mSvcInterface.setFunctionName(m.getName().toString());
+                mSvcInterface.setReturnType(m.getType().toString());
+                List<String> pathurl = new ArrayList<>();
+                NodeList<AnnotationExpr> anno = m.getAnnotations();
+                List<String> pathContextsFunction = new ArrayList<>();
+                for (AnnotationExpr annotationExpr : anno) {
+                    List<Node> childNodes = annotationExpr.getChildNodes();
+                    String annoName = childNodes.get(0).toString();
+                    if ("RequestMapping".equals(annoName) || "GetMapping".equals(annoName) || "PostMapping".equals(annoName) || "DeleteMapping".equals(annoName) || "PutMapping".equals(annoName)) {
+                        Node s = childNodes.get(1);
+                        List<Node> sUrl = s.getChildNodes();
+                        if (sUrl.size() == 0) {
+                            String h = s.toString();
                             pathContextsFunction.add(h.substring(1, h.length() - 1));
                         } else {
-                            for (Node node : node1.getChildNodes()) {
-                                String h = node.toString();
+                            Node node1 = sUrl.get(1);
+                            if (node1.getChildNodes().size() == 0) {
+                                String h = node1.toString();
                                 pathContextsFunction.add(h.substring(1, h.length() - 1));
+                            } else {
+                                for (Node node : node1.getChildNodes()) {
+                                    String h = node.toString();
+                                    pathContextsFunction.add(h.substring(1, h.length() - 1));
+                                }
                             }
                         }
-                    }
-                } else if ("MFuncDescription ".equals(annoName)) {
-                    String functionDescribtion = "";
-                    int lavael = 1;
-                    if (childNodes.size() == 2) {
-                        int l = childNodes.get(1).getChildNodes().size();
-                        if (l == 0) {
-                            functionDescribtion = childNodes.get(1).toString();
+                    } else if ("MFuncDescription ".equals(annoName)) {
+                        String functionDescribtion = "";
+                        int lavael = 1;
+                        if (childNodes.size() == 2) {
+                            int l = childNodes.get(1).getChildNodes().size();
+                            if (l == 0) {
+                                functionDescribtion = childNodes.get(1).toString();
+                            } else {
+                                functionDescribtion = childNodes.get(1).getChildNodes().get(1).toString();
+                            }
                         } else {
                             functionDescribtion = childNodes.get(1).getChildNodes().get(1).toString();
+                            lavael = Integer.parseInt(childNodes.get(2).getChildNodes().get(1).toString());
                         }
-                    } else {
-                        functionDescribtion = childNodes.get(1).getChildNodes().get(1).toString();
-                        lavael = Integer.parseInt(childNodes.get(2).getChildNodes().get(1).toString());
+                        MFuncDescription mFuncDescription = new MFuncDescription(functionDescribtion, lavael);
+                        mSvcInterface.setFuncDescription(mFuncDescription);
+                        continue;
                     }
-                    MFuncDescription mFuncDescription = new MFuncDescription(functionDescribtion, lavael);
-                    mSvcInterface.setFuncDescription(mFuncDescription);
+                    for (String string1 : pathContexts) {
+                        for (String string2 : pathContextsFunction) {
+                            String p = string1 + string2;
+                            pathurl.add(p.replaceAll("/+", "/"));
+                        }
+                    }
+                    if ("RequestMapping".equals(annoName)) {
+                        if (childNodes.size() == 2) {
+                            mSvcInterface.setRequestMethod("RequestMethod");
+                        } else {
+                            String[] requestmethods = childNodes.get(2).toString().split("=");
+                            String requestmethod = requestmethods[1].trim();
+                            mSvcInterface.setRequestMethod(requestmethod);
+                        }
+                    } else if ("GetMapping".equals(annoName)) {
+                        mSvcInterface.setRequestMethod(" RequestMethod.GET");
+                    } else if ("PostMapping".equals(annoName)) {
+                        mSvcInterface.setRequestMethod(" RequestMethod.POST");
+                    } else if ("DeleteMapping".equals(annoName)) {
+                        mSvcInterface.setRequestMethod("RequestMethod.DELETE");
+                    } else if ("PutMapping".equals(annoName)) {
+                        mSvcInterface.setRequestMethod("RequestMethod.PUT");
+                    }
+                }
+                if (pathurl.size() == 0) {
                     continue;
                 }
-                for (String string1 : pathContexts) {
-                    for (String string2 : pathContextsFunction) {
-                        String p = string1 + string2;
-                        pathurl.add(p.replaceAll("/+","/"));
+                /*获取  接口层级的参数*/
+                List<MParamer> paramerList = getParamers(m.getParameters());
+                /* 遍历函数内部寻找 版本依赖的调用方法 */
+                mSvcInterface.setParams(paramerList);
+
+                if (m.getBody().isPresent()) {
+                    List<MDependency> dependences = getDependence(m.getBody().get());
+                    mSvcInterface.setMDependencies(dependences);
+                    for (String string : pathurl) {
+                        mSvcInterface.setPatternUrl(string);
+                        map.put(string, mSvcInterface);
                     }
                 }
-                if ("RequestMapping".equals(annoName)) {
-                    if (childNodes.size() == 2) {
-                        mSvcInterface.setRequestMethod("RequestMethod");
-                    } else {
-                        String[] requestmethods = childNodes.get(2).toString().split("=");
-                        String requestmethod = requestmethods[1].trim();
-                        mSvcInterface.setRequestMethod(requestmethod);
-                    }
-                } else if ("GetMapping".equals(annoName)) {
-                    mSvcInterface.setRequestMethod(" RequestMethod.GET");
-                } else if ("PostMapping".equals(annoName)) {
-                    mSvcInterface.setRequestMethod(" RequestMethod.POST");
-                } else if ("DeleteMapping".equals(annoName)) {
-                    mSvcInterface.setRequestMethod("RequestMethod.DELETE");
-                } else if ("PutMapping".equals(annoName)) {
-                    mSvcInterface.setRequestMethod("RequestMethod.PUT");
-                }
-            }
-            if (pathurl.size() == 0) {
-                continue;
-            }
-            /*获取  接口层级的参数*/
-            List<MParamer> paramerList = getParamers(m.getParameters());
-            /* 遍历函数内部寻找 版本依赖的调用方法 */
-            List<MDependency> dependences  = getDependence(m.getBody().get());
-            mSvcInterface.setParams(paramerList);
-            mSvcInterface.setMDependencies(dependences);
-            for (String string : pathurl) {
-                mSvcInterface.setPatternUrl(string);
-                map.put(string, mSvcInterface);
             }
         }
         return map;

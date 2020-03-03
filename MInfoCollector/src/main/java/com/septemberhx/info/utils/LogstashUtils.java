@@ -36,21 +36,27 @@ public class LogstashUtils {
     private static void send(String url, String jsonObjectStr, String encoding) throws IOException {
         String body = "";
         CloseableHttpClient client = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost(url);
+        try {
+            HttpPost httpPost = new HttpPost(url);
 
-        StringEntity s = new StringEntity(jsonObjectStr, "utf-8");
-        s.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
-                "application/json"));
-        httpPost.setEntity(s);
-        httpPost.setHeader("Content-type", "application/json");
+            StringEntity s = new StringEntity(jsonObjectStr, "utf-8");
+            s.setContentEncoding(new BasicHeader(HTTP.CONTENT_TYPE,
+                    "application/json"));
+            httpPost.setEntity(s);
+            httpPost.setHeader("Content-type", "application/json");
 
-        CloseableHttpResponse response = client.execute(httpPost);
-        HttpEntity entity = response.getEntity();
-        if (entity != null) {
-            body = EntityUtils.toString(entity, encoding);
+            CloseableHttpResponse response = client.execute(httpPost);
+            HttpEntity entity = response.getEntity();
+            if (entity != null) {
+                body = EntityUtils.toString(entity, encoding);
+            }
+
+            EntityUtils.consume(entity);
+            response.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            client.close();
         }
-
-        EntityUtils.consume(entity);
-        response.close();
     }
 }

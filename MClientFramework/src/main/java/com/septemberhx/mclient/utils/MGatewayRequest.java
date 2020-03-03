@@ -51,6 +51,9 @@ public class MGatewayRequest {
                 logger.warn("暂时无这种请求的方式");
                 break;
         }
+        if (returnEntity == null) {
+            throw new RuntimeException("Error when sendRequest in MGatewayRequest");
+        }
         System.out.println(returnEntity.getBody());
         return returnEntity.getBody();
     }

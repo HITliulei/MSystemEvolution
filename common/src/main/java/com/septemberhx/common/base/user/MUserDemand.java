@@ -31,7 +31,7 @@ public class MUserDemand extends MUniqueObject {
     public MUserDemand() {}
 
     public boolean isDemandMet(MFunc functionIdProvided, MSla slaLevelProvided) {
-        return functionIdProvided.equals(functionId) && slaLevelProvided == sla;
+        return functionIdProvided.getFunctionName().equals(functionId) && slaLevelProvided == sla;
     }
 
     public boolean isServiceInterfaceMet(MSvcInterface serviceInterface) {

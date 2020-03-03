@@ -48,7 +48,9 @@ public class MRequestUtils {
                 default:
                     break;
             }
-            result = entity.getBody();
+            if (entity != null) {
+                result = entity.getBody();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             logger.warn(String.format("Failed to send request to %s in %s", uri, method));

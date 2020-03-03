@@ -48,7 +48,9 @@ public class GetSourceCode {
                 logger.error(g);
             }
         }
-        git.close();
+        if (git != null) {
+            git.close();
+        }
         return map;
     }
 
@@ -113,12 +115,14 @@ public class GetSourceCode {
             logger.error(e);
         }
         String className = file.getName().split("\\.")[0];
-        if (compilationUnit.getClassByName(className).isPresent()) {
-            ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
-            NodeList<AnnotationExpr> annotations = c.getAnnotations();
-            for (Node node : annotations) {
-                if ("RestController".equals(node.getChildNodes().get(0).toString())) {
-                    return true;
+        if (compilationUnit != null && compilationUnit.getClassByName(className).isPresent()) {
+            if (compilationUnit.getClassByName(className).isPresent()) {
+                ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
+                NodeList<AnnotationExpr> annotations = c.getAnnotations();
+                for (Node node : annotations) {
+                    if ("RestController".equals(node.getChildNodes().get(0).toString())) {
+                        return true;
+                    }
                 }
             }
         }
@@ -202,12 +206,15 @@ public class GetSourceCode {
         deleteDir(CODE_DIWNLOAD_PATH);
         String p = CODE_DIWNLOAD_PATH + "/" + projectname;
         Git git = null;
+        List<String> result = new ArrayList<>();
         try {
             git = Git.cloneRepository().setURI(url).setDirectory(new File(p)).call();
+            result = new ArrayList<>(git.getRepository().getTags().keySet());
+            git.close();
+
         } catch (Exception e) {
             logger.error(e);
         }
-        git.close();
-        return new ArrayList<>(git.getRepository().getTags().keySet());
+        return result;
     }
 }

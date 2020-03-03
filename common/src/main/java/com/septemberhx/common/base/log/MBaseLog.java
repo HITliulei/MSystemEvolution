@@ -74,6 +74,10 @@ public abstract class MBaseLog implements Comparable<MBaseLog> {
         }
 
         MBaseLog baseLog = getPlainBaseLogByType(MLogType.valueOf(splitArr[1]));
+        if (baseLog == null) {
+            throw new RuntimeException("Failed to parse log line: " + strLine);
+        }
+
         baseLog.fillInfo(splitArr);
         return baseLog;
     }
@@ -82,6 +86,10 @@ public abstract class MBaseLog implements Comparable<MBaseLog> {
         MBaseLog baseLog = null;
         try {
             baseLog = getPlainBaseLogByType(MLogType.valueOf((String) logMap.get("logType")));
+            if (baseLog == null) {
+                throw new RuntimeException("Failed to get the type of the log with: " + logMap.get("logType"));
+            }
+
             baseLog.fillInfo(logMap);
         } catch (Exception e) {
             baseLog = null;
@@ -132,20 +140,5 @@ public abstract class MBaseLog implements Comparable<MBaseLog> {
         } else {
             return null;
         }
-    }
-
-    public static void main(String[] args) {
-        Map<String, Object> testMap = new HashMap<>();
-        testMap.put("logType", "FUNCTION_CALL_END");
-        testMap.put("logIpAddr", "10.244.0.1");
-        testMap.put("logFromIpAddr", "10.244.0.1");
-        testMap.put("logObjectId", "MGateway");
-        testMap.put("logMethodName", "user_01_pay_function");
-        testMap.put("logUserId", "user_01");
-        testMap.put("logDateTimeInMills", 1574497241787L);
-        testMap.put("logFromPort", 57845);
-
-        MBaseLog baseLog = MBaseLog.getLogFromMap(testMap);
-        System.out.println(baseLog.toString());
     }
 }

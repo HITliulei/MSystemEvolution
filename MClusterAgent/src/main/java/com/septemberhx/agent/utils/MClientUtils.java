@@ -62,6 +62,10 @@ public class MClientUtils {
 
         // read pod configure file supplied by users
         V1Pod pod = readPodYaml(serviceName);
+        if (pod == null) {
+            throw new RuntimeException("Cannot get the yaml file for service: " + serviceName);
+        }
+
         // fill the container image
         pod.getMetadata().getLabels().put("app", deploymentName);
         for (V1Container container : pod.getSpec().getContainers()) {
@@ -106,7 +110,7 @@ public class MClientUtils {
         V1Pod pod = null;
         try {
             Object podYamlObj = Yaml.load(new File("./yaml/" + serviceName + ".yaml"));
-            if (podYamlObj.getClass().getSimpleName().equals("V1Pod")) {
+            if (podYamlObj instanceof V1Pod) {
                 pod = (V1Pod) podYamlObj;
             }
         } catch (Exception e) {
@@ -227,11 +231,19 @@ public class MClientUtils {
 
     public void depoly(MDeployPodRequest mDeployPodRequest) {
         try {
-            V1Pod pod = dockerManager.deployInstanceOnNode(mDeployPodRequest.getNodeId(), mDeployPodRequest.getUniqueId(), mDeployPodRequest.getServiceName(), mDeployPodRequest.getImageUrl());
+            V1Pod pod = dockerManager.deployInstanceOnNode(
+                    mDeployPodRequest.getNodeId(),
+                    mDeployPodRequest.getUniqueId(),
+                    mDeployPodRequest.getServiceName(),
+                    mDeployPodRequest.getImageUrl()
+            );
             podDuringDeploying.put(pod.getMetadata().getName(), mDeployPodRequest);
             logger.info("Job " + mDeployPodRequest.getId() + " dispatched");
         } catch (Exception e) {
-            logger.warn(String.format("Failed to notify job %s to MServer. Please check the connection to MServer", mDeployPodRequest.getId()));
+            logger.warn(String.format(
+                    "Failed to notify job %s to MServer. Please check the connection to MServer",
+                    mDeployPodRequest.getId()
+            ));
         }
     }
 
@@ -243,7 +255,9 @@ public class MClientUtils {
         String jobId = podDuringDeploying.get(infoBean.getDockerInfo().getInstanceId()).getId();
 
         MDeployNotifyRequest deployNotifyRequest = new MDeployNotifyRequest(jobId, instanceId);
-        MRequestUtils.sendRequest(MUrlUtils.getMServerDeployNotifyJobUri(serverIpAddr, serverPort), deployNotifyRequest, null, RequestMethod.POST);
+        MRequestUtils.sendRequest(
+                MUrlUtils.getMServerDeployNotifyJobUri(serverIpAddr, serverPort),
+                deployNotifyRequest, null, RequestMethod.POST);
 
 
         logger.info("Job " + jobId + " finished and notified");

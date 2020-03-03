@@ -39,7 +39,7 @@ import java.util.*;
 @Service
 public class MClientSkeleton {
 
-    private static volatile MClientSkeleton instance;
+    private static MClientSkeleton instance;
     @Getter
     private Map<String, MObject> mObjectMap;
     @Getter
@@ -59,6 +59,8 @@ public class MClientSkeleton {
 
     @Setter
     private Mvf4msConfig mvf4msConfig;
+
+    private Random random = new Random(10000);
 
     private MClientSkeleton() {
         this.mObjectMap = new HashMap<>();
@@ -86,9 +88,7 @@ public class MClientSkeleton {
     public InstanceInfo getRandomServiceInstance(String serviceName) {
         Application app = this.discoveryClient.getApplication(serviceName);
         if (app != null) {
-            Random r = new Random();
-            int rInt = r.nextInt(app.getInstances().size());
-            return app.getInstances().get(rInt);
+            return app.getInstances().get(this.random.nextInt(app.getInstances().size()));
         }
         return null;
     }
