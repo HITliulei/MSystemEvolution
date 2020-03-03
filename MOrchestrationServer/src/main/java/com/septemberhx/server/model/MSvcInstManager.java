@@ -4,7 +4,7 @@ import com.septemberhx.common.base.MUniqueObjectManager;
 
 import java.util.*;
 
-public class MServiceInstanceManager extends MUniqueObjectManager<MServiceInstance> {
+public class MSvcInstManager extends MUniqueObjectManager<MServiceInstance> {
 
     public Map<String, List<MServiceInstance>> getInstancesGroupByClusterId() {
         Map<String, List<MServiceInstance>> resultMap = new HashMap<>();

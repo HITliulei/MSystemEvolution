@@ -115,11 +115,11 @@ public class MServerSkeleton {
         return MServerSkeleton.getInstance().getCurrSystemModel().getNodeManager();
     }
 
-    public static MServiceInstanceManager getCurrInstManager() {
+    public static MSvcInstManager getCurrInstManager() {
         return MServerSkeleton.getInstance().getCurrSystemModel().getInstanceManager();
     }
 
-    public static MServiceInstanceManager getNextInstManager() {
+    public static MSvcInstManager getNextInstManager() {
         return MServerSkeleton.getInstance().getNextSystemModel().getInstanceManager();
     }
 }
