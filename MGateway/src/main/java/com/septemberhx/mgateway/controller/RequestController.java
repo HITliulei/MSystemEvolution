@@ -2,6 +2,8 @@ package com.septemberhx.mgateway.controller;
 
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.config.MConfig;
+import com.septemberhx.mgateway.core.MGatewayRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,6 +16,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 public class RequestController {
+
+    @Autowired
+    private MGatewayRequest gatewayRequest;
 
     @PostMapping(path = MConfig.MGATEWAY_DEPENDENCY_CALL)
     @ResponseBody
