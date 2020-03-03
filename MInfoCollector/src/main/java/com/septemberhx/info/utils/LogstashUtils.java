@@ -10,6 +10,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
@@ -20,6 +22,8 @@ import java.io.IOException;
  */
 public class LogstashUtils {
 
+    private static Logger logger = LogManager.getLogger(LogstashUtils.class);
+
     /**
      * send the json object to logstash through POST request.
      * @param jsonObjectStr: message you want to send
@@ -28,7 +32,7 @@ public class LogstashUtils {
         try {
             send(MUrlUtils.getRemoteUri(logstashIp, logstashPort, "").toString(), jsonObjectStr, "utf-8");
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
 
     }
@@ -54,7 +58,7 @@ public class LogstashUtils {
             EntityUtils.consume(entity);
             response.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         } finally {
             client.close();
         }

@@ -21,7 +21,7 @@ import org.joda.time.DateTime;
  * @date 2019/8/31
  */
 public class MLogUtils {
-    public static Logger logger = createLogger();
+    private static Logger logger = createLogger();
 
     public static String convertLogObjectToString(MServiceBaseLog baseLog) {
         return baseLog.toString();

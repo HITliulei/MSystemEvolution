@@ -73,9 +73,7 @@ public class MClientSkeleton {
     public static MClientSkeleton inst() {
         if (instance == null) {
             synchronized (MClientSkeleton.class) {
-                if (instance == null) {
-                    instance = new MClientSkeleton();
-                }
+                instance = new MClientSkeleton();
             }
         }
         return instance;

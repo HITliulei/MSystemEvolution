@@ -35,9 +35,7 @@ public class MServerSkeleton {
     public static MServerSkeleton getInstance() {
         if (instance == null) {
             synchronized (MServerSkeleton.class) {
-                if (instance == null) {
-                    instance = new MServerSkeleton();
-                }
+                instance = new MServerSkeleton();
             }
         }
         return instance;

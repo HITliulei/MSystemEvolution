@@ -79,7 +79,7 @@ public class LogFileCollector implements IInfoCollector {
         try {
             monitor.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
     }
 

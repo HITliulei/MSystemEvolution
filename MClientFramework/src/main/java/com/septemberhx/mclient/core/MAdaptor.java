@@ -21,9 +21,7 @@ public class MAdaptor {
     public static MAdaptor getInstance() {
         if (instance == null) {
             synchronized (MAdaptor.class) {
-                if (instance == null) {
-                    MAdaptor.instance = new MAdaptor();
-                }
+                MAdaptor.instance = new MAdaptor();
             }
         }
         return MAdaptor.instance;

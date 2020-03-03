@@ -49,7 +49,7 @@ public class MDockerManagerK8SImpl implements MDockerManager {
                 }
             }
         } catch (ApiException e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
         return infoBean;
     }
@@ -68,7 +68,7 @@ public class MDockerManagerK8SImpl implements MDockerManager {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
         return false;
     }
@@ -90,7 +90,7 @@ public class MDockerManagerK8SImpl implements MDockerManager {
 //            watchPodStatus();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
     }
 
@@ -128,7 +128,7 @@ public class MDockerManagerK8SImpl implements MDockerManager {
         } catch (IllegalStateException e) {
             ;
         } catch (ApiException e) {
-            e.printStackTrace();
+            logger.debug(e);
         } catch (Exception e) {
             ;
         }
@@ -156,7 +156,7 @@ public class MDockerManagerK8SImpl implements MDockerManager {
         try {
             resultPod = coreV1Api.createNamespacedPod(K8S_NAMESPACE, podBody, null, null, null);
         } catch (ApiException e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
         return resultPod;
     }

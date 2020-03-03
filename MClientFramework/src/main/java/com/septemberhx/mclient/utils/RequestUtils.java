@@ -21,7 +21,7 @@ import java.util.List;
 @Component
 public class RequestUtils {
 
-    public static Logger logger = LogManager.getLogger(RequestUtils.class);
+    public final static Logger logger = LogManager.getLogger(RequestUtils.class);
 
     public static List<String> getMethodParamNames(Method method) {
         DefaultParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();

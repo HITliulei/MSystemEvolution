@@ -96,10 +96,8 @@ public class GetServiceInfo {
             }
         } catch (FileNotFoundException e) {
             logger.error(e);
-            e.printStackTrace();
         } catch (IOException e) {
             logger.error(e);
-            e.printStackTrace();
         }
         return mService;
     }
@@ -133,8 +131,9 @@ public class GetServiceInfo {
         String[] strings = codepath.split("/");
         String className = strings[strings.length - 1].split("\\.")[0];
 
-        if (compilationUnit.getClassByName(className).isPresent()) {
-            ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
+        Optional<ClassOrInterfaceDeclaration> cOptional = compilationUnit.getClassByName(className);
+        if (cOptional.isPresent()) {
+            ClassOrInterfaceDeclaration c = cOptional.get();
             NodeList<AnnotationExpr> annotations = c.getAnnotations();
             // 所有的基础路径
             List<String> pathContexts = getContextPath(contextPath, annotations);
@@ -222,8 +221,9 @@ public class GetServiceInfo {
                 /* 遍历函数内部寻找 版本依赖的调用方法 */
                 mSvcInterface.setParams(paramerList);
 
-                if (m.getBody().isPresent()) {
-                    List<MDependency> dependences = getDependence(m.getBody().get());
+                Optional<BlockStmt> bodyOptional = m.getBody();
+                if (bodyOptional.isPresent()) {
+                    List<MDependency> dependences = getDependence(bodyOptional.get());
                     mSvcInterface.setMDependencies(dependences);
                     for (String string : pathurl) {
                         mSvcInterface.setPatternUrl(string);

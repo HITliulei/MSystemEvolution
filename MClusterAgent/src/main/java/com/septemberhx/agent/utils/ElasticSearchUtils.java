@@ -72,7 +72,7 @@ public class ElasticSearchUtils {
 //                            logger.info(baseLog.toString());
                         }
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        logger.debug(e);
                     }
                 }
 
@@ -120,7 +120,7 @@ public class ElasticSearchUtils {
         try {
             esClient.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
     }
 }

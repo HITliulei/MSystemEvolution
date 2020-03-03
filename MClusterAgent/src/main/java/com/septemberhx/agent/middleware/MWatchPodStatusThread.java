@@ -36,7 +36,7 @@ public class MWatchPodStatusThread extends Thread {
             Configuration.setDefaultApiClient(client);
             this.coreV1Api = new CoreV1Api(this.client);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
     }
 
@@ -77,14 +77,14 @@ public class MWatchPodStatusThread extends Thread {
                     }
                 }
             } catch (ApiException e) {
-                e.printStackTrace();
+                logger.debug(e);
             } finally {
                 if (watch != null) {
                     watch.close();
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
 //        }
     }

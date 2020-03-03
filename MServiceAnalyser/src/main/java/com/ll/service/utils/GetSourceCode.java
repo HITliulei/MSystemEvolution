@@ -13,10 +13,7 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Lei on 2019/11/29 15:45
@@ -115,9 +112,10 @@ public class GetSourceCode {
             logger.error(e);
         }
         String className = file.getName().split("\\.")[0];
-        if (compilationUnit != null && compilationUnit.getClassByName(className).isPresent()) {
-            if (compilationUnit.getClassByName(className).isPresent()) {
-                ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
+        if (compilationUnit != null) {
+            Optional<ClassOrInterfaceDeclaration> cOptional = compilationUnit.getClassByName(className);
+            if (cOptional.isPresent()) {
+                ClassOrInterfaceDeclaration c = cOptional.get();
                 NodeList<AnnotationExpr> annotations = c.getAnnotations();
                 for (Node node : annotations) {
                     if ("RestController".equals(node.getChildNodes().get(0).toString())) {

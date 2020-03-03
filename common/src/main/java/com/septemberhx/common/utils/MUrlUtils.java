@@ -133,7 +133,7 @@ public class MUrlUtils {
                     path, null, null
             );
         } catch (URISyntaxException e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
         logger.debug(uri);
         return uri;
@@ -150,7 +150,7 @@ public class MUrlUtils {
         try {
             uri = UriComponentsBuilder.fromUri(oldUri).queryParams(pMap).build().toUri();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
         return uri;
     }
