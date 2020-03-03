@@ -9,6 +9,8 @@ import com.septemberhx.common.bean.mclient.MClientInfoBean;
 import com.septemberhx.common.bean.mclient.MInstanceRestInfoBean;
 import com.septemberhx.mclient.config.Mvf4msConfig;
 import com.septemberhx.mclient.core.MClientSkeleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -50,6 +52,8 @@ public class MClientController {
     @Autowired
     private Mvf4msConfig mvf4msConfig;
 
+    private static Logger logger = LogManager.getLogger(MClientController.class);
+
     /**
      * Do something for MClient App:
      *   * Register new metadata so we can identify whether it is a MClient app or not
@@ -65,7 +69,7 @@ public class MClientController {
         MClientSkeleton.inst().setDiscoveryClient(this.discoveryClient);
         MClientSkeleton.inst().setRequestMappingHandlerMapping(this.handlerMapping);
         MClientSkeleton.inst().setMvf4msConfig(this.mvf4msConfig);
-        System.out.println(this.mvf4msConfig.toString());
+        logger.info(this.mvf4msConfig.toString());
     }
 
     @ResponseBody

@@ -2,6 +2,8 @@ package com.septemberhx.common.service;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Objects;
 
@@ -20,6 +22,8 @@ public class MSvcVersion {
     private int mainVersionNum;
     private int childVersionNum;
     private int fixVersionNum;
+
+    private static Logger logger = LogManager.getLogger(MSvcVersion.class);
 
     @Override
     public boolean equals(Object o) {
@@ -43,7 +47,7 @@ public class MSvcVersion {
             version.setChildVersionNum(Integer.valueOf(numArr[1]));
             version.setFixVersionNum(Integer.valueOf(numArr[2]));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.debug(e);
         }
         return version;
     }

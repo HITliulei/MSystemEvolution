@@ -5,6 +5,8 @@ import com.netflix.discovery.shared.Application;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.mgateway.config.MGatewayConfig;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,7 @@ public class MGatewayRequest {
     private MGatewayConfig gatewayConfig;
 
     private final Random random = new Random(10000);
+    private static Logger logger = LogManager.getLogger(MGatewayRequest.class);
 
     private InstanceInfo getRandomClusterAgentInstance() {
         Application clusterAgentApp = this.gatewayConfig.getDiscoveryClient().getApplication(MConfig.MCLUSTERAGENT_NAME);

@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 /**
  * @author SeptemberHX
  * @version 0.1
@@ -16,9 +18,9 @@ public class Mvf4msDep {
     private String id;
     private String serviceName;
     private String patternUrl;
-    private String version;
+    private List<String> versions;
     private String function;
-    private String sla;
+    private List<Integer> slas;
 
     // For json parsing
     public Mvf4msDep() {

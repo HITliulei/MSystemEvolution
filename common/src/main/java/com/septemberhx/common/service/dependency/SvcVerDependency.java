@@ -4,6 +4,8 @@ import com.septemberhx.common.service.MSvcVersion;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Set;
+
 /**
  * @author SeptemberHX
  * @version 0.1
@@ -13,10 +15,10 @@ import lombok.ToString;
 @ToString
 public class SvcVerDependency extends BaseSvcDependency {
 
-    public SvcVerDependency(String id, String serviceName, String patternUrl, MSvcVersion version) {
+    public SvcVerDependency(String id, String serviceName, String patternUrl, Set<MSvcVersion> versionSet) {
         this.id = id;
         this.serviceName = serviceName;
         this.patternUrl = patternUrl;
-        this.version = version;
+        this.versionSet = versionSet;
     }
 }

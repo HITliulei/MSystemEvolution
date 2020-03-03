@@ -4,6 +4,8 @@ import com.septemberhx.common.service.MSla;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.Set;
+
 /**
  * @author SeptemberHX
  * @version 0.1
@@ -13,10 +15,10 @@ import lombok.ToString;
 @ToString
 public class SvcSlaDependency extends BaseSvcDependency {
 
-    public SvcSlaDependency(String id, String serviceName, MSla sla, String patternUrl) {
+    public SvcSlaDependency(String id, String serviceName, Set<MSla> slaSet, String patternUrl) {
         this.id = id;
         this.serviceName = serviceName;
-        this.sla = sla;
+        this.slaSet = slaSet;
         this.patternUrl = patternUrl;
     }
 }

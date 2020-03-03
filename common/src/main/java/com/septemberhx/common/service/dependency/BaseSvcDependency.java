@@ -1,9 +1,12 @@
 package com.septemberhx.common.service.dependency;
 
+import com.septemberhx.common.service.MFunc;
 import com.septemberhx.common.service.MFuncDescription;
 import com.septemberhx.common.service.MSla;
 import com.septemberhx.common.service.MSvcVersion;
 import lombok.Getter;
+
+import java.util.Set;
 
 /**
  * @author SeptemberHX
@@ -19,27 +22,27 @@ public class BaseSvcDependency {
     // developer use the id to call APIs instead of embedded the service name and patternUrl in code
     protected String id;
 
-    protected MFuncDescription funcDescription;
+    protected MFunc func;
 
     // service name
     protected String serviceName;
 
     // prefer sla level
-    protected MSla sla;
+    protected Set<MSla> slaSet;
 
     // API url
     protected String patternUrl;
 
     // the version of ${serviceName}
-    protected MSvcVersion version;
+    protected Set<MSvcVersion> versionSet;
 
     public BaseSvcDependency toRealDependency() {
-        if (this.funcDescription != null) {
-            return new SvcFuncDependency(this.id, this.funcDescription);
-        } else if (this.serviceName != null && this.patternUrl != null && this.version != null) {
-            return new SvcVerDependency(this.id, this.serviceName, this.patternUrl, this.version);
-        } else if (this.serviceName != null && this.patternUrl != null && this.sla != null) {
-            return new SvcSlaDependency(this.id, this.serviceName, this.sla, this.patternUrl);
+        if (this.func != null && this.slaSet != null) {
+            return new SvcFuncDependency(this.id, this.func, this.slaSet);
+        } else if (this.serviceName != null && this.patternUrl != null && this.versionSet != null) {
+            return new SvcVerDependency(this.id, this.serviceName, this.patternUrl, this.versionSet);
+        } else if (this.serviceName != null && this.patternUrl != null && this.slaSet != null) {
+            return new SvcSlaDependency(this.id, this.serviceName, this.slaSet, this.patternUrl);
         } else {
             return null;
         }
