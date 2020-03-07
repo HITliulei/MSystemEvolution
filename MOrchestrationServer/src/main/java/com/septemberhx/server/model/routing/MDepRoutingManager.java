@@ -6,6 +6,7 @@ import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import com.septemberhx.server.model.MSvcManager;
+import com.septemberhx.server.utils.MIDUtils;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -90,6 +91,64 @@ public class MDepRoutingManager {
      */
     private List<MSvcInterface> getInterfaceIdsCalledDep(BaseSvcDependency dependency, MService service) {
         return service.getInterfacesContainDep(dependency);
+    }
+
+    /*
+     * Delete current routing for dependency of clientId
+     *   used plot number will be release with sum(count * coe)
+     */
+    private void unmapInstDep(String clientId, String serviceId, BaseSvcDependency dependency, MSvcManager svcManager) {
+        if (this.routingTable.containsKey(clientId) && this.routingTable.get(clientId).containsKey(dependency)) {
+            this.releaseInstDep(clientId, serviceId, dependency, svcManager, true);
+            this.routingTable.get(clientId).remove(dependency);
+        }
+    }
+
+    private void releaseInstDep(String clientId, String serviceId, BaseSvcDependency dependency, MSvcManager svcManager, boolean releaseFlag) {
+        Optional<MService> serviceOpt = svcManager.getById(serviceId);
+        int totalCount = 1;
+        if (MIDUtils.checkIfInstId(clientId) && serviceOpt.isPresent()) {
+            if (!this.usedPlot.containsKey(clientId)) {
+                this.usedPlot.put(clientId, new HashMap<>());
+            }
+
+            totalCount = 0;
+            for (MSvcInterface svcInterface : this.getInterfaceIdsCalledDep(dependency, serviceOpt.get())) {
+                totalCount += svcInterface.getInvokeCountMap().getOrDefault(dependency, 0)
+                        * this.usedPlot.get(clientId).getOrDefault(svcInterface.getId(), 0);
+            }
+        }
+
+        if (!releaseFlag) {
+            totalCount *= -1;
+        }
+
+        String invokedInstanceId = this.routingTable.get(clientId).get(dependency).getValue0();
+        String invokedInterfaceId = this.routingTable.get(clientId).get(dependency).getValue1();
+        this.releasePlotNum(invokedInstanceId, invokedInterfaceId, totalCount, svcManager);
+    }
+
+        /*
+     * Set the routing for dependency of clientId to invokedInterfaceId of invokedInstId
+     */
+    private void mapInstDep(String clientId, String serviceId, BaseSvcDependency dependency,
+                            String invokedInstId, String invokedInterfaceId, MSvcManager svcManager) {
+        if (!this.routingTable.containsKey(clientId)) {
+            this.routingTable.put(clientId, new HashMap<>());
+        }
+
+        if (this.routingTable.get(clientId).containsKey(dependency)) {
+            Pair<String, String> destPair = this.routingTable.get(clientId).get(dependency);
+            if (destPair.getValue0().equals(invokedInstId) && destPair.getValue1().equals(invokedInterfaceId)) {
+                return;
+            }
+            this.unmapInstDep(clientId, serviceId, dependency, svcManager);
+        }
+
+        // Cannot change the order of updating the routingTable and releaseInstDep
+        //   because in releaseInstDep(), the routingTable should hold the routing for the clientId, dependency
+        this.routingTable.get(clientId).put(dependency, new Pair<>(invokedInstId, invokedInterfaceId));
+        this.releaseInstDep(clientId, serviceId, dependency, svcManager, false);
     }
 
     private void releasePlotNum(String instanceId, String interfaceId, int releaseNum, MSvcManager svcManager) {
