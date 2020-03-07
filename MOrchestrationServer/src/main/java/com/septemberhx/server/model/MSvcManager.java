@@ -3,6 +3,7 @@ package com.septemberhx.server.model;
 import com.septemberhx.common.base.MUniqueObjectManager;
 import com.septemberhx.common.exception.MethodNotAllowException;
 import com.septemberhx.common.service.MService;
+import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.server.utils.MDatabaseUtils;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
  * @date 2019/12/13
  */
 @Component
-public class MServiceManager extends MUniqueObjectManager<MService> {
+public class MSvcManager extends MUniqueObjectManager<MService> {
 
     public boolean registerService(MService newService) {
         return this.updateService(newService);
@@ -25,6 +26,15 @@ public class MServiceManager extends MUniqueObjectManager<MService> {
     @Override
     public void update(MService obj) {
         throw new MethodNotAllowException("Don't use this method in MServiceManager due to the DB operations");
+    }
+
+    public Optional<MSvcInterface> getInterfaceById(String interfaceId) {
+        for (MService service : this.objectMap.values()) {
+            if (service.getServiceInterfaceMap().containsKey(interfaceId)) {
+                return Optional.of(service.getServiceInterfaceMap().get(interfaceId));
+            }
+        }
+        return Optional.empty();
     }
 
     public boolean updateService(MService newService) {

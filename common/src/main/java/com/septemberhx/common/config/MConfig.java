@@ -64,6 +64,7 @@ public class MConfig {
     // --- new version ---
     public final static String MSERVER_CLUSTER_REPORT_INSTANCEINFO = "/cluster/reportInstanceInfo";
     public final static String MSERVER_CLUSTER_REGISTER = "/cluster/registerCluster";
+    public final static String MSERVER_NEW_DEP_REQUEST = "/request/newDepRequest";
 
     public final static String MCLUSTER_SVC_METADATA_NAME = "mclient";
     public final static String MCLUSTER_SVC_METADATA_VALUE = "true";
@@ -71,6 +72,7 @@ public class MConfig {
 
     public final static String MGATEWAY_NAME = "MGateway";
     public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";
+    public final static String MGATEWAY_SERVICE_UPDATE = "/service/update";
     public final static String MGATEWAY_DEPENDENCY_ID = "__dependency_id";
 
     private static MConfig ourInstance = new MConfig();

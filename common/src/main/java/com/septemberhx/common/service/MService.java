@@ -1,12 +1,15 @@
 package com.septemberhx.common.service;
 
 import com.septemberhx.common.base.MUniqueObject;
+import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author SeptemberHX
@@ -26,7 +29,16 @@ public class MService extends MUniqueObject {
     private String gitUrl;
     private int port;
     private String imageUrl;
+    private Integer maxPlotNum;
     private Map<String, MSvcInterface> serviceInterfaceMap;
+
+    /*
+     * Get the interface list that use the given dependency
+     */
+    public List<MSvcInterface> getInterfacesContainDep(BaseSvcDependency dependency) {
+        return this.serviceInterfaceMap.values().stream()
+                .filter(s -> s.getInvokeCountMap().containsKey(dependency)).collect(Collectors.toList());
+    }
 
     @Override
     public boolean equals(Object o) {

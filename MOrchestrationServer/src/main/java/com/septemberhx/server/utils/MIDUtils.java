@@ -15,6 +15,9 @@ public class MIDUtils {
     private static Long lastInstanceIdTimeMills = 0L;
     private static int instanceCountEachMill = 0;
 
+    private final static String INSTANCE_ID_PREFIX = "INST";
+    private final static String USER_ID_PREFIX = "USER";
+
     public static synchronized String uniqueJobId(MJobType jobType) {
         long currTimeMills = System.currentTimeMillis();
         if (currTimeMills != lastJobIdTimeMills) {
@@ -42,5 +45,13 @@ public class MIDUtils {
 
         return String.format(
                 "%s-%s-%s-%s", serviceName, version, MIDUtils.lastJobIdTimeMills, MIDUtils.instanceCountEachMill);
+    }
+
+    public static boolean checkIfUserId(String idStr) {
+        return idStr != null && idStr.startsWith(USER_ID_PREFIX);
+    }
+
+    public static boolean checkIfInstId(String idStr) {
+        return idStr != null && idStr.startsWith(INSTANCE_ID_PREFIX);
     }
 }

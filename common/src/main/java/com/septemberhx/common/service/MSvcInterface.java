@@ -1,11 +1,13 @@
 package com.septemberhx.common.service;
 
 import com.septemberhx.common.base.MUniqueObject;
+import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -25,6 +27,7 @@ public class MSvcInterface extends MUniqueObject {
     private String returnType;
     private String serviceId;
     private List<MDependency> mDependencies;
+    private Map<BaseSvcDependency, Integer> invokeCountMap;
 
     @Override
     public boolean equals(Object o) {

@@ -2,6 +2,7 @@ package com.septemberhx.mgateway.controller;
 
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.config.MConfig;
+import com.septemberhx.common.service.MService;
 import com.septemberhx.mgateway.core.MGatewayRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

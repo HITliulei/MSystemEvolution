@@ -37,6 +37,10 @@ public class BaseSvcDependency {
     // the version of ${serviceName}
     protected Set<MSvcVersion> versionSet;
 
+    // Coefficient for calculating user number
+    // It stands for the average calling count for one request
+    protected Integer coefficient = 1;
+
     public BaseSvcDependency toRealDependency() {
         if (this.func != null && this.slaSet != null && !this.slaSet.isEmpty()) {
             return new SvcFuncDependency(this.id, this.func, this.slaSet);

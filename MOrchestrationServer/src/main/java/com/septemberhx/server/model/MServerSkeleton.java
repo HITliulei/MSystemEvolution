@@ -99,11 +99,11 @@ public class MServerSkeleton {
         }
     }
 
-    public static MServiceManager getCurrSvcManager() {
+    public static MSvcManager getCurrSvcManager() {
         return MServerSkeleton.getInstance().getCurrSystemModel().getServiceManager();
     }
 
-    public static MServiceManager getNextSvcManager() {
+    public static MSvcManager getNextSvcManager() {
         return MServerSkeleton.getInstance().getNextSystemModel().getServiceManager();
     }
 

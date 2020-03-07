@@ -4,12 +4,17 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.config.MConfig;
+import com.septemberhx.common.service.dependency.BaseSvcDependency;
+import com.septemberhx.common.service.dependency.SvcFuncDependency;
+import com.septemberhx.common.service.dependency.SvcSlaDependency;
+import com.septemberhx.common.service.dependency.SvcVerDependency;
 import com.septemberhx.mgateway.config.MGatewayConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
 import java.util.Random;
 
 /**
@@ -46,5 +51,4 @@ public class MGatewayRequest {
     public MResponse solveDepRequest(MResponse parameters) {
         return MResponse.successResponse();
     }
-
 }

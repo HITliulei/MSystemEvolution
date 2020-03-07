@@ -13,7 +13,7 @@ import org.apache.logging.log4j.Logger;
 @Getter
 @Setter
 public class MSystemModel {
-    private MServiceManager serviceManager;
+    private MSvcManager serviceManager;
     private MJobManager jobManager;
     private MClusterManager nodeManager;
     private MSvcInstManager instanceManager;
@@ -23,7 +23,7 @@ public class MSystemModel {
 
     public MSystemModel() {
         // todo: init service manager from the database
-        this.serviceManager = new MServiceManager();
+        this.serviceManager = new MSvcManager();
         this.jobManager = new MJobManager();
         this.nodeManager = new MClusterManager();
         this.instanceManager = new MSvcInstManager();
