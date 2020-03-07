@@ -22,14 +22,14 @@ public class MSvcDepDesc {
 
     // the list means the service may have multiple kinds of dependency
     // the map means the service may depend on multiple services
-    private List<Map<String, BaseSvcDependency>> dependencyList;
+    private Map<String, Map<String, BaseSvcDependency>> dependencyMaps;
 
     // unique dependency name for this service
     private String name;
 
-    public MSvcDepDesc(String serviceId, String name, List<Map<String, BaseSvcDependency>> dependencyList) {
+    public MSvcDepDesc(String serviceId, String name, Map<String, Map<String, BaseSvcDependency>> dependencyMaps) {
         this.serviceId = serviceId;
         this.name = name;
-        this.dependencyList = dependencyList;
+        this.dependencyMaps = dependencyMaps;
     }
 }

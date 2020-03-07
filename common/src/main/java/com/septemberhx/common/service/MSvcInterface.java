@@ -26,7 +26,7 @@ public class MSvcInterface extends MUniqueObject {
     private List<MParamer> params;
     private String returnType;
     private String serviceId;
-    private List<MDependency> mDependencies;
+    //private List<MDependency> mDependencies;
     private Map<BaseSvcDependency, Integer> invokeCountMap;
 
     @Override

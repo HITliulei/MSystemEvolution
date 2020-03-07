@@ -5,6 +5,7 @@ import com.septemberhx.common.service.MFunc;
 import com.septemberhx.common.service.MSla;
 import com.septemberhx.common.service.MSvcVersion;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -17,6 +18,7 @@ import java.util.Set;
  * Detail at the WIKI page of the repo.
  */
 @Getter
+@ToString
 public class BaseSvcDependency {
 
     // id which is used for mapping the request to the config

@@ -13,7 +13,10 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Lei on 2019/11/29 15:45
@@ -34,19 +37,16 @@ public class GetSourceCode {
         String projectName = urls[urls.length - 1].split("\\.")[0];
         List<String> allTags = getAllTags(url, projectName);
         Map<String, MPathInfo> map = new HashMap<>();
-        Git git = null;
         for (String tag : allTags) {
             try {
-                git = Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + tag)).call();
+                Git git = Git.cloneRepository().setURI(url).setBranch(tag).setDirectory(new File(CODE_DIWNLOAD_PATH + "/" + projectName + "_" + tag)).call();
                 MPathInfo mPathInfo = getMPathInfo(tag, projectName);
                 mPathInfo.setGitUrl(url);
                 map.put(tag, mPathInfo);
+                git.close();
             } catch (GitAPIException g) {
                 logger.error(g);
             }
-        }
-        if (git != null) {
-            git.close();
         }
         return map;
     }
@@ -65,12 +65,14 @@ public class GetSourceCode {
             mPathInfo = getMPathInfo(version, projectName);
         } else {
             try {
-                Git.cloneRepository().setURI(url).setBranch(version).setDirectory(file).call();
+                Git git = Git.cloneRepository().setURI(url).setBranch(version).setDirectory(file).call();
+                git.close();
                 mPathInfo = getMPathInfo(version, projectName);
             } catch (GitAPIException g) {
                 logger.error(g);
             }
         }
+        mPathInfo.setGitUrl(url);
         return mPathInfo;
     }
 
@@ -112,15 +114,12 @@ public class GetSourceCode {
             logger.error(e);
         }
         String className = file.getName().split("\\.")[0];
-        if (compilationUnit != null) {
-            Optional<ClassOrInterfaceDeclaration> cOptional = compilationUnit.getClassByName(className);
-            if (cOptional.isPresent()) {
-                ClassOrInterfaceDeclaration c = cOptional.get();
-                NodeList<AnnotationExpr> annotations = c.getAnnotations();
-                for (Node node : annotations) {
-                    if ("RestController".equals(node.getChildNodes().get(0).toString())) {
-                        return true;
-                    }
+        if (compilationUnit.getClassByName(className).isPresent()) {
+            ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
+            NodeList<AnnotationExpr> annotations = c.getAnnotations();
+            for (Node node : annotations) {
+                if ("RestController".equals(node.getChildNodes().get(0).toString())) {
+                    return true;
                 }
             }
         }
@@ -167,7 +166,6 @@ public class GetSourceCode {
             for (int i = 0; i < fileArr.length; i++) {
                 File fileOne = fileArr[i];
                 files.addAll(getListFiles(fileOne));
-
             }
         }
         return files;
@@ -204,15 +202,12 @@ public class GetSourceCode {
         deleteDir(CODE_DIWNLOAD_PATH);
         String p = CODE_DIWNLOAD_PATH + "/" + projectname;
         Git git = null;
-        List<String> result = new ArrayList<>();
         try {
             git = Git.cloneRepository().setURI(url).setDirectory(new File(p)).call();
-            result = new ArrayList<>(git.getRepository().getTags().keySet());
-            git.close();
-
         } catch (Exception e) {
             logger.error(e);
         }
-        return result;
+        git.close();
+        return new ArrayList<>(git.getRepository().getTags().keySet());
     }
 }

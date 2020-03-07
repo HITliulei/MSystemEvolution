@@ -11,10 +11,12 @@ import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.ll.service.bean.MPathInfo;
 import com.septemberhx.common.service.*;
+import com.septemberhx.common.service.dependency.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+
 
 import java.io.*;
 import java.util.*;
@@ -57,25 +59,98 @@ public class GetServiceInfo {
             return getInfoFromproperties(path);
         }
     }
+
+    public static void main(String[] args) throws IOException {
+        MService mService = getFromYml(new File("/application.yml"));
+        System.out.println(mService);
+    }
+
     public static MService getFromYml(File source) throws IOException {
         MService mService = new MService();
         DumperOptions OPTIONS = new DumperOptions();
         Yaml yaml = new Yaml(OPTIONS);
         Map obj = (Map) yaml.load(new FileReader(source));
         Map server = (Map) obj.get("server");
-        if (server.get("port") == null) {
+        if(server == null){
             mService.setPort(8080);
-        } else {
-            mService.setPort((int) server.get("port"));
-        }
-        if (server.get("servlet") == null) {
             mService.setGitUrl("/");
-        } else {
-            mService.setGitUrl(((Map) server.get("servlet")).get("context-path").toString());
+        }else{
+            if (server.get("port") == null) {
+                mService.setPort(8080);
+            } else {
+                mService.setPort((int) server.get("port"));
+            }
+            if (server.get("servlet") == null) {
+                mService.setGitUrl("/");
+            } else {
+                mService.setGitUrl(((Map) server.get("servlet")).get("context-path").toString());
+            }
         }
         Map spring = (Map) obj.get("spring");
-        mService.setServiceName(((Map) spring.get("application")).get("name").toString());
+        String serviceNmae = ((Map) spring.get("application")).get("name").toString();
+        mService.setServiceName(serviceNmae);
+        mService.setMSvcDepDesc(parseDependencyInYml(serviceNmae, (Map) obj.get("mvf4ms")));
         return mService;
+    }
+
+    public static MSvcDepDesc parseDependencyInYml(String service, Map mvf4ms){
+        String version = (String) mvf4ms.get("version");
+        MSvcVersion mSvcVersion = MSvcVersion.fromStr(version);
+        List<Map> dependencies = (List) mvf4ms.get("dependencies");
+        Map<String, Map<String, BaseSvcDependency>> dependencyMaps = new HashMap<>();
+        for(Map map : dependencies){
+            String dependencyName = (String) map.get("name");
+            List<Map> dependence = (List) map.get("dependence");
+            Map<String, BaseSvcDependency> dependencyMap = new HashMap<>();
+            for(Map d : dependence){
+                String dependeceId = (String) d.get("id");
+                String functionDescribe = (String) d.get("function");
+                List<Integer> slass = (List<Integer>) d.get("slas");
+                Set<MSla> slas;
+                if(slass == null){
+                    slas = null;
+                }else{
+                    slas = new HashSet<>();
+                    for(Integer integer:slass){
+                        slas.add(new MSla(integer));
+                    }
+                }
+                String serviceName = (String) d.get("serviceName");
+                String patternUrl = (String) d.get("patternUrl");
+                if(serviceName == null){
+                    System.out.println(new SvcFuncDependency(
+                            dependeceId,
+                            functionDescribe==null?null:new MFunc(functionDescribe),
+                            slas).getId());
+                    dependencyMap.put(dependeceId, new SvcFuncDependency(
+                            dependeceId,
+                            functionDescribe==null?null:new MFunc(functionDescribe),
+                            slas));
+                }else{
+                    List<String> versions = (List) d.get("versions");
+                    if(versions == null){
+                        dependencyMap.put(dependeceId,new SvcSlaDependency(
+                                dependeceId,
+                                serviceName,
+                                slas,
+                                patternUrl));
+                    }else{
+                        Set<MSvcVersion>  set = new HashSet<>();
+                        for(String string:versions){
+                            set.add(MSvcVersion.fromStr(string));
+                        }
+                        dependencyMap.put(dependeceId, new SvcVerDependency(
+                                dependeceId,
+                                serviceName,
+                                patternUrl,
+                                set));
+                    }
+                }
+            }
+            dependencyMaps.put(dependencyName,dependencyMap);
+        }
+        MSvcDepDesc mSvcDepDesc = new MSvcDepDesc(service+"_"+mSvcVersion.toString(),service,dependencyMaps);
+        return mSvcDepDesc;
     }
 
     public static MService getInfoFromproperties(String path) {
@@ -218,18 +293,17 @@ public class GetServiceInfo {
                 }
                 /*获取  接口层级的参数*/
                 List<MParamer> paramerList = getParamers(m.getParameters());
-                /* 遍历函数内部寻找 版本依赖的调用方法 */
                 mSvcInterface.setParams(paramerList);
-
-                Optional<BlockStmt> bodyOptional = m.getBody();
-                if (bodyOptional.isPresent()) {
-                    List<MDependency> dependences = getDependence(bodyOptional.get());
-                    mSvcInterface.setMDependencies(dependences);
-                    for (String string : pathurl) {
-                        mSvcInterface.setPatternUrl(string);
-                        map.put(string, mSvcInterface);
-                    }
-                }
+                /* 遍历函数内部寻找 版本依赖的调用方法 */
+//                Optional<BlockStmt> bodyOptional = m.getBody();
+//                if (bodyOptional.isPresent()) {
+//                    List<MDependency> dependences = getDependence(bodyOptional.get());
+//                    mSvcInterface.setMDependencies(dependences);
+//                    for (String string : pathurl) {
+//                        mSvcInterface.setPatternUrl(string);
+//                        map.put(string, mSvcInterface);
+//                    }
+//                }
             }
         }
         return map;
@@ -297,30 +371,30 @@ public class GetServiceInfo {
     }
 
 
-    public static List<MDependency> getDependence(BlockStmt blockStmt){
-        List<Node> nodes = blockStmt.getChildNodes();
-        List<MDependency> dependences = new ArrayList<>();
-        for (Node node : nodes) {
-            String string = node.toString();
-            if (string.contains("mSendRequest.sendRequest")) {
-                MDependency mDependency = new MDependency();
-                String[] s = string.substring(string.indexOf("mSendRequest.sendRequest(") + 25, string.indexOf(");")).split(",");
-                String version = s[1].trim().replace("\"", "");
-                MSvcVersion mSvcVersion = new MSvcVersion();
-                String[] versions = version.split("\\.");
-                mSvcVersion.setMainVersionNum(Integer.parseInt(versions[0]));
-                mSvcVersion.setChildVersionNum(Integer.parseInt(versions[1]));
-                mSvcVersion.setFixVersionNum(Integer.parseInt(versions[2]));
-                String requst = s[0].trim().replace("\"", "");
-                String requestService = requst.split("/")[3];
-                List<MSvcVersion> list = new ArrayList<>();
-                list.add(mSvcVersion);
-                mDependency.setServiceName(requestService);
-                mDependency.setPatternUrl(requst);
-                mDependency.setVersions(list);
-                dependences.add(mDependency);
-            }
-        }
-        return dependences;
-    }
+//    public static List<MDependency> getDependence(BlockStmt blockStmt){
+//        List<Node> nodes = blockStmt.getChildNodes();
+//        List<MDependency> dependences = new ArrayList<>();
+//        for (Node node : nodes) {
+//            String string = node.toString();
+//            if (string.contains("mSendRequest.sendRequest")) {
+//                MDependency mDependency = new MDependency();
+//                String[] s = string.substring(string.indexOf("mSendRequest.sendRequest(") + 25, string.indexOf(");")).split(",");
+//                String version = s[1].trim().replace("\"", "");
+//                MSvcVersion mSvcVersion = new MSvcVersion();
+//                String[] versions = version.split("\\.");
+//                mSvcVersion.setMainVersionNum(Integer.parseInt(versions[0]));
+//                mSvcVersion.setChildVersionNum(Integer.parseInt(versions[1]));
+//                mSvcVersion.setFixVersionNum(Integer.parseInt(versions[2]));
+//                String requst = s[0].trim().replace("\"", "");
+//                String requestService = requst.split("/")[3];
+//                List<MSvcVersion> list = new ArrayList<>();
+//                list.add(mSvcVersion);
+//                mDependency.setServiceName(requestService);
+//                mDependency.setPatternUrl(requst);
+//                mDependency.setVersions(list);
+//                dependences.add(mDependency);
+//            }
+//        }
+//        return dependences;
+//    }
 }
