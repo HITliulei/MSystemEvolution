@@ -3,6 +3,7 @@ package com.septemberhx.server.model;
 import com.septemberhx.common.base.MUniqueObjectManager;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MSvcInstManager extends MUniqueObjectManager<MServiceInstance> {
 
@@ -24,5 +25,10 @@ public class MSvcInstManager extends MUniqueObjectManager<MServiceInstance> {
             }
         }
         return Optional.empty();
+    }
+
+    public List<MServiceInstance> getInstanceByNodeId(String nodeId) {
+        return this.objectMap.values().stream()
+                .filter(s -> s.getNodeId().equals(nodeId)).collect(Collectors.toList());
     }
 }

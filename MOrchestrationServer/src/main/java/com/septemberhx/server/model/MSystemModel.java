@@ -1,5 +1,6 @@
 package com.septemberhx.server.model;
 
+import com.septemberhx.server.model.routing.MDepRoutingManager;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +19,7 @@ public class MSystemModel {
     private MClusterManager nodeManager;
     private MSvcInstManager instanceManager;
     private MSvcDepManager svcDepManager;
+    private MDepRoutingManager routingManager;
 
     private static Logger logger = LogManager.getLogger(MSystemModel.class);
 
@@ -27,5 +29,6 @@ public class MSystemModel {
         this.jobManager = new MJobManager();
         this.nodeManager = new MClusterManager();
         this.instanceManager = new MSvcInstManager();
+        this.routingManager = new MDepRoutingManager();
     }
 }

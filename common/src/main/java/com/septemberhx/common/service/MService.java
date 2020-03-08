@@ -10,6 +10,7 @@ import lombok.ToString;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +43,15 @@ public class MService extends MUniqueObject {
                 .filter(s -> s.getInvokeCountMap().containsKey(dependency)).collect(Collectors.toList());
     }
 
+    public Optional<MSvcInterface> getInterfaceByPatternUrl(String patternUrl) {
+        for (MSvcInterface svcInterface : this.serviceInterfaceMap.values()) {
+            if (svcInterface.getPatternUrl().equals(patternUrl)) {
+                return Optional.of(svcInterface);
+            }
+        }
+        return Optional.empty();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -62,5 +72,9 @@ public class MService extends MUniqueObject {
                 Objects.equals(serviceVersion, service.serviceVersion) &&
                 Objects.equals(gitUrl, service.gitUrl) &&
                 Objects.equals(imageUrl, service.imageUrl);
+    }
+
+    public MSvcInterface getInterfaceById(String interfaceId) {
+        return this.getServiceInterfaceMap().get(interfaceId);
     }
 }

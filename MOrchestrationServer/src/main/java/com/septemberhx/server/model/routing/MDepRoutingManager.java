@@ -5,6 +5,8 @@ import com.septemberhx.common.exception.NonexistenServiceException;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
+import com.septemberhx.server.model.MServiceInstance;
+import com.septemberhx.server.model.MSvcInstManager;
 import com.septemberhx.server.model.MSvcManager;
 import com.septemberhx.server.utils.MIDUtils;
 import org.javatuples.Pair;
@@ -40,6 +42,47 @@ public class MDepRoutingManager {
      * Map[instanceId, Map[interfaceId, used number]]
      */
     private Map<String, Map<String, Integer>> usedPlot;
+
+    public boolean checkInstHasAvailablePlot(
+            String instanceId, String interfaceId, MSvcManager svcManager, MSvcInstManager instManager, int plotNum) {
+        Optional<MServiceInstance> serviceInstanceOpt = instManager.getById(instanceId);
+        if (serviceInstanceOpt.isPresent()) {
+            MServiceInstance serviceInstance = serviceInstanceOpt.get();
+            Optional<MService> serviceOpt = svcManager.getById(serviceInstance.getServiceId());
+            if (serviceOpt.isPresent()) {
+                if (this.getUsedPlotNum(instanceId) + plotNum >= serviceOpt.get().getMaxPlotNum()) {
+                    return false;
+                }
+
+                // we also need to check whether instance invoked by this one has free plot
+                MSvcInterface svcInterface = serviceOpt.get().getInterfaceById(interfaceId);
+                for (BaseSvcDependency svcDependency : svcInterface.getInvokeCountMap().keySet()) {
+                    Pair<String, String> routingPair = this.routingTable.get(instanceId).get(svcDependency);
+                    // do not forget the coe of the invoked count
+                    if (!this.checkInstHasAvailablePlot(
+                            routingPair.getValue0(),
+                            routingPair.getValue1(),
+                            svcManager,
+                            instManager,
+                            plotNum * svcInterface.getInvokeCountMap().get(svcDependency))) {
+                        return false;
+                    }
+                }
+                return true;
+            } else {
+                throw new NonexistenServiceException(serviceInstanceOpt.get().getServiceId());
+            }
+        }
+        return false;
+    }
+
+    public int getUsedPlotNum(String instanceId) {
+        int totalNum = 0;
+        if (this.usedPlot.containsKey(instanceId)) {
+            totalNum = this.usedPlot.get(instanceId).values().stream().mapToInt(n -> n).sum();
+        }
+        return totalNum;
+    }
 
     public void addNewInstance(String instanceId, String serviceId, MSvcManager currSvcManager) {
         Optional<MService> serviceOpt = currSvcManager.getById(serviceId);
