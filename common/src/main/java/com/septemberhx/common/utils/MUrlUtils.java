@@ -1,5 +1,6 @@
 package com.septemberhx.common.utils;
 
+import com.septemberhx.common.bean.MRoutingBean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.util.LinkedMultiValueMap;
@@ -120,6 +121,12 @@ public class MUrlUtils {
 
     public static URI getMClusterDoRequestUri(String ipAddr, int port) {
         return MUrlUtils.getRemoteUri(ipAddr, port, MConfig.MCLUSTERAGENT_DO_REQUEST_URL);
+    }
+
+    public static URI getRemoteUri(MRoutingBean routingBean) {
+        return MUrlUtils.getRemoteUri(
+                routingBean.getIpAddr(), routingBean.getPort(), routingBean.getPatternUrl()
+        );
     }
 
     public static URI getRemoteUri(String ipAddr, int port, String path) {

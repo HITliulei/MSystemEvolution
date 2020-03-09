@@ -17,7 +17,7 @@ public class MVerRequestUtils {
 
     public static MResponse request(String requestId, MResponse parameters, RequestMethod requestMethod) {
         // Send the request dependence to the gateway in order to determine which instance should be requested
-        parameters.set(MConfig.MGATEWAY_DEPENDENCY_ID, MClientSkeleton.inst().getDepListById(requestId));
+        parameters.set(MConfig.MGATEWAY_DEPENDENCY_ID, MClientSkeleton.inst().getDepListById(requestId).get(0));
 
         // Get an online MGateway instance randomly, and send the request to it
         InstanceInfo gatewayInstance = MClientSkeleton.inst().getRandomServiceInstance(MConfig.MGATEWAY_NAME);

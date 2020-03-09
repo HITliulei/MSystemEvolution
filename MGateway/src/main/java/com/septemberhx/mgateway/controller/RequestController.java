@@ -2,7 +2,6 @@ package com.septemberhx.mgateway.controller;
 
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.config.MConfig;
-import com.septemberhx.common.service.MService;
 import com.septemberhx.mgateway.core.MGatewayRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,14 +24,14 @@ public class RequestController {
     @Autowired
     private MGatewayRequest gatewayRequest;
 
-    private static Logger logger = LogManager.getLogger(RequestController.class);
+    private static final Logger logger = LogManager.getLogger(RequestController.class);
 
     @PostMapping(path = MConfig.MGATEWAY_DEPENDENCY_CALL)
     @ResponseBody
     public MResponse dependencyRequest(@RequestBody MResponse requestBody, HttpServletRequest request) {
         logger.info(String.format("Receive request from %s: %s", request.getRemoteAddr(), requestBody.toString()));
-        System.out.println(requestBody.toString());
-        // todo: implement the function body
-        return MResponse.successResponse();
+        MResponse response = this.gatewayRequest.solveDepRequest(requestBody, request);
+        logger.info(String.format("Response to %s: %s", request.getRemoteAddr(), response.getStatus()));
+        return response;
     }
 }
