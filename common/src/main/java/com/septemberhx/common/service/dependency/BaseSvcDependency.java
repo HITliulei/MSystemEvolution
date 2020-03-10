@@ -66,11 +66,15 @@ public class BaseSvcDependency {
         dependency.serviceName = depConfig.getServiceName();
         dependency.patternUrl = depConfig.getPatternUrl();
 
-        dependency.slaSet = new HashSet<>();
-        depConfig.getSlas().forEach(sInt -> dependency.slaSet.add(new MSla(sInt)));
+        if (depConfig.getSlas() != null) {
+            dependency.slaSet = new HashSet<>();
+            depConfig.getSlas().forEach(sInt -> dependency.slaSet.add(new MSla(sInt)));
+        }
 
-        dependency.versionSet = new HashSet<>();
-        depConfig.getVersions().forEach(verStr -> dependency.versionSet.add(MSvcVersion.fromStr(verStr)));
+        if (depConfig.getVersions() != null) {
+            dependency.versionSet = new HashSet<>();
+            depConfig.getVersions().forEach(verStr -> dependency.versionSet.add(MSvcVersion.fromStr(verStr)));
+        }
 
         return dependency.toRealDependency();
     }

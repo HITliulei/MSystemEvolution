@@ -1,7 +1,14 @@
 package com.septemberhx.mgateway.controller;
 
 import com.septemberhx.common.bean.MResponse;
+import com.septemberhx.common.bean.MTimeIntervalBean;
+import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
+import com.septemberhx.common.config.MConfig;
+import com.septemberhx.mgateway.core.MGatewayInfo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
@@ -16,5 +23,12 @@ public class EvolveController {
     public MResponse updateRoutingTable() {
         // todo
         return MResponse.successResponse();
+    }
+
+    @PostMapping(path = MConfig.MGATEWAY_FETCH_REQUESTS)
+    @ResponseBody
+    public List<MDepRequestCacheBean> getRequestBetweenTime(@RequestBody MTimeIntervalBean timeIntervalBean) {
+        return MGatewayInfo.inst().getRequestBetweenTime(
+                timeIntervalBean.getStartTimeInMills(), timeIntervalBean.getEndTimeInMills());
     }
 }

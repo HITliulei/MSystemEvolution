@@ -73,8 +73,9 @@ public class MConfig {
     public final static String MGATEWAY_NAME = "MGateway";
     public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";
     public final static String MGATEWAY_SERVICE_UPDATE = "/service/update";
-    public final static String MGATEWAY_DEPENDENCY_ID = "__dependency_id";
+    public final static String MGATEWAY_DEPENDENCY_ID = "dependency";
     public final static String MGATEWAY_CLIENT_ID = "__client_id";
+    public final static String MGATEWAY_FETCH_REQUESTS = "/evolve/requests";
 
     private static MConfig ourInstance = new MConfig();
 

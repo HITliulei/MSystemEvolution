@@ -1,7 +1,13 @@
 package com.septemberhx.mgateway.controller;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.config.MConfig;
+import com.septemberhx.common.config.Mvf4msDep;
+import com.septemberhx.common.service.dependency.BaseSvcDependency;
+import com.septemberhx.mgateway.core.MGatewayInfo;
 import com.septemberhx.mgateway.core.MGatewayRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * @author SeptemberHX
@@ -25,13 +32,21 @@ public class RequestController {
     private MGatewayRequest gatewayRequest;
 
     private static final Logger logger = LogManager.getLogger(RequestController.class);
+    private Gson gson = new GsonBuilder().create();
 
     @PostMapping(path = MConfig.MGATEWAY_DEPENDENCY_CALL)
     @ResponseBody
     public MResponse dependencyRequest(@RequestBody MResponse requestBody, HttpServletRequest request) {
         logger.info(String.format("Receive request from %s: %s", request.getRemoteAddr(), requestBody.toString()));
-        MResponse response = this.gatewayRequest.solveDepRequest(requestBody, request);
-        logger.info(String.format("Response to %s: %s", request.getRemoteAddr(), response.getStatus()));
-        return response;
+        Mvf4msDep dep = gson.fromJson(gson.toJson(requestBody.get(MConfig.MGATEWAY_DEPENDENCY_ID)), Mvf4msDep.class);
+        BaseSvcDependency baseSvcDependency = BaseSvcDependency.tranConfig2Dependency(dep);
+
+        String userId = (String) requestBody.get(MConfig.MGATEWAY_CLIENT_ID);
+        if (userId != null) {
+            MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency);
+            return MResponse.successResponse();
+        } else {
+            return this.gatewayRequest.solveDepRequest(requestBody, request);
+        }
     }
 }

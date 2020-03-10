@@ -5,14 +5,11 @@ import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import org.joda.time.DateTime;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author SeptemberHX
@@ -26,7 +23,9 @@ public class MGatewayInfo {
     // at the beginning of each time window
     private PriorityBlockingQueue<MDepRequestCacheBean> requestQueue;
 
-    private List<MDepRequestCacheBean> userRequestRecordList;
+    private PriorityBlockingQueue<MDepRequestCacheBean> userRequestRecordQueue;
+
+    private static final long MAX_RECORD_TIME_IN_MILLS = TimeUnit.HOURS.toMillis(1);
 
     /*
      * Map[
@@ -63,7 +62,40 @@ public class MGatewayInfo {
     private Map<String, Map<BaseSvcDependency, MRoutingBean>> instRoutingTable;
 
     public void recordUserDepRequest(String userId, BaseSvcDependency dependency) {
-        this.userRequestRecordList.add(new MDepRequestCacheBean(dependency, userId, DateTime.now().getMillis()));
+        long currTimeInMills = DateTime.now().getMillis();
+        this.userRequestRecordQueue.add(new MDepRequestCacheBean(dependency, userId, currTimeInMills));
+        long lastTimeThreshold = currTimeInMills - MAX_RECORD_TIME_IN_MILLS;
+
+        // kick off the out of date cache
+        MDepRequestCacheBean requestCacheBean = this.userRequestRecordQueue.poll();
+        while (requestCacheBean != null && requestCacheBean.getTimestamp() < lastTimeThreshold) {
+            requestCacheBean = this.userRequestRecordQueue.poll();
+        }
+        if (requestCacheBean != null) {
+            this.userRequestRecordQueue.add(requestCacheBean);
+        }
+    }
+
+    public List<MDepRequestCacheBean> getRequestBetweenTime(long startTimeInMills, long endTimeInMills) {
+        MDepRequestCacheBean[] requestList = new MDepRequestCacheBean[this.userRequestRecordQueue.size()];
+        requestList = this.userRequestRecordQueue.toArray(requestList);
+
+        List<MDepRequestCacheBean> resultList = new ArrayList<>();
+        for (MDepRequestCacheBean requestCacheBean : requestList) {
+            if (requestCacheBean.getTimestamp() >= startTimeInMills
+                    && requestCacheBean.getTimestamp() < endTimeInMills) {
+                resultList.add(requestCacheBean);
+            }
+        }
+        return resultList;
+    }
+
+    public MDepRequestCacheBean getNextRequestBlocking() throws InterruptedException {
+        return this.requestQueue.take();
+    }
+
+    public void addRequestInQueue(String userId, BaseSvcDependency dependency) {
+        this.requestQueue.offer(new MDepRequestCacheBean(dependency, userId, DateTime.now().getMillis()));
     }
 
     public Optional<MRoutingBean> getRoutingForInst(String fromIpAddr, BaseSvcDependency dependency) {
@@ -125,7 +157,7 @@ public class MGatewayInfo {
         this.userRoutingTable = new ConcurrentHashMap<>();
         this.userRoutingRecord = new ConcurrentHashMap<>();
         this.instRoutingTable = new ConcurrentHashMap<>();
-        this.userRequestRecordList = new CopyOnWriteArrayList<>();
+        this.userRequestRecordQueue = new PriorityBlockingQueue<>();
     }
 
     public static MGatewayInfo inst() {
