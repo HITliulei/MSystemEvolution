@@ -76,6 +76,6 @@ public class BaseSvcDependency {
             depConfig.getVersions().forEach(verStr -> dependency.versionSet.add(MSvcVersion.fromStr(verStr)));
         }
 
-        return dependency.toRealDependency();
+        return dependency;
     }
 }
