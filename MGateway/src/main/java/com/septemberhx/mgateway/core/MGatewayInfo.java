@@ -1,5 +1,6 @@
 package com.septemberhx.mgateway.core;
 
+import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
@@ -24,6 +25,8 @@ public class MGatewayInfo {
     private PriorityBlockingQueue<MDepRequestCacheBean> requestQueue;
 
     private PriorityBlockingQueue<MDepRequestCacheBean> userRequestRecordQueue;
+
+    private PriorityBlockingQueue<MDepRequestCacheBean> cannotSatisfiedRequestQueue;
 
     private static final long MAX_RECORD_TIME_IN_MILLS = TimeUnit.HOURS.toMillis(1);
 
@@ -61,10 +64,9 @@ public class MGatewayInfo {
      */
     private Map<String, Map<BaseSvcDependency, MRoutingBean>> instRoutingTable;
 
-    public void recordUserDepRequest(String userId, BaseSvcDependency dependency) {
-        long currTimeInMills = DateTime.now().getMillis();
-        this.userRequestRecordQueue.add(new MDepRequestCacheBean(dependency, userId, currTimeInMills));
-        long lastTimeThreshold = currTimeInMills - MAX_RECORD_TIME_IN_MILLS;
+    public void recordUserDepRequest(MDepRequestCacheBean cacheBean) {
+        this.userRequestRecordQueue.add(cacheBean);
+        long lastTimeThreshold = DateTime.now().getMillis() - MAX_RECORD_TIME_IN_MILLS;
 
         // kick off the out of date cache
         MDepRequestCacheBean requestCacheBean = this.userRequestRecordQueue.poll();
@@ -94,8 +96,8 @@ public class MGatewayInfo {
         return this.requestQueue.take();
     }
 
-    public void addRequestInQueue(String userId, BaseSvcDependency dependency) {
-        this.requestQueue.offer(new MDepRequestCacheBean(dependency, userId, DateTime.now().getMillis()));
+    public void addRequestInQueue(String userId, BaseSvcDependency dependency, MResponse parameters) {
+        this.requestQueue.offer(new MDepRequestCacheBean(dependency, userId, DateTime.now().getMillis(), parameters));
     }
 
     public Optional<MRoutingBean> getRoutingForInst(String fromIpAddr, BaseSvcDependency dependency) {
@@ -151,6 +153,10 @@ public class MGatewayInfo {
         this.userRoutingRecord.get(dependency).get(routingBean).add(userId);
     }
 
+    public void recordCannotSatisfiedRequest(MDepRequestCacheBean requestCacheBean) {
+        this.cannotSatisfiedRequestQueue.add(requestCacheBean);
+    }
+
     private MGatewayInfo() {
         // for thread safety
         this.requestQueue = new PriorityBlockingQueue<>();
@@ -158,6 +164,7 @@ public class MGatewayInfo {
         this.userRoutingRecord = new ConcurrentHashMap<>();
         this.instRoutingTable = new ConcurrentHashMap<>();
         this.userRequestRecordQueue = new PriorityBlockingQueue<>();
+        this.cannotSatisfiedRequestQueue = new PriorityBlockingQueue<>();
     }
 
     public static MGatewayInfo inst() {

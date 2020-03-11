@@ -1,5 +1,6 @@
 package com.septemberhx.common.bean.gateway;
 
+import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,10 +30,13 @@ public class MDepRequestCacheBean implements Comparable<MDepRequestCacheBean> {
      */
     private long timestamp;
 
-    public MDepRequestCacheBean(BaseSvcDependency baseSvcDependency, String clientId, long timestamp) {
+    private MResponse parameters;
+
+    public MDepRequestCacheBean(BaseSvcDependency baseSvcDependency, String clientId, long timestamp, MResponse parameters) {
         this.baseSvcDependency = baseSvcDependency;
         this.clientId = clientId;
         this.timestamp = timestamp;
+        this.parameters = parameters;
     }
 
     @Override

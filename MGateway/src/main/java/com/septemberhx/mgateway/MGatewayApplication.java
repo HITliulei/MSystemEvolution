@@ -14,7 +14,7 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 @SpringBootApplication
 public class MGatewayApplication {
     public static void main(String[] args) {
-        new Thread(new MRequestProcessorThread()).start();
+        new Thread(new MRequestProcessorThread(), MRequestProcessorThread.class.getSimpleName()).start();
         SpringApplication.run(MGatewayApplication.class, args);
     }
 }

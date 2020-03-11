@@ -59,6 +59,10 @@ public class BaseSvcDependency {
         }
     }
 
+    /*
+     * This is really dangerous to mix the base class with children.
+     *   Wrong usage will lead to null class attribute variables !!!
+     */
     public static BaseSvcDependency tranConfig2Dependency(Mvf4msDep depConfig) {
         BaseSvcDependency dependency = new BaseSvcDependency();
         dependency.id = depConfig.getId();

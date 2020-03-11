@@ -4,8 +4,8 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
+import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.config.MConfig;
-import com.septemberhx.common.config.Mvf4msDep;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 import java.util.Optional;
 import java.util.Random;
 
@@ -47,36 +47,13 @@ public class MGatewayRequest {
      }
 
     /*
-     * Solve the request that is identified by the dependency
+     * Solve the request that is identified by the dependency from instances
      * It corresponds to RequestController#dependencyRequest
      */
-    public MResponse solveDepRequest(MResponse parameters, HttpServletRequest request) {
-        Mvf4msDep dep = (Mvf4msDep) parameters.get(MConfig.MGATEWAY_DEPENDENCY_ID);
-        BaseSvcDependency baseSvcDependency = BaseSvcDependency.tranConfig2Dependency(dep);
+    public MResponse solveInstDepRequest(String instanceIp, BaseSvcDependency dependency, MResponse parameters) {
+        Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRoutingForInst(instanceIp, dependency);
         MResponse response = MResponse.failResponse();
-        Optional<MRoutingBean> routingBeanOpt;
-        String userId = (String) parameters.get(MConfig.MGATEWAY_CLIENT_ID);
-        boolean isFromRecord = false;
-
-        if (userId != null) {
-            // user id
-            MGatewayInfo.inst().recordUserDepRequest(userId, baseSvcDependency);  // record it for server to analyse
-            routingBeanOpt = MGatewayInfo.inst().getRoutingFromRecordForUser(userId, baseSvcDependency);
-            if (routingBeanOpt.isPresent()) {
-                isFromRecord = true;
-            } else {
-                routingBeanOpt = MGatewayInfo.inst().getRoutingFromTableForUser(baseSvcDependency);
-            }
-        } else {
-            // call between instances. Ip address is used to distinguish them
-            routingBeanOpt = MGatewayInfo.inst().getRoutingForInst(request.getRemoteAddr(), baseSvcDependency);
-        }
-
         if (routingBeanOpt.isPresent()) {
-            if (userId != null && !isFromRecord) {  // record the new routing if not recorded before
-                MGatewayInfo.inst().recordUserRouting(userId, baseSvcDependency, routingBeanOpt.get());
-            }
-
             response = MRequestUtils.sendRequest(
                     MUrlUtils.getRemoteUri(routingBeanOpt.get()),
                     parameters,
@@ -84,7 +61,51 @@ public class MGatewayRequest {
                     RequestMethod.POST
             );
         }
-
         return response;
+    }
+
+    /*
+     * Solve the request that is identified by the dependency from users
+     * It corresponds to MRequestProcessorThread
+     */
+    public boolean solveUserDepRequest(MDepRequestCacheBean requestCacheBean) {
+        String userId = requestCacheBean.getClientId();
+        BaseSvcDependency dependency = requestCacheBean.getBaseSvcDependency();
+        MResponse parameters = requestCacheBean.getParameters();
+
+        MGatewayInfo.inst().recordUserDepRequest(requestCacheBean);  // record it for server to analyse
+        Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRoutingFromRecordForUser(userId, dependency);
+        boolean isFromRecord = false;
+        if (routingBeanOpt.isPresent()) {
+            isFromRecord = true;
+        } else {
+            routingBeanOpt = MGatewayInfo.inst().getRoutingFromTableForUser(dependency);
+        }
+
+        if (routingBeanOpt.isPresent()) {
+            if (!isFromRecord) {
+                MGatewayInfo.inst().recordUserRouting(userId, dependency, routingBeanOpt.get());
+            }
+
+            MResponse response = MRequestUtils.sendRequest(
+                    MUrlUtils.getRemoteUri(routingBeanOpt.get()),
+                    parameters,
+                    MResponse.class,
+                    RequestMethod.POST
+            );
+
+            try {
+                URI uri = new URI((String) parameters.get(MConfig.MGATEWAY_CALL_BACK_URL_ID));
+                MRequestUtils.sendRequest(uri, response, null, RequestMethod.POST);
+            } catch (Exception e) {
+                logger.debug(String.format(
+                        "Illegal call back url for request from user %s with dependency %s", userId, dependency.getId())
+                );
+            }
+            return true;
+        } else {
+            MGatewayInfo.inst().recordCannotSatisfiedRequest(requestCacheBean);
+            return false;
+        }
     }
 }

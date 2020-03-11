@@ -1,6 +1,7 @@
 package com.septemberhx.mgateway.config;
 
 import com.netflix.discovery.EurekaClient;
+import com.septemberhx.mgateway.core.MRequestProcessorThread;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,5 +21,4 @@ public class MGatewayConfig {
     @Qualifier("eurekaClient")
     @Autowired
     private EurekaClient discoveryClient;
-
 }

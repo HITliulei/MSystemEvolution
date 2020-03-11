@@ -43,10 +43,10 @@ public class RequestController {
 
         String userId = (String) requestBody.get(MConfig.MGATEWAY_CLIENT_ID);
         if (userId != null) {
-            MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency);
+            MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency, requestBody);
             return MResponse.successResponse();
         } else {
-            return this.gatewayRequest.solveDepRequest(requestBody, request);
+            return this.gatewayRequest.solveInstDepRequest(request.getRemoteAddr(), baseSvcDependency, requestBody);
         }
     }
 }
