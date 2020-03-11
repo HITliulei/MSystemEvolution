@@ -17,8 +17,10 @@ public class SvcVerDependency extends BaseSvcDependency {
 
     public SvcVerDependency(String id, String serviceName, String patternUrl, Set<MSvcVersion> versionSet) {
         this.id = id;
-        this.serviceName = serviceName;
-        this.patternUrl = patternUrl;
-        this.versionSet = versionSet;
+        PureSvcDependency dep = new PureSvcDependency();
+        dep.setServiceName(serviceName);
+        dep.setPatternUrl(patternUrl);
+        dep.setVersionSet(versionSet);
+        this.setDep(dep);
     }
 }

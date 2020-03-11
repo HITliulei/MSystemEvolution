@@ -3,6 +3,7 @@ package com.septemberhx.mgateway.controller;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MTimeIntervalBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
+import com.septemberhx.common.bean.gateway.MDepRequestCacheListBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.mgateway.core.MGatewayInfo;
 import org.springframework.stereotype.Controller;
@@ -25,10 +26,11 @@ public class EvolveController {
         return MResponse.successResponse();
     }
 
-    @PostMapping(path = MConfig.MGATEWAY_FETCH_REQUESTS)
     @ResponseBody
-    public List<MDepRequestCacheBean> getRequestBetweenTime(@RequestBody MTimeIntervalBean timeIntervalBean) {
-        return MGatewayInfo.inst().getRequestBetweenTime(
-                timeIntervalBean.getStartTimeInMills(), timeIntervalBean.getEndTimeInMills());
+    @PostMapping(path = MConfig.MGATEWAY_FETCH_REQUESTS)
+    public MDepRequestCacheListBean getRequestBetweenTime(@RequestBody MTimeIntervalBean timeIntervalBean) {
+        return new MDepRequestCacheListBean(MGatewayInfo.inst().getRequestBetweenTime(
+                timeIntervalBean.getStartTimeInMills(), timeIntervalBean.getEndTimeInMills()
+        ));
     }
 }

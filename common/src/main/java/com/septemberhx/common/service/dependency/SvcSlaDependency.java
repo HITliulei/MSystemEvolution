@@ -17,8 +17,10 @@ public class SvcSlaDependency extends BaseSvcDependency {
 
     public SvcSlaDependency(String id, String serviceName, Set<MSla> slaSet, String patternUrl) {
         this.id = id;
-        this.serviceName = serviceName;
-        this.slaSet = slaSet;
-        this.patternUrl = patternUrl;
+        PureSvcDependency dep = new PureSvcDependency();
+        dep.setServiceName(serviceName);
+        dep.setSlaSet(slaSet);
+        dep.setPatternUrl(patternUrl);
+        this.setDep(dep);
     }
 }

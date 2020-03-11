@@ -4,6 +4,7 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
+import com.septemberhx.common.service.dependency.PureSvcDependency;
 import org.joda.time.DateTime;
 
 import java.util.*;
@@ -39,7 +40,7 @@ public class MGatewayInfo {
      *   ]
      * ]
      */
-    private Map<BaseSvcDependency, Map<MRoutingBean, Integer>> userRoutingTable;
+    private Map<PureSvcDependency, Map<MRoutingBean, Integer>> userRoutingTable;
 
     /*
      * Map[
@@ -50,7 +51,7 @@ public class MGatewayInfo {
      *   ]
      * ]
      */
-    private Map<BaseSvcDependency, Map<MRoutingBean, Set<String>>> userRoutingRecord;
+    private Map<PureSvcDependency, Map<MRoutingBean, Set<String>>> userRoutingRecord;
 
     /*
      * Map[
@@ -109,14 +110,14 @@ public class MGatewayInfo {
 
     public Optional<MRoutingBean> getRoutingFromRecordForUser(String userId, BaseSvcDependency dependency) {
         // check if new demand
-        if (!this.userRoutingTable.containsKey(dependency)) {
+        if (!this.userRoutingTable.containsKey(dependency.getDep())) {
             return Optional.empty();
         }
 
         // check if assigned before
-        if (userRoutingRecord.containsKey(dependency)) {
-            for (MRoutingBean routingBean : userRoutingRecord.get(dependency).keySet()) {
-                if (userRoutingRecord.get(dependency).get(routingBean).contains(userId)) {
+        if (userRoutingRecord.containsKey(dependency.getDep())) {
+            for (MRoutingBean routingBean : userRoutingRecord.get(dependency.getDep()).keySet()) {
+                if (userRoutingRecord.get(dependency.getDep()).get(routingBean).contains(userId)) {
                     return Optional.of(routingBean);
                 }
             }
@@ -126,11 +127,11 @@ public class MGatewayInfo {
     }
 
     public Optional<MRoutingBean> getRoutingFromTableForUser(BaseSvcDependency dependency) {
-        if (this.userRoutingTable.containsKey(dependency)) {
+        if (this.userRoutingTable.containsKey(dependency.getDep())) {
             // check if has available plot for the new demand
-            Map<MRoutingBean, Integer> depRoutingTable = userRoutingTable.get(dependency);
+            Map<MRoutingBean, Integer> depRoutingTable = userRoutingTable.get(dependency.getDep());
             for (MRoutingBean routingBean : depRoutingTable.keySet()) {
-                if (depRoutingTable.get(routingBean) > this.userRoutingRecord.get(dependency).get(routingBean).size()) {
+                if (depRoutingTable.get(routingBean) > this.userRoutingRecord.get(dependency.getDep()).get(routingBean).size()) {
                     return Optional.of(routingBean);
                 }
             }
@@ -142,15 +143,15 @@ public class MGatewayInfo {
      * Occupy one plot for given routing info
      */
     public void recordUserRouting(String userId, BaseSvcDependency dependency, MRoutingBean routingBean) {
-        if (!this.userRoutingRecord.containsKey(dependency)) {
-            this.userRoutingRecord.put(dependency, new ConcurrentHashMap<>());
+        if (!this.userRoutingRecord.containsKey(dependency.getDep())) {
+            this.userRoutingRecord.put(dependency.getDep(), new ConcurrentHashMap<>());
         }
 
-        if (!this.userRoutingRecord.get(dependency).containsKey(routingBean)) {
-            this.userRoutingRecord.get(dependency).put(routingBean, new CopyOnWriteArraySet());
+        if (!this.userRoutingRecord.get(dependency.getDep()).containsKey(routingBean)) {
+            this.userRoutingRecord.get(dependency.getDep()).put(routingBean, new CopyOnWriteArraySet());
         }
 
-        this.userRoutingRecord.get(dependency).get(routingBean).add(userId);
+        this.userRoutingRecord.get(dependency.getDep()).get(routingBean).add(userId);
     }
 
     public void recordCannotSatisfiedRequest(MDepRequestCacheBean requestCacheBean) {

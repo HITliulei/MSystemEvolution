@@ -19,14 +19,19 @@ public class SvcFuncDependency extends BaseSvcDependency {
 
     public SvcFuncDependency(String id, String funcName, Set<Integer> slaIntSet) {
         this.id = id;
-        this.func = new MFunc(funcName);
-        this.slaSet = new HashSet<>();
+        PureSvcDependency dep = new PureSvcDependency();
+        dep.setFunc(new MFunc(funcName));
+        Set<MSla> slaSet = new HashSet<>();
         slaIntSet.forEach(sInt -> slaSet.add(new MSla(sInt)));
+        dep.setSlaSet(slaSet);
+        this.setDep(dep);
     }
 
     public SvcFuncDependency(String id, MFunc func, Set<MSla> slaSet) {
         this.id = id;
-        this.func = func;
-        this.slaSet = slaSet;
+        PureSvcDependency dep = new PureSvcDependency();
+        dep.setFunc(func);
+        dep.setSlaSet(slaSet);
+        this.setDep(dep);
     }
 }

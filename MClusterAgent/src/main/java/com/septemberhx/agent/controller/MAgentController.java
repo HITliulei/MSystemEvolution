@@ -4,10 +4,13 @@ import com.netflix.appinfo.InstanceInfo;
 import com.septemberhx.agent.utils.ElasticSearchUtils;
 import com.septemberhx.agent.utils.MClientUtils;
 import com.septemberhx.common.bean.MResponse;
+import com.septemberhx.common.bean.MTimeIntervalBean;
 import com.septemberhx.common.bean.MUserRequestBean;
 import com.septemberhx.common.bean.agent.*;
 import com.septemberhx.common.base.user.MUser;
 import com.septemberhx.common.base.user.MUserDemand;
+import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
+import com.septemberhx.common.bean.gateway.MDepRequestCacheListBean;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import org.apache.http.HttpHost;
@@ -94,6 +97,19 @@ public class MAgentController {
             System.out.println(uri.toString());
             MRequestUtils.sendRequest(uri, cacheBean, null, RequestMethod.POST);
         }
+    }
+
+    @ResponseBody
+    @PostMapping(path = "/fetchDepRequests")
+    public MDepRequestCacheListBean getRequestsBetween(@RequestBody MTimeIntervalBean timeIntervalBean) {
+        List<MDepRequestCacheBean> resultList = new ArrayList<>();
+        for (InstanceInfo info : this.clientUtils.getAllGatewayInstance()) {
+            URI uri = MUrlUtils.getMGatewayFetchRequestsUri(info.getIPAddr(), info.getPort());
+            MDepRequestCacheListBean cacheListBean =
+                MRequestUtils.sendRequest(uri, timeIntervalBean, MDepRequestCacheListBean.class, RequestMethod.POST);
+            resultList.addAll(cacheListBean.getRequestList());
+        }
+        return new MDepRequestCacheListBean(resultList);
     }
 
     @ResponseBody

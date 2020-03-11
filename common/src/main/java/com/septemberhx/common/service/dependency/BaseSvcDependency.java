@@ -5,10 +5,10 @@ import com.septemberhx.common.service.MFunc;
 import com.septemberhx.common.service.MSla;
 import com.septemberhx.common.service.MSvcVersion;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author SeptemberHX
@@ -18,6 +18,7 @@ import java.util.Set;
  * Detail at the WIKI page of the repo.
  */
 @Getter
+@Setter
 @ToString
 public class BaseSvcDependency {
 
@@ -25,35 +26,23 @@ public class BaseSvcDependency {
     // developer use the id to call APIs instead of embedded the service name and patternUrl in code
     protected String id;
 
-    protected MFunc func;
-
-    // service name
-    protected String serviceName;
-
-    // prefer sla level
-    protected Set<MSla> slaSet;
-
-    // API url
-    protected String patternUrl;
-
-    // the version of ${serviceName}
-    protected Set<MSvcVersion> versionSet;
+    private PureSvcDependency dep = new PureSvcDependency();
 
     // Coefficient for calculating user number
     // It stands for the average calling count for one request
     protected Integer coefficient = 1;
 
     public BaseSvcDependency toRealDependency() {
-        if (this.func != null && this.slaSet != null && !this.slaSet.isEmpty()) {
-            return new SvcFuncDependency(this.id, this.func, this.slaSet);
-        } else if (this.serviceName != null && !this.serviceName.isEmpty()
-                && this.patternUrl != null && !this.patternUrl.isEmpty()
-                && this.versionSet != null && !this.versionSet.isEmpty()) {
-            return new SvcVerDependency(this.id, this.serviceName, this.patternUrl, this.versionSet);
-        } else if (this.serviceName != null && !this.serviceName.isEmpty()
-                && this.patternUrl != null && !this.patternUrl.isEmpty()
-                && this.slaSet != null && !this.slaSet.isEmpty()) {
-            return new SvcSlaDependency(this.id, this.serviceName, this.slaSet, this.patternUrl);
+        if (dep.func != null && dep.slaSet != null && !dep.slaSet.isEmpty()) {
+            return new SvcFuncDependency(this.id, dep.func, dep.slaSet);
+        } else if (dep.serviceName != null && !dep.serviceName.isEmpty()
+                && dep.patternUrl != null && !dep.patternUrl.isEmpty()
+                && dep.versionSet != null && !dep.versionSet.isEmpty()) {
+            return new SvcVerDependency(this.id, dep.serviceName, dep.patternUrl, dep.versionSet);
+        } else if (dep.serviceName != null && !dep.serviceName.isEmpty()
+                && dep.patternUrl != null && !dep.patternUrl.isEmpty()
+                && dep.slaSet != null && !dep.slaSet.isEmpty()) {
+            return new SvcSlaDependency(this.id, dep.serviceName, dep.slaSet, dep.patternUrl);
         } else {
             return null;
         }
@@ -65,21 +54,77 @@ public class BaseSvcDependency {
      */
     public static BaseSvcDependency tranConfig2Dependency(Mvf4msDep depConfig) {
         BaseSvcDependency dependency = new BaseSvcDependency();
+        PureSvcDependency pureSvcDependency = new PureSvcDependency();
         dependency.id = depConfig.getId();
-        dependency.func = new MFunc(depConfig.getFunction());
-        dependency.serviceName = depConfig.getServiceName();
-        dependency.patternUrl = depConfig.getPatternUrl();
+        pureSvcDependency.func = new MFunc(depConfig.getFunction());
+        pureSvcDependency.serviceName = depConfig.getServiceName();
+        pureSvcDependency.patternUrl = depConfig.getPatternUrl();
 
         if (depConfig.getSlas() != null) {
-            dependency.slaSet = new HashSet<>();
-            depConfig.getSlas().forEach(sInt -> dependency.slaSet.add(new MSla(sInt)));
+            pureSvcDependency.slaSet = new HashSet<>();
+            depConfig.getSlas().forEach(sInt -> pureSvcDependency.slaSet.add(new MSla(sInt)));
         }
 
         if (depConfig.getVersions() != null) {
-            dependency.versionSet = new HashSet<>();
-            depConfig.getVersions().forEach(verStr -> dependency.versionSet.add(MSvcVersion.fromStr(verStr)));
+            pureSvcDependency.versionSet = new HashSet<>();
+            depConfig.getVersions().forEach(verStr -> pureSvcDependency.versionSet.add(MSvcVersion.fromStr(verStr)));
         }
-
+        dependency.setDep(pureSvcDependency);
         return dependency;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BaseSvcDependency that = (BaseSvcDependency) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(dep, that.dep) &&
+                Objects.equals(coefficient, that.coefficient);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, dep, coefficient);
+    }
+
+    public String getServiceName() {
+        return this.dep.getServiceName();
+    }
+
+    public void setServiceName(String s) {
+        this.dep.setServiceName(s);
+    }
+
+    public String getPatternUrl() {
+        return this.dep.getPatternUrl();
+    }
+
+    public void setPatternUrl(String s) {
+        this.dep.setPatternUrl(s);
+    }
+
+    public MFunc getFunc() {
+        return this.dep.getFunc();
+    }
+
+    public void setFunc(MFunc func) {
+        this.dep.setFunc(func);
+    }
+
+    public Set<MSla> getSlaSet() {
+        return this.dep.getSlaSet();
+    }
+
+    public void setSlaSet(Set<MSla> slaSet) {
+        this.dep.setSlaSet(slaSet);
+    }
+
+    public Set<MSvcVersion> getVersionSet() {
+        return this.dep.getVersionSet();
+    }
+
+    public void setVersionSet(Set<MSvcVersion> versionSet) {
+        this.dep.setVersionSet(versionSet);
     }
 }

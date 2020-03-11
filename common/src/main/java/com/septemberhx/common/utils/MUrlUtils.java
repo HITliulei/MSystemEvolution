@@ -103,6 +103,10 @@ public class MUrlUtils {
         return MUrlUtils.getRemoteUri(ipAddr, port, MConfig.MGATEWAY_UPDATE_URI);
     }
 
+    public static URI getMGatewayFetchRequestsUri(String ipAddr, int port) {
+        return MUrlUtils.getRemoteUri(ipAddr, port, MConfig.MGATEWAY_FETCH_REQUESTS);
+    }
+
     public static URI getMGatewayAllUserUri(String ipAddr, int port) {
         return MUrlUtils.getRemoteUri(ipAddr, port, MConfig.MGATEWAY_ALL_USER_URI);
     }
