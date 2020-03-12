@@ -1,8 +1,6 @@
 package com.septemberhx.server.algorithm.Judge;
 
-import com.septemberhx.common.service.diff.MDiffInterface;
-import com.septemberhx.common.service.diff.MServiceDiff;
-import com.septemberhx.common.service.diff.MServiceInterfaceDiff;
+import com.septemberhx.common.service.diff.*;
 
 import java.util.List;
 
@@ -20,9 +18,24 @@ public class MCompatibilityJudge {
      */
     public static boolean mCompatibilityJudge(MServiceDiff mServiceDiff){
         List<MServiceInterfaceDiff> list = mServiceDiff.getMServiceInterfaceDiffs();
+        if(list.isEmpty()){
+            // There is no difference except for internal implementation
+            return true;
+        }
         for(MServiceInterfaceDiff mServiceInterfaceDiff: list){
             if(mServiceInterfaceDiff.getMDiffInterface().equals(MDiffInterface.INTERFACE_CHANGE)){
-                return false;
+                MServiceInterfaceChangeDiff mServiceInterfaceChangeDiff = (MServiceInterfaceChangeDiff)mServiceInterfaceDiff;
+                if(mServiceInterfaceChangeDiff.getParamerDiffs() != null && !mServiceInterfaceChangeDiff.getParamerDiffs().isEmpty()){
+                    return false;
+                }
+                List<MDiff> mDiffs = mServiceDiff.getList();
+                if (!mDiffs.isEmpty()){
+                    for (MDiff mDiff: mDiffs){
+                        if(mDiff.getType().equals(MDiffType.INTERFACE_REQUESTMETHOD_DIFF) || mDiff.getType().equals(MDiffType.INTERFACE_FUNCTION_FEATURE_DIFF)){
+                            return false;
+                        }
+                    }
+                }
             }
             if(mServiceInterfaceDiff.getMDiffInterface().equals(MDiffInterface.INTERFACE_REDUCE)){
                 return false;

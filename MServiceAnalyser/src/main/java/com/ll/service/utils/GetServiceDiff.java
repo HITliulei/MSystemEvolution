@@ -91,6 +91,9 @@ public class GetServiceDiff {
                 list.add(mServiceInterfaceChangeDiff);
             }
         }
+        if(list.isEmpty()){
+            return null;
+        }
         return list;
     }
 
