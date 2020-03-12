@@ -59,6 +59,7 @@ public class MConfig {
     // ------
     public final static String SERVICE_NAME_ANALYZE = "MServiceAnalyser";
     public final static String ANALYZE_ANALYZE_URI = "/analyzer";
+    public final static String ANALYZE_ANALYZE_URI_ONE = "/analyzerOne";
     public final static String ANALYZE_COMPARE_URI = "/compare";
 
     // --- new version ---

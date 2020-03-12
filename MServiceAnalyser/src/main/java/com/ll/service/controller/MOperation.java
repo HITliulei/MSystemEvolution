@@ -63,18 +63,20 @@ public class MOperation {
     }
 
     @ResponseBody
-    @PostMapping("/analyzeOne")
-    public Callable<MService> getVersionInfo1(@RequestBody MFetchServiceInfoBean mFetchServiceInfoBean) {
-        return () -> {
+    @PostMapping(MConfig.ANALYZE_ANALYZE_URI_ONE)
+    public MResponse getVersionInfo1(@RequestBody MFetchServiceInfoBean mFetchServiceInfoBean) {
+        executorService.submit(() -> {
             logger.info ("异步处理得到源码信息");
-            String callback = mFetchServiceInfoBean.getCallBackUrl();
             String version = mFetchServiceInfoBean.getVersion().toString();
             MPathInfo mPathInfo = GetSourceCode.getCodeByVersion(mFetchServiceInfoBean.getGitUrl(), "v" + version);
             MService mService = GetServiceInfo.getMservice(version, mPathInfo);
             logger.info ("将结果返回到callback中");
-            new RestTemplate().postForLocation(callback, mService);
-            return mService;
-        };
+            List<MService> list = new ArrayList<>();
+            list.add(mService);
+            MResponse response = this.serverClient.pushServiceInfos(new MServiceAnalyzeResultBean(list));
+            logger.info(String.format("Receive %s from server", response.getStatus()));
+        });
+        return MResponse.successResponse();
     }
 
     @ResponseBody
