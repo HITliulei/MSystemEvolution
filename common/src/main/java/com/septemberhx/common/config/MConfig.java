@@ -78,6 +78,8 @@ public class MConfig {
     public final static String MGATEWAY_FETCH_REQUESTS = "/evolve/requests";
     public final static String MGATEWAY_CALL_BACK_URL_ID = "__call_back_url";
 
+    public final static String MDPREDICTOR_PREDICT = "/predict";
+
     private static MConfig ourInstance = new MConfig();
 
     public static MConfig getInstance() {

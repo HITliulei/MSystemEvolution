@@ -18,7 +18,6 @@ public class MDemandPredAlgoTest extends TestCase {
 
     public void testFeedNodeRequestCaches() {
         MDemandPredAlgo algo = new MDemandPredAlgo();
-
         List<MDepRequestCacheBean> beanList = new ArrayList<>();
         BaseSvcDependency svcDependency = new BaseSvcDependency();
         svcDependency.setId("dep-1");
@@ -61,5 +60,51 @@ public class MDemandPredAlgoTest extends TestCase {
         assertEquals(2, r.get(svcDependency.hashCode()).size());
         assertEquals(2, r.get(svcDependency1.hashCode()).get(0).getValue1().intValue());
         assertEquals(3, r.get(svcDependency2.hashCode()).get(1).getValue1().intValue());
+    }
+
+    public void testFormatDataOneNode() {
+        List<MDepRequestCacheBean> beanList = new ArrayList<>();
+        BaseSvcDependency svcDependency = new BaseSvcDependency();
+        svcDependency.setId("dep-1");
+        svcDependency.setServiceName("service-1");
+        svcDependency.setPatternUrl("/s/1");
+        Set<MSla> slaSet = new HashSet<>();
+        slaSet.add(new MSla(1));
+        svcDependency.setSlaSet(slaSet);
+        MDepRequestCacheBean bean1 = new MDepRequestCacheBean(
+                svcDependency, "user-01", 0, MResponse.successResponse()
+        );
+        beanList.add(bean1);
+
+        BaseSvcDependency svcDependency1 = new BaseSvcDependency();
+        svcDependency1.setId("dep-1");
+        svcDependency1.setServiceName("service-1");
+        svcDependency1.setPatternUrl("/s/1");
+        Set<MSla> slaSet1 = new HashSet<>();
+        slaSet1.add(new MSla(1));
+        svcDependency1.setSlaSet(slaSet1);
+        MDepRequestCacheBean bean2 = new MDepRequestCacheBean(
+                svcDependency1, "user-01", 4, MResponse.successResponse()
+        );
+        beanList.add(bean2);
+
+        BaseSvcDependency svcDependency2 = new BaseSvcDependency();
+        svcDependency2.setId("dep-1");
+        svcDependency2.setServiceName("service-1");
+        svcDependency2.setPatternUrl("/s/1");
+        Set<MSla> slaSet2 = new HashSet<>();
+        slaSet2.add(new MSla(1));
+        svcDependency2.setSlaSet(slaSet2);
+        MDepRequestCacheBean bean3 = new MDepRequestCacheBean(
+                svcDependency2, "user-01", 7, MResponse.successResponse()
+        );
+        beanList.add(bean3);
+
+        MDemandPredAlgo algo = new MDemandPredAlgo();
+        Map<Integer, List<Integer>> r = algo.formatDataOneNode(beanList, 0, 4, 8);
+        assertEquals(r.size(), 1);
+        assertEquals(r.get(svcDependency.hashCode()).size(), 2);
+        assertEquals(r.get(svcDependency.hashCode()).get(0).intValue(), 1);
+        assertEquals(r.get(svcDependency.hashCode()).get(1).intValue(), 2);
     }
 }
