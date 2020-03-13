@@ -1,6 +1,7 @@
 package com.septemberhx.server.client;
 
 import com.septemberhx.common.bean.MResponse;
+import com.septemberhx.common.bean.server.MFetchServiceInfoBean;
 import com.septemberhx.common.bean.server.MServiceCompareBean;
 import com.septemberhx.common.bean.server.MServiceRegisterBean;
 import com.septemberhx.common.config.MConfig;
@@ -19,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public interface MAnalyzerClient {
     @RequestMapping(value = MConfig.ANALYZE_ANALYZE_URI, method = RequestMethod.POST)
     MResponse analyzer(@RequestBody MServiceRegisterBean registerBean);
+
+    @RequestMapping(value = MConfig.ANALYZE_ANALYZE_URI_ONE, method = RequestMethod.POST)
+    MResponse analyzerOne(@RequestBody MFetchServiceInfoBean mFetchServiceInfoBean);
 
     @RequestMapping(value = MConfig.ANALYZE_COMPARE_URI, method = RequestMethod.POST)
     MServiceDiff compare(@RequestBody MServiceCompareBean compareBean);

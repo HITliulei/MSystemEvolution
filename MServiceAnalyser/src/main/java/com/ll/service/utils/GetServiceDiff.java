@@ -87,7 +87,12 @@ public class GetServiceDiff {
             mServiceInterfaceChangeDiff.setList(mDiffs);
             List<MParamerDiff> paramerDiffs = getParamerDiff(shareversion1.get(i), shareversion2.get(i));
             mServiceInterfaceChangeDiff.setParamerDiffs(paramerDiffs);
-            list.add(mServiceInterfaceChangeDiff);
+            if(!mDiffs.isEmpty() || !paramerDiffs.isEmpty()){
+                list.add(mServiceInterfaceChangeDiff);
+            }
+        }
+        if(list.isEmpty()){
+            return null;
         }
         return list;
     }
