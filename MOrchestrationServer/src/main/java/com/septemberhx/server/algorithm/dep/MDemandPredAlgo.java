@@ -145,13 +145,6 @@ public class MDemandPredAlgo {
         return MRequestUtils.sendRequest(uri, dataBean, MPredictBean.class, RequestMethod.POST);
     }
 
-    /*
-     * Main part of the evolution algorithm. Greedy algorithm will be used to help find the solution
-     */
-    public void evolve(MPredictBean nextDemands, Map<String, List<MDepRequestCacheBean>> unMetDemandsOnEachNode) {
-        // todo: implement the evolve algorithm
-    }
-
     public MDemandPredAlgo() {
         this.hash2Dep = new HashMap<>();
     }

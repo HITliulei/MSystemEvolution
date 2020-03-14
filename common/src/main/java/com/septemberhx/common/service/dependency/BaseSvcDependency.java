@@ -48,6 +48,11 @@ public class BaseSvcDependency {
         }
     }
 
+    public static BaseSvcDependency tranPure(PureSvcDependency pureSvcDependency) {
+        BaseSvcDependency svcDependency = new BaseSvcDependency();
+        svcDependency.dep = pureSvcDependency;
+        return svcDependency.toRealDependency();
+    }
     /*
      * This is really dangerous to mix the base class with children.
      *   Wrong usage will lead to null class attribute variables !!!

@@ -43,6 +43,10 @@ public class PureSvcDependency {
     public PureSvcDependency() {
     }
 
+    public boolean checkIfRestrictest() {
+        return serviceName != null && patternUrl != null && versionSet.size() == 1;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

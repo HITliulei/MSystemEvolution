@@ -25,6 +25,12 @@ public class MSvcVersion {
 
     private static Logger logger = LogManager.getLogger(MSvcVersion.class);
 
+    public MSvcVersion(int mainVersionNum, int childVersionNum, int fixVersionNum) {
+        this.mainVersionNum = mainVersionNum;
+        this.childVersionNum = childVersionNum;
+        this.fixVersionNum = fixVersionNum;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -41,11 +47,10 @@ public class MSvcVersion {
             throw new RuntimeException("Illegal version: " + versionStr);
         }
 
-        MSvcVersion version = new MSvcVersion();
+        MSvcVersion version = null;
         try {
-            version.setMainVersionNum(Integer.valueOf(numArr[0]));
-            version.setChildVersionNum(Integer.valueOf(numArr[1]));
-            version.setFixVersionNum(Integer.valueOf(numArr[2]));
+            version = new MSvcVersion(
+                    Integer.parseInt(numArr[0]), Integer.parseInt(numArr[1]), Integer.parseInt(numArr[2]));
         } catch (Exception e) {
             logger.debug(e);
         }
