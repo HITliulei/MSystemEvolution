@@ -31,6 +31,9 @@ public class MSvcVersion {
         this.fixVersionNum = fixVersionNum;
     }
 
+    public MSvcVersion() {
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
