@@ -2,9 +2,11 @@ package com.septemberhx.server.algorithm.dep;
 
 import com.septemberhx.common.base.node.MServerNode;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
+import com.septemberhx.common.service.MSla;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.MSvcVersion;
 import com.septemberhx.common.service.dependency.*;
+import com.septemberhx.server.algorithm.dep.merge.MergeFunc;
 import com.septemberhx.server.bean.MPredictBean;
 import com.septemberhx.server.model.MServiceInstance;
 import com.septemberhx.server.model.MSvcManager;
@@ -123,52 +125,5 @@ public class MDepAlgorithm {
         // todo: implement the merge ver dep function
         Map<PureSvcDependency, PureSvcDependency> resultList = new HashMap<>();
         return resultList;
-    }
-
-    public static Pair<Map<PureSvcDependency, PureSvcDependency>, Map<PureSvcDependency, Integer>>
-        mergeSameSvcPatternUrlList(Map<PureSvcDependency, Integer> demandCountMap, List<PureSvcDependency> verDepList) {
-        Map<PureSvcDependency, Integer> demandCountMapCopy = new HashMap<>(demandCountMap);
-        Map<PureSvcDependency, PureSvcDependency> resultMap = new HashMap<>();
-
-        while (!verDepList.isEmpty()) {
-            verDepList.sort(Comparator.comparingInt(demandCountMapCopy::get));
-            PureSvcDependency currDep = verDepList.get(verDepList.size() - 1);
-            Set<PureSvcDependency> intersectedSet = new HashSet<>();
-            intersectedSet.add(currDep);
-            Set<MSvcVersion> tmpVerSet = currDep.getVersionSet();
-            for (int j = verDepList.size() - 2; j >= 0; --j) {
-                Set<MSvcVersion> intersectionResult = getSetIntersection(
-                        tmpVerSet, verDepList.get(j).getVersionSet());
-                if (intersectionResult.isEmpty()) {
-                    continue;
-                }
-
-                intersectedSet.add(verDepList.get(j));
-                tmpVerSet = intersectionResult;
-            }
-
-            PureSvcDependency replaceDep = new PureSvcDependency(
-                    null,
-                    currDep.getServiceName(),
-                    null,
-                    currDep.getPatternUrl(),
-                    tmpVerSet
-            );
-            int replacedCount = 0;
-            for (PureSvcDependency tmpDep : intersectedSet) {
-                verDepList.remove(tmpDep);
-                replacedCount += demandCountMapCopy.get(tmpDep);
-                demandCountMapCopy.remove(tmpDep);
-                resultMap.put(tmpDep, replaceDep);
-            }
-            demandCountMapCopy.put(replaceDep, replacedCount);
-        }
-        return new Pair<>(resultMap, demandCountMapCopy);
-    }
-
-    public static <T> Set<T> getSetIntersection(Set<T> s1, Set<T> s2) {
-        Set<T> tmpSet = new HashSet<>(s1);
-        tmpSet.retainAll(s2);
-        return tmpSet;
     }
 }

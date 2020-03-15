@@ -5,10 +5,7 @@ import com.septemberhx.common.exception.MethodNotAllowException;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.MSvcVersion;
-import com.septemberhx.common.service.dependency.BaseSvcDependency;
-import com.septemberhx.common.service.dependency.SvcFuncDependency;
-import com.septemberhx.common.service.dependency.SvcSlaDependency;
-import com.septemberhx.common.service.dependency.SvcVerDependency;
+import com.septemberhx.common.service.dependency.*;
 import com.septemberhx.server.utils.MDatabaseUtils;
 import org.springframework.stereotype.Component;
 
@@ -53,6 +50,18 @@ public class MSvcManager extends MUniqueObjectManager<MService> {
     public List<MService> getServicesByServiceName(String serviceName) {
         return this.objectMap.values().stream()
                 .filter(s -> s.getServiceName().equals(serviceName)).collect(Collectors.toList());
+    }
+
+    public List<MService> getServicesBySlaDep(PureSvcDependency slaDep) {
+        List<MService> serviceList = this.getServicesByServiceName(slaDep.getServiceName());
+        List<MService> resultList = new ArrayList<>();
+        for (MService svc : serviceList) {
+            Optional<MSvcInterface> apiOpt = svc.getInterfaceByPatternUrl(slaDep.getPatternUrl());
+            if (apiOpt.isPresent() && slaDep.getSlaSet().contains(apiOpt.get().getFuncDescription().getSla())) {
+                resultList.add(svc);
+            }
+        }
+        return resultList;
     }
 
     public void updateImageUrl(String serviceId, String imageUrl) {

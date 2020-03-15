@@ -22,6 +22,10 @@ public class MFunc {
         this.functionName = functionName;
     }
 
+    public boolean ifSatisfied(MFunc func) {
+        return this.functionName.equals(func.functionName);
+    }
+
     @Override
     public String toString() {
         return "MFunction{" +
