@@ -1,7 +1,6 @@
 package com.septemberhx.common.service;
 
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Objects;
 
@@ -34,7 +33,11 @@ public class MFuncDescription {
      * @return Boolean
      */
     public boolean ifSatisfied(MFuncDescription description) {
-        return false;
+        return this.ifSatisfied(description.getFunc(), description.getSla());
+    }
+
+    public boolean ifSatisfied(MFunc func, MSla sla) {
+        return this.func.ifSatisfied(func) && this.sla.ifSatisfied(sla);
     }
 
     @Override

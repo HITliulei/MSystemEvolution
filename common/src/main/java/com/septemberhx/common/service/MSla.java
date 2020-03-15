@@ -22,6 +22,10 @@ public class MSla {
         this.level = level;
     }
 
+    public boolean ifSatisfied(MSla other) {
+        return this.level == other.level;
+    }
+
     @Override
     public String toString() {
         return "MSla{" +

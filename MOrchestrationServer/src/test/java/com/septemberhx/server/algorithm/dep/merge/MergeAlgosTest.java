@@ -1,4 +1,4 @@
-package com.septemberhx.server.algorithm.dep;
+package com.septemberhx.server.algorithm.dep.merge;
 
 import com.septemberhx.common.service.MSvcVersion;
 import com.septemberhx.common.service.dependency.PureSvcDependency;
@@ -10,9 +10,9 @@ import java.util.*;
 /**
  * @author SeptemberHX
  * @version 0.1
- * @date 2020/3/14
+ * @date 2020/3/15
  */
-public class MDepAlgorithmTest extends TestCase {
+public class MergeAlgosTest extends TestCase {
 
     public void testMergeSameSvcPatternUrlList() {
         String serviceName = "service-test";
@@ -58,7 +58,7 @@ public class MDepAlgorithmTest extends TestCase {
         depCountMap.put(dep4, 15);
 
         Pair<Map<PureSvcDependency, PureSvcDependency>, Map<PureSvcDependency, Integer>> result
-                = MDepAlgorithm.mergeSameSvcPatternUrlList(depCountMap, dependencyList);
+                = MergeAlgos.mergeDepList(depCountMap, dependencyList);
 
         Set<MSvcVersion> resultVerSet1 = new HashSet<>();
         resultVerSet1.add(v1);
