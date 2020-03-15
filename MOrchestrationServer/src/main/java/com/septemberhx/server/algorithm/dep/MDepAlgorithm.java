@@ -2,11 +2,8 @@ package com.septemberhx.server.algorithm.dep;
 
 import com.septemberhx.common.base.node.MServerNode;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
-import com.septemberhx.common.service.MSla;
 import com.septemberhx.common.service.MSvcInterface;
-import com.septemberhx.common.service.MSvcVersion;
 import com.septemberhx.common.service.dependency.*;
-import com.septemberhx.server.algorithm.dep.merge.MergeFunc;
 import com.septemberhx.server.bean.MPredictBean;
 import com.septemberhx.server.model.MServiceInstance;
 import com.septemberhx.server.model.MSvcManager;
@@ -91,29 +88,16 @@ public class MDepAlgorithm {
             Map<PureSvcDependency, Integer> demandCountMap, MSvcManager svcManager) {
 
         // 1. merge dependencies as much as possible. The less restricted one is always merged to restricted one
-        //      i.e.: d1 = pay function with sla 1, d2 = pay function with sla 1 or 2; than 2 will be merged to 1
-        Map<PureSvcDependency, PureSvcDependency> mergedMap = new HashMap<>();
-        List<PureSvcDependency> verDepList = new ArrayList<>();
-        Set<PureSvcDependency> slaDepSet = new HashSet<>();
-        Set<PureSvcDependency> funcDepSet = new HashSet<>();
+        //    the results are demands that can not be merged with each other
+        MergeAlgos.svcManager = svcManager;
+        Pair<Map<PureSvcDependency, PureSvcDependency>, Map<PureSvcDependency, Integer>> mergedResult =
+                MergeAlgos.mergeDepList(demandCountMap, new ArrayList<>(demandCountMap.keySet()));
 
-        for (PureSvcDependency svcDependency : demandCountMap.keySet()) {
-            BaseSvcDependency dependency = BaseSvcDependency.tranPure(svcDependency);
-            if (dependency instanceof SvcVerDependency) {
-                verDepList.add(svcDependency);
-            } else if (dependency instanceof SvcSlaDependency) {
-                slaDepSet.add(svcDependency);
-            } else if (dependency instanceof SvcFuncDependency) {
-                funcDepSet.add(svcDependency);
-            }
-        }
-
-        // 1.1 merge SvcVerDependency, the most restricted
-
-        // 1.2 merge SvcSlaDependency
-
-        // 1.3 merge SvcFuncDependency, the last restricted
-
+        // 2. find a suitable service for each dependency
+        //    Ver deps will be processed first.
+        //    Sla and Func deps will be mapped to the results of Ver deps as much as possible.
+        //         Otherwise finding a new service
+        List<PureSvcDependency> newDepList = new ArrayList<>(mergedResult.getValue0().values());
         // todo: finish the min svc tree algorithm
 
         Map<String, Map<PureSvcDependency, String>> resultMap = new HashMap<>();

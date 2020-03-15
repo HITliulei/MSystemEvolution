@@ -2,6 +2,7 @@ package com.septemberhx.server.algorithm.dep.merge;
 
 import com.septemberhx.common.service.MSvcVersion;
 import com.septemberhx.common.service.dependency.PureSvcDependency;
+import com.septemberhx.server.algorithm.dep.MergeAlgos;
 import junit.framework.TestCase;
 import org.javatuples.Pair;
 

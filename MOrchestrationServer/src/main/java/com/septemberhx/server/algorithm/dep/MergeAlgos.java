@@ -1,10 +1,11 @@
-package com.septemberhx.server.algorithm.dep.merge;
+package com.septemberhx.server.algorithm.dep;
 
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSla;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.MSvcVersion;
 import com.septemberhx.common.service.dependency.*;
+import com.septemberhx.common.utils.CommonUtils;
 import com.septemberhx.server.model.MSvcManager;
 import org.javatuples.Pair;
 
@@ -107,7 +108,7 @@ public class MergeAlgos {
     }
 
     public static PureSvcDependency _mergeVerDepFunc(PureSvcDependency v1, PureSvcDependency v2) {
-        Set<MSvcVersion> verSet = getSetIntersection(v1.getVersionSet(), v2.getVersionSet());
+        Set<MSvcVersion> verSet = CommonUtils.getSetIntersection(v1.getVersionSet(), v2.getVersionSet());
         if (verSet.isEmpty()) {
             return null;
         } else {
@@ -122,7 +123,7 @@ public class MergeAlgos {
     }
 
     public static PureSvcDependency _mergeSlaDepFunc(PureSvcDependency v1, PureSvcDependency v2) {
-        Set<MSla> slaSet = getSetIntersection(v1.getSlaSet(), v2.getSlaSet());
+        Set<MSla> slaSet = CommonUtils.getSetIntersection(v1.getSlaSet(), v2.getSlaSet());
         if (slaSet.isEmpty()) {
             return null;
         } else {
@@ -137,7 +138,7 @@ public class MergeAlgos {
     }
 
     public static PureSvcDependency _mergeFuncDepFunc(PureSvcDependency v1, PureSvcDependency v2) {
-        Set<MSla> slaSet = getSetIntersection(v1.getSlaSet(), v2.getSlaSet());
+        Set<MSla> slaSet = CommonUtils.getSetIntersection(v1.getSlaSet(), v2.getSlaSet());
         if (slaSet.isEmpty()) {
             return null;
         } else {
@@ -248,11 +249,5 @@ public class MergeAlgos {
                     verSet
             );
         }
-    }
-
-    public static <T> Set<T> getSetIntersection(Set<T> s1, Set<T> s2) {
-        Set<T> tmpSet = new HashSet<>(s1);
-        tmpSet.retainAll(s2);
-        return tmpSet;
     }
 }
