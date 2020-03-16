@@ -3,6 +3,7 @@ package com.septemberhx.common.service.dependency;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,5 +32,11 @@ public class MSvcDepDesc {
         this.serviceId = serviceId;
         this.name = name;
         this.dependencyMaps = dependencyMaps;
+    }
+
+    public List<BaseSvcDependency> getDepList() {
+        List<BaseSvcDependency> resultList = new ArrayList<>();
+        dependencyMaps.values().stream().map(Map::values).forEach(resultList::addAll);
+        return resultList;
     }
 }

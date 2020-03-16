@@ -33,8 +33,64 @@ public class MappingSvcAlgos {
         }
     }
 
-    public static void buildSvcTree(List<MService> demandSvcList) {
+    public static Map<BaseSvcDependency, MService> buildSvcTree(List<MService> demandSvcList) {
+        return _buildSvcTree(new HashSet<>(demandSvcList), new HashSet<>(demandSvcList));
+    }
 
+    public static Map<BaseSvcDependency, MService> _buildSvcTree(Set<MService> solvedSvcSet, Set<MService> unsolvedSvcSet) {
+        Set<BaseSvcDependency> depSet = new HashSet<>();
+        for (MService svc : unsolvedSvcSet) {
+            depSet.addAll(svc.getDepList());
+        }
+
+        List<MService> svcList = svcManager.getAllValues();
+        Map<MService, Set<BaseSvcDependency>> metMap = new HashMap<>();
+        for (MService svc : svcList) {
+            Set<BaseSvcDependency> tmpDepSet = new HashSet<>();
+            for (BaseSvcDependency svcDependency : depSet) {
+                if (checkIfSvcMeetDep(svc, svcDependency)) {
+                    tmpDepSet.add(svcDependency);
+                }
+            }
+            metMap.put(svc, tmpDepSet);
+        }
+
+        Map<BaseSvcDependency, MService> mapResult = new HashMap<>();
+        Set<MService> tmpSolvedSvcSet = new HashSet<>(solvedSvcSet);
+        tmpSolvedSvcSet.addAll(unsolvedSvcSet);
+        while (!depSet.isEmpty()) {
+            List<MService> targetSvcList = new ArrayList<>(metMap.keySet());
+            targetSvcList.sort((o1, o2) -> {
+                if (tmpSolvedSvcSet.contains(o1) && !tmpSolvedSvcSet.contains(o2)) {
+                    return -1;
+                } else if (!tmpSolvedSvcSet.contains(o1) && tmpSolvedSvcSet.contains(o2)) {
+                    return 1;
+                } else {
+                    return -Integer.compare(metMap.get(o1).size(), metMap.get(o2).size());
+                }
+            });
+            MService targetSvc = targetSvcList.get(0);
+
+            for (BaseSvcDependency svcDependency : metMap.get(targetSvc)) {
+                mapResult.put(svcDependency, targetSvc);
+                depSet.remove(svcDependency);
+            }
+            for (Set<BaseSvcDependency> tmpSet : metMap.values()) {
+                tmpSet.removeAll(metMap.get(targetSvc));
+            }
+            metMap.remove(targetSvc);
+        }
+
+        Set<MService> newUnsolvedSvcSet = new HashSet<>(mapResult.values());
+        newUnsolvedSvcSet.removeAll(tmpSolvedSvcSet);
+
+        if (!newUnsolvedSvcSet.isEmpty()) {
+            Map<BaseSvcDependency, MService> recursionResult = _buildSvcTree(tmpSolvedSvcSet, newUnsolvedSvcSet);
+            for (BaseSvcDependency svcDependency : recursionResult.keySet()) {
+                mapResult.put(svcDependency, recursionResult.get(svcDependency));
+            }
+        }
+        return mapResult;
     }
 
     public static Map<PureSvcDependency, MService> mappingFuncDepList(
@@ -47,24 +103,8 @@ public class MappingSvcAlgos {
             Set<PureSvcDependency> meetDep = new HashSet<>();
             for (PureSvcDependency dep : depSet) {
                 BaseSvcDependency tmpDep = BaseSvcDependency.tranPure(dep);
-                if (tmpDep instanceof SvcFuncDependency) {
-                    for (MSla sla : dep.getSlaSet()) {
-                        if (svc.ifSatisfied(dep.getFunc(), sla)) {
-                            meetDep.add(dep);
-                            break;
-                        }
-                    }
-                } else if (tmpDep instanceof SvcSlaDependency) {
-                    if (svc.getServiceName().equals(dep.getServiceName())) {
-                        Optional<MSvcInterface> apiOpt = svc.getInterfaceByPatternUrl(dep.getPatternUrl());
-                        if (apiOpt.isPresent() && dep.getSlaSet().contains(apiOpt.get().getFuncDescription().getSla())) {
-                            meetDep.add(dep);
-                        }
-                    }
-                } else if (tmpDep instanceof SvcVerDependency) {
-                    if (svc.getServiceName().equals(dep.getServiceName()) && dep.getVersionSet().contains(svc.getServiceVersion())) {
-                        meetDep.add(dep);
-                    }
+                if (checkIfSvcMeetDep(svc, tmpDep)) {
+                    meetDep.add(dep);
                 }
             }
             metMap.put(svc, meetDep);
@@ -86,6 +126,29 @@ public class MappingSvcAlgos {
             metMap.remove(targetSvc);
         }
         return mapResult;
+    }
+
+    public static boolean checkIfSvcMeetDep(MService svc, BaseSvcDependency svcDependency) {
+        svcDependency = svcDependency.toRealDependency();
+        if (svcDependency instanceof SvcFuncDependency) {
+            for (MSla sla : svcDependency.getSlaSet()) {
+                if (svc.ifSatisfied(svcDependency.getFunc(), sla)) {
+                    return true;
+                }
+            }
+        } else if (svcDependency instanceof SvcSlaDependency) {
+            if (svc.getServiceName().equals(svcDependency.getServiceName())) {
+                Optional<MSvcInterface> apiOpt = svc.getInterfaceByPatternUrl(svcDependency.getPatternUrl());
+                if (apiOpt.isPresent() && svcDependency.getSlaSet().contains(apiOpt.get().getFuncDescription().getSla())) {
+                    return true;
+                }
+            }
+        } else if (svcDependency instanceof SvcVerDependency) {
+            if (svc.getServiceName().equals(svcDependency.getServiceName()) && svcDependency.getVersionSet().contains(svc.getServiceVersion())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // ------> Abandoned plan below <------

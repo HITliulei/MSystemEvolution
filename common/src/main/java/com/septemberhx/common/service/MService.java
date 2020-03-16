@@ -61,6 +61,10 @@ public class MService extends MUniqueObject {
         return false;
     }
 
+    public List<BaseSvcDependency> getDepList() {
+        return this.mSvcDepDesc.getDepList();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
