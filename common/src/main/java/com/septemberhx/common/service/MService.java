@@ -52,6 +52,15 @@ public class MService extends MUniqueObject {
         return Optional.empty();
     }
 
+    public boolean ifSatisfied(MFunc func, MSla sla) {
+        for (MSvcInterface api : this.serviceInterfaceMap.values()) {
+            if (api.getFuncDescription().ifSatisfied(func, sla)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

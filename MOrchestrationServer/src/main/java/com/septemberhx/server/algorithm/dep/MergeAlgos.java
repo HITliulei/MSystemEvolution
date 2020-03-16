@@ -15,6 +15,8 @@ import java.util.*;
  * @author SeptemberHX
  * @version 0.1
  * @date 2020/3/15
+ *
+ * ------> Warning: Abandoned due to the new implement method in MappingSvcAlgos::mappingFuncDepList <------
  */
 public class MergeAlgos {
 
