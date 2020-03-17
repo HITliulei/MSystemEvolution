@@ -33,6 +33,43 @@ public class MappingSvcAlgos {
         }
     }
 
+    public static Map<MService, Integer> calcSvcUserCount(
+            List<MService> demandSvcList, Map<BaseSvcDependency, MService> svcDepMap,
+            Map<PureSvcDependency, MService> userDepMap, Map<PureSvcDependency, Set<String>> userDepSet) {
+        Map<MService, Integer> resultMap = new HashMap<>();
+        Set<MService> allSvcSet = new HashSet<>(demandSvcList);
+        allSvcSet.addAll(svcDepMap.values());
+        for (MService svc : allSvcSet) {
+            resultMap.put(svc, 0);
+        }
+
+        Map<MService, Set<String>> svcCalledUserSet = new HashMap<>();
+        for (PureSvcDependency svcDependency : userDepMap.keySet()) {
+            MService targetSvc = userDepMap.get(svcDependency);
+            if (!svcCalledUserSet.containsKey(targetSvc)) {
+                svcCalledUserSet.put(targetSvc, new HashSet<>());
+            }
+
+            Set<String> tmpUserSet = new HashSet<>(userDepSet.get(svcDependency));
+            tmpUserSet.removeAll(svcCalledUserSet.get(targetSvc));
+
+            Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(svcDependency);
+            apiOpt.ifPresent(svcInterface -> _calcSvcUserCount(targetSvc, svcInterface, tmpUserSet.size(), svcDepMap, resultMap));
+        }
+        return resultMap;
+    }
+
+    public static void _calcSvcUserCount(MService calledSvc, MSvcInterface calledApi, int calledCount,
+                                         Map<BaseSvcDependency, MService> svcDepMap, Map<MService, Integer> countMap) {
+        countMap.put(calledSvc, countMap.get(calledSvc) + calledCount);
+        for (BaseSvcDependency svcDependency : calledApi.getInvokeCountMap().keySet()) {
+            MService targetSvc = svcDepMap.get(svcDependency);
+            Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(svcDependency.getDep());
+            apiOpt.ifPresent(svcInterface -> _calcSvcUserCount(
+                    targetSvc, svcInterface, calledCount * calledApi.getInvokeCountMap().get(svcDependency), svcDepMap, countMap));
+        }
+    }
+
     public static Map<BaseSvcDependency, MService> buildSvcTree(List<MService> demandSvcList) {
         return _buildSvcTree(new HashSet<>(demandSvcList), new HashSet<>(demandSvcList));
     }
