@@ -1,8 +1,7 @@
 package com.septemberhx.common.service;
 
 import com.septemberhx.common.base.MUniqueObject;
-import com.septemberhx.common.service.dependency.BaseSvcDependency;
-import com.septemberhx.common.service.dependency.MSvcDepDesc;
+import com.septemberhx.common.service.dependency.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -47,6 +46,31 @@ public class MService extends MUniqueObject {
         for (MSvcInterface svcInterface : this.serviceInterfaceMap.values()) {
             if (svcInterface.getPatternUrl().equals(patternUrl)) {
                 return Optional.of(svcInterface);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<MSvcInterface> getInterfaceByDep(PureSvcDependency svcDependency) {
+        BaseSvcDependency dep = BaseSvcDependency.tranPure(svcDependency);
+        for (MSvcInterface api : this.serviceInterfaceMap.values()) {
+            if (dep instanceof SvcVerDependency) {
+                if (dep.getVersionSet().contains(this.serviceVersion)
+                        && dep.getServiceName().equals(this.serviceName)
+                        && dep.getPatternUrl().equals(api.getPatternUrl())) {
+                    return Optional.of(api);
+                }
+            } else if (dep instanceof SvcSlaDependency) {
+                if (dep.getServiceName().equals(this.serviceName)
+                        && dep.getPatternUrl().equals(api.getPatternUrl())
+                        && dep.getSlaSet().contains(api.getFuncDescription().getSla())) {
+                    return Optional.of(api);
+                }
+            } else if (dep instanceof SvcFuncDependency) {
+                if (dep.getFunc().equals(api.getFuncDescription().getFunc())
+                        && dep.getSlaSet().contains(api.getFuncDescription().getSla())) {
+                    return Optional.of(api);
+                }
             }
         }
         return Optional.empty();
