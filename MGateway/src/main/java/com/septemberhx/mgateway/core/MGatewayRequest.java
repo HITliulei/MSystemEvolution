@@ -5,6 +5,7 @@ import com.netflix.discovery.shared.Application;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
+import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import com.septemberhx.common.utils.MRequestUtils;
@@ -46,13 +47,37 @@ public class MGatewayRequest {
         return null;
      }
 
+    /**
+     * Ask the gateway to get the routing
+     * @param clientId: who send the requests. It may be a service instance or user client
+     * @param dep: dependency description
+     * @param userId: which user need this
+     */
+     public Optional<MRoutingBean> askClusterAgentForRoutingBean(String clientId, BaseSvcDependency dep, String userId) {
+         InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+         if (agentInfo != null) {
+             URI uri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTERAGENT_REQUEST_REMOTE_URI);
+             MRoutingBean result = MRequestUtils.sendRequest(
+                     uri, new MRequestRoutingBean(clientId, userId, dep), MRoutingBean.class, RequestMethod.POST);
+             return Optional.of(result);
+         }
+         return Optional.empty();
+     }
+
     /*
      * Solve the request that is identified by the dependency from instances
      * It corresponds to RequestController#dependencyRequest
      */
     public MResponse solveInstDepRequest(String instanceIp, BaseSvcDependency dependency, MResponse parameters) {
-        Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRoutingForInst(instanceIp, dependency);
+        String userId = (String) parameters.get(MConfig.PARAM_USER_ID);
+        Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRouting(instanceIp, dependency, userId);
         MResponse response = MResponse.failResponse();
+
+        if (!routingBeanOpt.isPresent()) {
+            routingBeanOpt = this.askClusterAgentForRoutingBean(instanceIp, dependency, userId);
+            routingBeanOpt.ifPresent(routingBean -> MGatewayInfo.inst().cacheRouting(instanceIp, dependency, userId, routingBean));
+        }
+
         if (routingBeanOpt.isPresent()) {
             response = MRequestUtils.sendRequest(
                     MUrlUtils.getRemoteUri(routingBeanOpt.get()),
@@ -74,19 +99,13 @@ public class MGatewayRequest {
         MResponse parameters = requestCacheBean.getParameters();
 
         MGatewayInfo.inst().recordUserDepRequest(requestCacheBean);  // record it for server to analyse
-        Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRoutingFromRecordForUser(userId, dependency);
-        boolean isFromRecord = false;
-        if (routingBeanOpt.isPresent()) {
-            isFromRecord = true;
-        } else {
-            routingBeanOpt = MGatewayInfo.inst().getRoutingFromTableForUser(dependency);
+        Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRouting(userId, dependency, userId);
+        if (!routingBeanOpt.isPresent()) {
+            routingBeanOpt = this.askClusterAgentForRoutingBean(userId, dependency, userId);
+            routingBeanOpt.ifPresent(routingBean -> MGatewayInfo.inst().cacheRouting(userId, dependency, userId, routingBean));
         }
 
         if (routingBeanOpt.isPresent()) {
-            if (!isFromRecord) {
-                MGatewayInfo.inst().recordUserRouting(userId, dependency, routingBeanOpt.get());
-            }
-
             MResponse response = MRequestUtils.sendRequest(
                     MUrlUtils.getRemoteUri(routingBeanOpt.get()),
                     parameters,
