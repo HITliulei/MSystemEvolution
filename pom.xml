@@ -17,6 +17,7 @@
         <module>MClusterAgent</module>
         <module>MEurekaServer</module>
         <module>MInfoCollector</module>
+        <module>MBuildCenter</module>
     </modules>
 
     <properties>

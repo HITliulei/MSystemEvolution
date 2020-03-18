@@ -40,11 +40,26 @@ public class MClusterManager extends MUniqueObjectManager<MServerCluster> {
         this.serverNodeGraph.removeEdge(startNodeId, endNodeId);
     }
 
+    public List<MServerNode> getNodesByClusterId(String clusterId) {
+        if (this.objectMap.containsKey(clusterId)) {
+            return new ArrayList<>(this.objectMap.get(clusterId).getNodeMap().values());
+        }
+        return new ArrayList<>();
+    }
+
     public void add(MServerCluster cluster) {
         this.objectMap.put(cluster.getId(), cluster);
         for (MServerNode serverNode : cluster.getNodeMap().values()) {
             this.serverNodeGraph.addNode(serverNode.getId());
             this.nodeMap.put(serverNode.getId(), serverNode);
+        }
+    }
+
+    public Optional<MServerNode> getNodeById(String nodeId) {
+        if (this.nodeMap.containsKey(nodeId)) {
+            return Optional.of(this.nodeMap.get(nodeId));
+        } else {
+            return Optional.empty();
         }
     }
 

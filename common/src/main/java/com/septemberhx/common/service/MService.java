@@ -1,5 +1,6 @@
 package com.septemberhx.common.service;
 
+import com.septemberhx.common.base.MResource;
 import com.septemberhx.common.base.MUniqueObject;
 import com.septemberhx.common.service.dependency.*;
 import lombok.Getter;
@@ -33,6 +34,7 @@ public class MService extends MUniqueObject {
     private Integer maxPlotNum;
     private Map<String, MSvcInterface> serviceInterfaceMap;
     private MSvcDepDesc mSvcDepDesc;
+    private MResource resource;
 
     /*
      * Get the interface list that use the given dependency
