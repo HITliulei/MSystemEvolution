@@ -5,7 +5,7 @@ import com.septemberhx.common.exception.NonexistenServiceException;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
-import com.septemberhx.server.model.MServiceInstance;
+import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.server.model.MSvcInstManager;
 import com.septemberhx.server.model.MSvcManager;
 import com.septemberhx.server.utils.MIDUtils;
@@ -45,9 +45,9 @@ public class MDepRoutingManager {
 
     public boolean checkInstHasAvailablePlot(
             String instanceId, String interfaceId, MSvcManager svcManager, MSvcInstManager instManager, int plotNum) {
-        Optional<MServiceInstance> serviceInstanceOpt = instManager.getById(instanceId);
+        Optional<MSvcInstance> serviceInstanceOpt = instManager.getById(instanceId);
         if (serviceInstanceOpt.isPresent()) {
-            MServiceInstance serviceInstance = serviceInstanceOpt.get();
+            MSvcInstance serviceInstance = serviceInstanceOpt.get();
             Optional<MService> serviceOpt = svcManager.getById(serviceInstance.getServiceId());
             if (serviceOpt.isPresent()) {
                 if (this.getUsedPlotNum(instanceId) + plotNum >= serviceOpt.get().getMaxPlotNum()) {

@@ -1,4 +1,4 @@
-package com.septemberhx.server.model;
+package com.septemberhx.common.service;
 
 import com.septemberhx.common.base.MUniqueObject;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class MServiceInstance extends MUniqueObject {
+public class MSvcInstance extends MUniqueObject {
 
     // we use the pod id as the unique id of instance
 
@@ -29,8 +29,8 @@ public class MServiceInstance extends MUniqueObject {
     private Set<String> mObjectIdSet;           // For the possible future works. Not used for now
     private Map<String, String> parentIdMap;    // For the possible future works. Not used for now
 
-    public MServiceInstance(Map<String, String> parentIdMap, String clusterId, String nodeId, String ip, Integer port,
-                            String instanceId, Set<String> mObjectIdSet, String serviceName, String serviceId, String registryId, String version) {
+    public MSvcInstance(Map<String, String> parentIdMap, String clusterId, String nodeId, String ip, Integer port,
+                        String instanceId, Set<String> mObjectIdSet, String serviceName, String serviceId, String registryId, String version) {
         this.parentIdMap = parentIdMap;
         this.clusterId = clusterId;
         this.nodeId = nodeId;
@@ -46,8 +46,8 @@ public class MServiceInstance extends MUniqueObject {
         this.version = version;
     }
 
-    public MServiceInstance deepClone() {
-        return new MServiceInstance(
+    public MSvcInstance deepClone() {
+        return new MSvcInstance(
                 this.parentIdMap,
                 this.clusterId,
                 this.nodeId,

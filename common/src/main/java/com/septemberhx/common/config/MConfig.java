@@ -71,6 +71,7 @@ public class MConfig {
     public final static String MCLUSTER_SVC_METADATA_VALUE = "true";
     public final static String MCLUSTER_SVC_VER_NAME = "serviceVersion";
     public final static String MCLUSTER_DEP_REQUEST_ROUTING = "/magent/routing";
+    public final static String MCLUSTER_UPDATE_SYS_DATA_URI = "/magent/updating";
 
     public final static String MGATEWAY_NAME = "MGateway";
     public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";
@@ -83,6 +84,8 @@ public class MConfig {
     public final static String MDPREDICTOR_PREDICT = "/predict";
 
     public final static String PARAM_USER_ID = "__user_id";
+    public final static String PARAM_CALLER_URL = "__caller_url";
+    public final static String PARAM_CALLED_URL = "__called_url";
 
     private static MConfig ourInstance = new MConfig();
 

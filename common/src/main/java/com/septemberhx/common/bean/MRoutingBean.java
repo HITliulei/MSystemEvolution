@@ -19,6 +19,15 @@ public class MRoutingBean {
     private Integer port;
     private String patternUrl;
 
+    public MRoutingBean(String ipAddr, Integer port, String patternUrl) {
+        this.ipAddr = ipAddr;
+        this.port = port;
+        this.patternUrl = patternUrl;
+    }
+
+    public MRoutingBean() {
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

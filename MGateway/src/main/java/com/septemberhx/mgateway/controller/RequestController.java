@@ -45,7 +45,8 @@ public class RequestController {
             MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency, requestBody);
             return MResponse.successResponse();
         } else {
-            return this.gatewayRequest.solveInstDepRequest(request.getRemoteAddr(), baseSvcDependency, requestBody);
+            return this.gatewayRequest.solveInstDepRequest(
+                    request.getRemoteAddr(), baseSvcDependency, requestBody, request.getHeader(MConfig.PARAM_CALLED_URL));
         }
     }
 }

@@ -3,6 +3,7 @@ package com.septemberhx.server.model;
 import com.septemberhx.common.base.MResource;
 import com.septemberhx.common.base.node.MServerNode;
 import com.septemberhx.common.service.MService;
+import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.server.utils.MIDUtils;
 
 import java.util.Map;
@@ -33,7 +34,7 @@ public class MDeployManager {
     public boolean addInstForSvcOnNode(String nodeId, MService svc) {
         Optional<MServerNode> nodeOpt = this.clusterManager.getNodeById(nodeId);
         if (nodeOpt.isPresent() && this.checkIfNodeCanDeploy(nodeId, svc)) {
-            MServiceInstance svcInst = new MServiceInstance(
+            MSvcInstance svcInst = new MSvcInstance(
                     null,
                     nodeOpt.get().getClusterId(),
                     nodeId,
@@ -54,7 +55,7 @@ public class MDeployManager {
 
     public MResource getNodeResUsage(String nodeId) {
         MResource tmpR = new MResource();
-        for (MServiceInstance inst : instManager.getInstanceByNodeId(nodeId)) {
+        for (MSvcInstance inst : instManager.getInstanceByNodeId(nodeId)) {
             Optional<MService> svcOpt = this.svcManager.getById(inst.getServiceId());
             svcOpt.ifPresent(service -> tmpR.free(service.getResource()));
         }

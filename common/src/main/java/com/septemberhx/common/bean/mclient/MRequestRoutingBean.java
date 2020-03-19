@@ -17,6 +17,7 @@ public class MRequestRoutingBean {
     private String clientId;
     private String userId;
     private BaseSvcDependency dependency;
+    private String callerPatternUrl;
 
     public MRequestRoutingBean(String clientId, String userId, BaseSvcDependency dependency) {
         this.clientId = clientId;

@@ -1,17 +1,16 @@
 package com.septemberhx.agent.core;
 
-import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
-import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
+import com.septemberhx.common.exception.NonexistenServiceException;
+import com.septemberhx.common.service.MService;
+import com.septemberhx.common.service.MSvcInstance;
+import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import com.septemberhx.common.service.dependency.PureSvcDependency;
-import org.joda.time.DateTime;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author SeptemberHX
@@ -21,101 +20,133 @@ import java.util.concurrent.TimeUnit;
 public class MRoutingInfo {
     private static MRoutingInfo instance;
 
-    private static final long MAX_RECORD_TIME_IN_MILLS = TimeUnit.HOURS.toMillis(1);
+    private Map<String, Map<String, Map<BaseSvcDependency, MRoutingBean>>> routingTable;
 
-    /*
-     * Map[
-     *   dep,
-     *   Map[
-     *     routing info,
-     *     max user count  # stands for how many users can by redirected to this routing info by this gateway
-     *   ]
-     * ]
+    private Map<PureSvcDependency, String> pureRoutingMap;
+
+    @Setter
+    private Map<String, MService> svcMap;
+
+    @Setter
+    private Map<String, MSvcInstance> svcInstanceMap;
+
+    /* used user number for stable SLA of each instance each interface
+     *
+     * For one user that calls any API of one instance,
+     *   the plot is occupied by 1 * n, where n is the coefficient in dep;
+     * For instance that calls any API of one instance,
+     *   the plot is occupied by m * n, where m is the used plots in of the invoking instance;
+     *
+     * Map[instanceId, Map[interfaceId, used number]]
      */
-    private Map<PureSvcDependency, Map<MRoutingBean, Integer>> userRoutingTable;
+    private Map<String, Map<String, Map<String, Integer>>> usedPlot;
 
-    /*
-     * Map[
-     *   dep,
-     *   Map[
-     *     routing info,
-     *     Set<User Id>  # stands for user set that is redirected to this routing info by this gateway
-     *   ]
-     * ]
-     */
-    private Map<PureSvcDependency, Map<MRoutingBean, Set<String>>> userRoutingRecord;
-
-    /*
-     * Map[
-     *   instance id,
-     *   Map[
-     *     dep,
-     *     routing info
-     *   ]
-     * ]
-     * Specific for routing between services, will not change in one time window
-     */
-    private Map<String, Map<BaseSvcDependency, MRoutingBean>> instRoutingTable;
-
-    public Optional<MRoutingBean> getRoutingForInst(String fromIpAddr, BaseSvcDependency dependency) {
-        if (this.instRoutingTable.containsKey(fromIpAddr)) {
-            return Optional.of(this.instRoutingTable.get(fromIpAddr).get(dependency));
-        }
-        return Optional.empty();
-    }
-
-    public Optional<MRoutingBean> getRoutingFromRecordForUser(String userId, BaseSvcDependency dependency) {
-        // check if new demand
-        if (!this.userRoutingTable.containsKey(dependency.getDep())) {
-            return Optional.empty();
+    public Optional<MRoutingBean> getRoutingFromRecord(String clientId, String userId, BaseSvcDependency dependency) {
+        if (this.routingTable.containsKey(clientId) && this.routingTable.containsKey(userId) && this.routingTable.containsKey(dependency)) {
+            return Optional.of(this.routingTable.get(clientId).get(userId).get(dependency));
         }
 
-        // check if assigned before
-        if (userRoutingRecord.containsKey(dependency.getDep())) {
-            for (MRoutingBean routingBean : userRoutingRecord.get(dependency.getDep()).keySet()) {
-                if (userRoutingRecord.get(dependency.getDep()).get(routingBean).contains(userId)) {
-                    return Optional.of(routingBean);
-                }
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    public Optional<MRoutingBean> getRoutingFromTableForUser(BaseSvcDependency dependency) {
-        if (this.userRoutingTable.containsKey(dependency.getDep())) {
-            // check if has available plot for the new demand
-            Map<MRoutingBean, Integer> depRoutingTable = userRoutingTable.get(dependency.getDep());
-            for (MRoutingBean routingBean : depRoutingTable.keySet()) {
-                if (depRoutingTable.get(routingBean) > this.userRoutingRecord.get(dependency.getDep()).get(routingBean).size()) {
-                    return Optional.of(routingBean);
-                }
-            }
-        }
         return Optional.empty();
     }
 
     /*
      * Occupy one plot for given routing info
      */
-    public void recordUserRouting(String userId, BaseSvcDependency dependency, MRoutingBean routingBean) {
-        if (!this.userRoutingRecord.containsKey(dependency.getDep())) {
-            this.userRoutingRecord.put(dependency.getDep(), new ConcurrentHashMap<>());
+    public void recordRouting(String clientId, String callerPatternUrl, String userId, BaseSvcDependency dependency, MRoutingBean routingBean) {
+        if (!this.routingTable.containsKey(clientId)) {
+            this.routingTable.put(clientId, new HashMap<>());
         }
 
-        if (!this.userRoutingRecord.get(dependency.getDep()).containsKey(routingBean)) {
-            this.userRoutingRecord.get(dependency.getDep()).put(routingBean, new CopyOnWriteArraySet());
+        if (!this.routingTable.get(clientId).containsKey(userId)) {
+            this.routingTable.get(clientId).put(userId, new HashMap<>());
         }
+        this.routingTable.get(clientId).get(userId).put(dependency, routingBean);
 
-        this.userRoutingRecord.get(dependency.getDep()).get(routingBean).add(userId);
+        MSvcInstance targetInst = null;
+        for (MSvcInstance svcInstance : svcInstanceMap.values()) {
+            if (svcInstance.getIp().equals(routingBean.getIpAddr())) {
+                targetInst = svcInstance;
+                break;
+            }
+        }
+        if (targetInst != null) {
+            MService svc = svcMap.get(targetInst.getServiceId());
+            Optional<MSvcInterface> apiOpt = svc.getInterfaceByPatternUrl(routingBean.getPatternUrl());
+            int usedPlot = 1;
+            if (apiOpt.isPresent()) {
+                if (svcInstanceMap.containsKey(clientId)) {
+                    MService callerSvc = svcMap.get(svcInstanceMap.get(clientId).getServiceId());
+                    Optional<MSvcInterface> callerApiOpt = callerSvc.getInterfaceByPatternUrl(callerPatternUrl);
+                    if (callerApiOpt.isPresent()) {
+                        usedPlot *= callerApiOpt.get().getInvokeCountMap().getOrDefault(dependency, 1);
+                    }
+                }
+            }
+            if (!this.usedPlot.containsKey(clientId)) {
+                this.usedPlot.put(clientId, new HashMap<>());
+            }
+            if (!this.usedPlot.get(clientId).containsKey(routingBean.getPatternUrl())) {
+                this.usedPlot.get(clientId).put(routingBean.getPatternUrl(), new HashMap<>());
+            }
+            this.usedPlot.get(clientId).get(routingBean.getPatternUrl())
+                    .put(userId, usedPlot + this.usedPlot.get(clientId).get(routingBean.getPatternUrl()).getOrDefault(userId, 0));
+        }
     }
 
+    public Optional<MRoutingBean> findNewRoutingBean(BaseSvcDependency dep) {
+        MService targetSvc = svcMap.get(this.pureRoutingMap.get(dep.getDep()));
+        if (targetSvc != null) {
+            Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(dep.getDep());
+            if (apiOpt.isPresent()) {
+                for (MSvcInstance inst : svcInstanceMap.values()) {
+                    if (inst.getServiceId().equals(this.pureRoutingMap.get(dep.getDep()))) {
+                        if (checkInstHasAvailablePlot(inst.getId(), apiOpt.get().getInvokeCountMap().get(dep))) {
+                            return Optional.of(new MRoutingBean(
+                                    inst.getIp(),
+                                    inst.getPort(),
+                                    apiOpt.get().getPatternUrl()
+                            ));
+                        }
+                    }
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    public boolean checkInstHasAvailablePlot(String instanceId, int plotNum) {
+        MSvcInstance svcInstance = this.svcInstanceMap.get(instanceId);
+        if (svcInstance != null) {
+            MService service = this.svcMap.get(svcInstance.getServiceId());
+            if (service != null) {
+                if (this.getUsedPlotNum(instanceId) + plotNum >= service.getMaxPlotNum()) {
+                    return false;
+                }
+                return true;
+            } else {
+                throw new NonexistenServiceException(svcInstance.getServiceId());
+            }
+        }
+        return false;
+    }
+
+    public int getUsedPlotNum(String instanceId) {
+        int totalNum = 0;
+        if (this.usedPlot.containsKey(instanceId)) {
+            for (String apiUrl : this.usedPlot.get(instanceId).keySet()) {
+                for (String userId : this.usedPlot.get(instanceId).get(apiUrl).keySet()) {
+                    totalNum += this.usedPlot.get(instanceId).get(apiUrl).get(userId);
+                }
+            }
+        }
+        return totalNum;
+    }
 
     private MRoutingInfo() {
         // for thread safety
-        this.userRoutingTable = new ConcurrentHashMap<>();
-        this.userRoutingRecord = new ConcurrentHashMap<>();
-        this.instRoutingTable = new ConcurrentHashMap<>();
+        this.routingTable = new ConcurrentHashMap();
+        this.pureRoutingMap = new ConcurrentHashMap<>();
+        this.usedPlot = new ConcurrentHashMap<>();
     }
 
     public static MRoutingInfo inst() {

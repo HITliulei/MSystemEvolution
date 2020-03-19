@@ -18,8 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import java.net.URI;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author SeptemberHX
@@ -68,7 +67,7 @@ public class MGatewayRequest {
      * Solve the request that is identified by the dependency from instances
      * It corresponds to RequestController#dependencyRequest
      */
-    public MResponse solveInstDepRequest(String instanceIp, BaseSvcDependency dependency, MResponse parameters) {
+    public MResponse solveInstDepRequest(String instanceIp, BaseSvcDependency dependency, MResponse parameters, String calledUrl) {
         String userId = (String) parameters.get(MConfig.PARAM_USER_ID);
         Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRouting(instanceIp, dependency, userId);
         MResponse response = MResponse.failResponse();
@@ -83,7 +82,8 @@ public class MGatewayRequest {
                     MUrlUtils.getRemoteUri(routingBeanOpt.get()),
                     parameters,
                     MResponse.class,
-                    RequestMethod.POST
+                    RequestMethod.POST,
+                    createHeader(calledUrl, routingBeanOpt.get().getPatternUrl())
             );
         }
         return response;
@@ -106,11 +106,13 @@ public class MGatewayRequest {
         }
 
         if (routingBeanOpt.isPresent()) {
+
             MResponse response = MRequestUtils.sendRequest(
                     MUrlUtils.getRemoteUri(routingBeanOpt.get()),
                     parameters,
                     MResponse.class,
-                    RequestMethod.POST
+                    RequestMethod.POST,
+                    createHeader(null, routingBeanOpt.get().getPatternUrl())
             );
 
             try {
@@ -126,5 +128,16 @@ public class MGatewayRequest {
             MGatewayInfo.inst().recordCannotSatisfiedRequest(requestCacheBean);
             return false;
         }
+    }
+
+    public Map<String, List<String>> createHeader(String callerUrl, String calledUrl) {
+        Map<String, List<String>> customHeaders = new HashMap<>();
+        List<String> p1 = new ArrayList<>();
+        p1.add(callerUrl);
+        List<String> p2 = new ArrayList<>();
+        p2.add(calledUrl);
+        customHeaders.put(MConfig.PARAM_CALLER_URL, p1);
+        customHeaders.put(MConfig.PARAM_CALLED_URL, p2);
+        return customHeaders;
     }
 }

@@ -5,7 +5,7 @@ import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.dependency.*;
 import com.septemberhx.server.bean.MPredictBean;
-import com.septemberhx.server.model.MServiceInstance;
+import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.server.model.MSvcManager;
 import com.septemberhx.server.model.MSystemModel;
 import org.javatuples.Pair;
@@ -39,8 +39,8 @@ public class MDepAlgorithm {
 
         Set<String> failedServiceIdSet = new HashSet<>();
         for (String targetNodeId : nodeIdList) {
-            List<MServiceInstance> serviceInstanceList = currModel.getInstanceManager().getInstanceByNodeId(targetNodeId);
-            for (MServiceInstance svcInstance : serviceInstanceList) {
+            List<MSvcInstance> serviceInstanceList = currModel.getInstanceManager().getInstanceByNodeId(targetNodeId);
+            for (MSvcInstance svcInstance : serviceInstanceList) {
                 if (failedServiceIdSet.contains(svcInstance.getServiceId())) {
                     continue;
                 }

@@ -3,6 +3,7 @@ package com.septemberhx.server.model;
 import com.septemberhx.common.base.node.MServerNode;
 import com.septemberhx.common.bean.agent.MInstanceInfoBean;
 import com.septemberhx.common.service.MService;
+import com.septemberhx.common.service.MSvcInstance;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +54,7 @@ public class MServerSkeleton {
             // check if the instance is alive. The mObjectIdMap will not be null if alive
             String containerInstanceId = instanceInfo.getDockerInfo().getInstanceId();
             if (instanceInfo.getMObjectIdMap() != null) {
-                MServiceInstance instance = new MServiceInstance(
+                MSvcInstance instance = new MSvcInstance(
                         instanceInfo.getParentIdMap(),
                         instanceInfo.getClusterId(),
                         nodeId,
@@ -68,9 +69,9 @@ public class MServerSkeleton {
                 );
 
                 // get actual serviceId of the service instance
-                Optional<MServiceInstance> instanceOptional = MServerSkeleton.getNextInstManager().getById(containerInstanceId);
+                Optional<MSvcInstance> instanceOptional = MServerSkeleton.getNextInstManager().getById(containerInstanceId);
                 if (instanceOptional.isPresent()) {
-                    MServiceInstance currInstance = instanceOptional.get();
+                    MSvcInstance currInstance = instanceOptional.get();
                     instance.setServiceId(currInstance.getServiceId());
                     instance.setServiceName(currInstance.getServiceName());
                 } else {  // this means the instance was created in before running. We have to get the real serviceId of it
@@ -87,7 +88,7 @@ public class MServerSkeleton {
                 MServerSkeleton.getCurrInstManager().update(instance);
             }
         } else {
-            Optional<MServiceInstance> instanceOptional = MServerSkeleton.getCurrInstManager().getByClusterIdAndRegistryId(
+            Optional<MSvcInstance> instanceOptional = MServerSkeleton.getCurrInstManager().getByClusterIdAndRegistryId(
                     instanceInfo.getClusterId(), instanceInfo.getRegistryId()
             );
             if (instanceOptional.isPresent()){
