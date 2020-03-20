@@ -33,9 +33,12 @@ public class MappingSvcAlgos {
         }
     }
 
+    /*
+     * The same user ask two apis of one services is counting as two user
+     */
     public static Map<MService, Integer> calcSvcUserCount(
             List<MService> demandSvcList, Map<BaseSvcDependency, MService> svcDepMap,
-            Map<PureSvcDependency, MService> userDepMap, Map<PureSvcDependency, Set<String>> userDepSet) {
+            Map<PureSvcDependency, MService> userDepMap, Map<PureSvcDependency, Integer> userDepSet) {
         Map<MService, Integer> resultMap = new HashMap<>();
         Set<MService> allSvcSet = new HashSet<>(demandSvcList);
         allSvcSet.addAll(svcDepMap.values());
@@ -43,18 +46,10 @@ public class MappingSvcAlgos {
             resultMap.put(svc, 0);
         }
 
-        Map<MService, Set<String>> svcCalledUserSet = new HashMap<>();
         for (PureSvcDependency svcDependency : userDepMap.keySet()) {
             MService targetSvc = userDepMap.get(svcDependency);
-            if (!svcCalledUserSet.containsKey(targetSvc)) {
-                svcCalledUserSet.put(targetSvc, new HashSet<>());
-            }
-
-            Set<String> tmpUserSet = new HashSet<>(userDepSet.get(svcDependency));
-            tmpUserSet.removeAll(svcCalledUserSet.get(targetSvc));
-
             Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(svcDependency);
-            apiOpt.ifPresent(svcInterface -> _calcSvcUserCount(targetSvc, svcInterface, tmpUserSet.size(), svcDepMap, resultMap));
+            apiOpt.ifPresent(svcInterface -> _calcSvcUserCount(targetSvc, svcInterface, userDepSet.get(svcDependency), svcDepMap, resultMap));
         }
         return resultMap;
     }
@@ -70,8 +65,8 @@ public class MappingSvcAlgos {
         }
     }
 
-    public static Map<BaseSvcDependency, MService> buildSvcTree(List<MService> demandSvcList) {
-        return _buildSvcTree(new HashSet<>(demandSvcList), new HashSet<>(demandSvcList));
+    public static Map<BaseSvcDependency, MService> buildSvcTree(Set<MService> demandSvcSet) {
+        return _buildSvcTree(demandSvcSet, demandSvcSet);
     }
 
     public static Map<BaseSvcDependency, MService> _buildSvcTree(Set<MService> solvedSvcSet, Set<MService> unsolvedSvcSet) {
@@ -131,8 +126,8 @@ public class MappingSvcAlgos {
     }
 
     public static Map<PureSvcDependency, MService> mappingFuncDepList(
-            Map<PureSvcDependency, Integer> depCount, List<PureSvcDependency> depList) {
-        Set<PureSvcDependency> depSet = new HashSet<>(depList);
+            Map<PureSvcDependency, Integer> depCount, Set<PureSvcDependency> depSetRaw) {
+        Set<PureSvcDependency> depSet = new HashSet<>(depSetRaw);
 
         List<MService> svcList = svcManager.getAllValues();
         Map<MService, Set<PureSvcDependency>> metMap = new HashMap<>();
@@ -189,7 +184,7 @@ public class MappingSvcAlgos {
     }
 
     // ------> Abandoned plan below <------
-
+    @Deprecated
     public static void mappingVerDepList(Map<PureSvcDependency, Integer> depCount, List<PureSvcDependency> depList) {
         Map<PureSvcDependency, TempSvc> tempSvcMap = new HashMap<>();
         List<PureSvcDependency> depListCopy = new ArrayList<>(depList);
@@ -223,7 +218,7 @@ public class MappingSvcAlgos {
             tempSvcCount.put(tempSvc, count);
         }
     }
-
+    @Deprecated
     public static void mappingSlaDepList(
             Map<PureSvcDependency, Integer> depCount, List<PureSvcDependency> depList, Map<TempSvc, Integer> verResult) {
         List<TempSvc> svcResultList = new ArrayList<>(verResult.keySet());
@@ -252,7 +247,7 @@ public class MappingSvcAlgos {
             // todo: 如果没有在 ver dep 结果中找到合适的实例，就挑个最新版本
         }
     }
-
+    @Deprecated
     public static List<MService> filterMappedSvc(List<MService> svcList, PureSvcDependency svcDependency) {
         List<MService> resultList = new ArrayList<>();
         for (MService svc : svcList) {

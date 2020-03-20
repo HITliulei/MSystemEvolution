@@ -2,12 +2,12 @@ package com.septemberhx.server.algorithm.dep;
 
 import com.septemberhx.common.base.node.MServerNode;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
+import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.dependency.*;
 import com.septemberhx.server.bean.MPredictBean;
 import com.septemberhx.common.service.MSvcInstance;
-import com.septemberhx.server.model.MSvcManager;
-import com.septemberhx.server.model.MSystemModel;
+import com.septemberhx.server.model.*;
 import org.javatuples.Pair;
 
 import java.util.*;
@@ -26,6 +26,7 @@ public class MDepAlgorithm {
      * @param nodeId: which node the dependency occurs
      * @return Pair[instanceId, interfaceId] or empty
      */
+    @Deprecated
     public static Optional<Pair<String, String>> getAvailableInstForDepRequest(
             BaseSvcDependency baseSvcDependency, MSystemModel currModel, String nodeId) {
         BaseSvcDependency svcDependency = baseSvcDependency.toRealDependency();
@@ -71,43 +72,47 @@ public class MDepAlgorithm {
 
     /*
      * Main part of the evolution algorithm. Greedy algorithm will be used to help find the solution
+     *
+     * todo: check whether the unmet demand sets should be concerned since the predictor can detect part of them
      */
-    public static void evolve(MPredictBean nextDemands, Map<String, List<MDepRequestCacheBean>> unMetDemandsOnEachNode) {
-        // todo: implement the evolve algorithm
+    public static void evolve(MPredictBean nextDemands, Map<String, List<MDepRequestCacheBean>> unMetDemandsOnEachNode, String clusterId) {
+        Map<String, Map<PureSvcDependency, Integer>> demandCountMap = new HashMap<>();
+        Map<String, Map<PureSvcDependency, Integer>> userDepMap = new HashMap<>();
+        for (String nodeId : unMetDemandsOnEachNode.keySet()) {
+            // todo: extract the result from the predicted values
+        }
+        MDeployManager deployTopology = getSuggestedTopology(
+                demandCountMap, userDepMap, MServerSkeleton.getCurrSvcManager(), MServerSkeleton.getCurrNodeManager(), clusterId);
     }
 
     /*
-     * This function serves for only one server node. The demandList should be the demands in one node.
-     *   A minimum service tree will be found according to the demands. The principles are listed below:
-     *   1. the dependencies should be reused as much as possible
-     *        i.e., if d1 can be satisfied by more restricted d2, than d1 should be replaced by d2
-     *   2. dependencies should be replaced by identified services instead of new one from repo
-     *   3. dependencies should be replaced by services with least dependencies
+     * Get the deploy topology of next few time windows, including what instances should be deployed on each node
      */
-    public static Map<String, Map<PureSvcDependency, String>> getMinSpanningSvcTree(
-            Map<PureSvcDependency, Integer> demandCountMap, MSvcManager svcManager) {
+    public static MDeployManager getSuggestedTopology(
+            Map<String, Map<PureSvcDependency, Integer>> demandCountMap,
+            Map<String, Map<PureSvcDependency, Integer>> userDepMap, MSvcManager svcManager,
+            MClusterManager clusterManager, String clusterId) {
 
-        // 1. merge dependencies as much as possible. The less restricted one is always merged to restricted one
-        //    the results are demands that can not be merged with each other
-        MergeAlgos.svcManager = svcManager;
-        Pair<Map<PureSvcDependency, PureSvcDependency>, Map<PureSvcDependency, Integer>> mergedResult =
-                MergeAlgos.mergeDepList(demandCountMap, new ArrayList<>(demandCountMap.keySet()));
+        Map<String, Pair<Map<MService, Integer>, Map<BaseSvcDependency, MService>>> nodeInfoList = new HashMap<>();
 
-        // 2. find a suitable service for each dependency
-        //    Ver deps will be processed first.
-        //    Sla and Func deps will be mapped to the results of Ver deps as much as possible.
-        //         Otherwise finding a new service
-        List<PureSvcDependency> newDepList = new ArrayList<>(mergedResult.getValue0().values());
-        // todo: finish the min svc tree algorithm
+        // calculate the svc set and how many users each service should serve at the same time window
+        for (String nodeId : demandCountMap.keySet()) {
+            // calculate the smallest service set that can satisfy the demands on this node without the dependency
+            Map<PureSvcDependency, MService> svcResult = MappingSvcAlgos.mappingFuncDepList(
+                    demandCountMap.get(nodeId), demandCountMap.get(nodeId).keySet());
 
-        Map<String, Map<PureSvcDependency, String>> resultMap = new HashMap<>();
-        return resultMap;
-    }
+            // calculate the smallest service set with dependency
+            Map<BaseSvcDependency, MService> svcTree = MappingSvcAlgos.buildSvcTree(new HashSet<>(svcResult.values()));
 
-    public static Map<PureSvcDependency, PureSvcDependency> mergeVerDepList(
-            Map<PureSvcDependency, Integer> demandCountMap, List<PureSvcDependency> verDepList) {
-        // todo: implement the merge ver dep function
-        Map<PureSvcDependency, PureSvcDependency> resultList = new HashMap<>();
-        return resultList;
+            // calculate how many users each of the service set should serve at the same time
+            Map<MService, Integer> svcUserCount = MappingSvcAlgos.calcSvcUserCount(
+                    new ArrayList<>(svcTree.values()), svcTree, svcResult, userDepMap.get(nodeId));
+
+            // record the info about one node
+            nodeInfoList.put(nodeId, new Pair<>(svcUserCount, svcTree));
+        }
+
+        // use the service set with dependency and the user count of each service to create the topology
+        return MDeployAlgos.calcDeployTopology(nodeInfoList, svcManager, clusterManager, clusterId);
     }
 }
