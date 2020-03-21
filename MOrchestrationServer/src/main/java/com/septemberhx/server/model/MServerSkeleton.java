@@ -26,6 +26,10 @@ public class MServerSkeleton {
     @Setter
     private MSystemModel nextSystemModel;       // record the system info after evolution
 
+    @Getter
+    @Setter
+    private MDeployExecutor executor;
+
     private static MServerSkeleton instance;
     private static Logger logger = LogManager.getLogger(MServerSkeleton.class);
 

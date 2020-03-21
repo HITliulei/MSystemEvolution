@@ -66,12 +66,15 @@ public class MConfig {
     public final static String MSERVER_CLUSTER_REPORT_INSTANCEINFO = "/cluster/reportInstanceInfo";
     public final static String MSERVER_CLUSTER_REGISTER = "/cluster/registerCluster";
     public final static String MSERVER_NEW_DEP_REQUEST = "/request/newDepRequest";
+    public final static String MSERVER_REPLACE_CALL = "request/replaceCall";
 
     public final static String MCLUSTER_SVC_METADATA_NAME = "mclient";
     public final static String MCLUSTER_SVC_METADATA_VALUE = "true";
     public final static String MCLUSTER_SVC_VER_NAME = "serviceVersion";
     public final static String MCLUSTER_DEP_REQUEST_ROUTING = "/magent/routing";
     public final static String MCLUSTER_UPDATE_SYS_DATA_URI = "/magent/updating";
+    public final static String MCLUSTER_REPLACE_CALL = "/magent/replaceCall";
+    public final static String MCLUSTER_UPDATE_COPY_MAP = "/magent/updateReplace";
 
     public final static String MGATEWAY_NAME = "MGateway";
     public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";
@@ -79,6 +82,7 @@ public class MConfig {
     public final static String MGATEWAY_DEPENDENCY_ID = "dependency";
     public final static String MGATEWAY_CLIENT_ID = "__client_id";
     public final static String MGATEWAY_FETCH_REQUESTS = "/evolve/requests";
+    public final static String MGATEWAY_UPDATE_COPY_MAP = "/evolve/updateReplace";
     public final static String MGATEWAY_CALL_BACK_URL_ID = "__call_back_url";
 
     public final static String MDPREDICTOR_PREDICT = "/predict";

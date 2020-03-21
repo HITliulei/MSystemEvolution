@@ -7,6 +7,7 @@ import com.septemberhx.common.base.node.MNodeConnectionInfo;
 import com.septemberhx.common.base.node.MServerCluster;
 import com.septemberhx.common.base.node.MServerNode;
 import com.septemberhx.common.base.MUniqueObjectManager;
+import com.septemberhx.common.base.node.ServerNodeType;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,6 +21,20 @@ import java.util.stream.Collectors;
 public class MClusterManager extends MUniqueObjectManager<MServerCluster> {
     private MutableValueGraph<String, MNodeConnectionInfo> serverNodeGraph;
     private Map<String, MServerNode> nodeMap;
+
+    public List<MServerNode> getCloudNodes() {
+        return nodeMap.values().stream().filter(
+                n -> n.getNodeType() == ServerNodeType.CLOUD).collect(Collectors.toList());
+    }
+
+    public Optional<MServerCluster> getCloudCluster() {
+        for (MServerNode node : nodeMap.values()) {
+            if (node.getNodeType() == ServerNodeType.CLOUD) {
+                return this.getById(node.getClusterId());
+            }
+        }
+        return Optional.empty();
+    }
 
     public void reset() {
         this.objectMap.clear();

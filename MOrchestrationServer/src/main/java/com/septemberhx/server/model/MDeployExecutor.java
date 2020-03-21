@@ -1,6 +1,9 @@
 package com.septemberhx.server.model;
 
 import com.septemberhx.common.base.node.MServerCluster;
+import com.septemberhx.common.bean.MResponse;
+import com.septemberhx.common.bean.server.MUpdateCopyInstBean;
+import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.common.utils.MRequestUtils;
@@ -80,7 +83,7 @@ public class MDeployExecutor {
                 String newInstId = MIDUtils.uniqueInstanceId(inst.getServiceName(), inst.getVersion());
                 String cloudNodeId = this.getOneCloudId();
                 String jobId = this.deployInstanceOnCloud(cloudNodeId, inst.getServiceId(), newInstId);
-                this.copyInstsMap.put(inst.getId(), newInstId);
+                this.copyInstsMap.put(inst.getIp(), newInstId);
                 this.doingJobIdSet.add(jobId);
             }
         } else if (this.nodeJobState == NodeJobState.COPY) {
@@ -147,16 +150,17 @@ public class MDeployExecutor {
         }
     }
 
-    // todo: finish this function
     public boolean notifyCopyInsts() {
+        Pair<String, Integer> agentInfo = this.getClusterAgentInfo(clusterId);
+        URI uri = MUrlUtils.getRemoteUri(agentInfo.getValue0(), agentInfo.getValue1(), MConfig.MCLUSTER_UPDATE_COPY_MAP);
+        MResponse response = MRequestUtils.sendRequest(
+                uri, new MUpdateCopyInstBean(this.copyInstsMap), MResponse.class, RequestMethod.POST
+        );
         return true;
     }
 
-    /*
-     * todo: finish this function
-     */
     public String getOneCloudId() {
-        return null;
+        return this.currModel.getNodeManager().getCloudNodes().get(0).getId();
     }
 
     /*
@@ -166,7 +170,13 @@ public class MDeployExecutor {
      */
     public String deployInstanceOnCloud(String cloudNodeId, String serviceId, String podId) {
         MDeployJob deployJob = new MDeployJob(cloudNodeId, serviceId, podId);
-
+        Pair<String, Integer> agentInfo = this.getCloudAgentInfo();
+        if (agentInfo != null) {
+            URI uri = MUrlUtils.getMClientAgentDeployUri(agentInfo.getValue0(), agentInfo.getValue1());
+            if (uri != null) {
+                MRequestUtils.sendRequest(uri, deployJob.toMDeployPodRequest(), null, RequestMethod.POST);
+            }
+        }
         return deployJob.getId();
     }
 
@@ -200,16 +210,28 @@ public class MDeployExecutor {
         return deleteJob.getId();
     }
 
-    // todo: finish this function
     public String deleteInstanceOnCloud(String podId) {
         MDeleteJob deleteJob = new MDeleteJob(podId, null, null);
-
+        Map<String, String> paras = new HashMap<>();
+        paras.put("dockerInstanceId", deleteJob.getInstanceId());
+        Pair<String, Integer> agentInfo = this.getCloudAgentInfo();
+        if (agentInfo != null) {
+            URI uri = MUrlUtils.getMClusterAgentDeleteInstanceUri(agentInfo.getValue0(), agentInfo.getValue1());
+            if (uri != null) {
+                MRequestUtils.sendRequest(uri, paras, null, RequestMethod.GET);
+            }
+        }
         return deleteJob.getId();
     }
 
     public void jobFinished(String jobId) {
         this.doingJobIdSet.remove(jobId);
         this.execute();
+    }
+
+    public Pair<String, Integer> getCloudAgentInfo() {
+        Optional<MServerCluster> clusterOpt = this.currModel.getNodeManager().getCloudCluster();
+        return clusterOpt.map(mServerCluster -> new Pair<>(mServerCluster.getClusterAgentIp(), mServerCluster.getClusterAgentPort())).orElse(null);
     }
 
     public Pair<String, Integer> getClusterAgentInfo(String clusterId) {

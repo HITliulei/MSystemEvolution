@@ -4,6 +4,7 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
+import lombok.Setter;
 import org.joda.time.DateTime;
 
 import java.util.*;
@@ -14,6 +15,9 @@ import java.util.concurrent.TimeUnit;
  * @author SeptemberHX
  * @version 0.1
  * @date 2020/3/7
+ *
+ * We use the instance ip to identify each instance instead of the id,
+ *   so we don't need to search the instance list for each request.
  */
 public class MGatewayInfo {
     private static MGatewayInfo instance;
@@ -25,6 +29,12 @@ public class MGatewayInfo {
     private PriorityBlockingQueue<MDepRequestCacheBean> userRequestRecordQueue;
 
     private PriorityBlockingQueue<MDepRequestCacheBean> cannotSatisfiedRequestQueue;
+
+    /*
+     * Map [ cluster instance ip, cloud instance id ]
+     */
+    @Setter
+    private Map<String, String> replaceMap;
 
     /*
      * Map {
@@ -89,6 +99,7 @@ public class MGatewayInfo {
         this.userRequestRecordQueue = new PriorityBlockingQueue<>();
         this.cannotSatisfiedRequestQueue = new PriorityBlockingQueue<>();
         this.routingCache = new HashMap<>();
+        this.replaceMap = new HashMap<>();
     }
 
     public static MGatewayInfo inst() {
@@ -120,5 +131,9 @@ public class MGatewayInfo {
         }
 
         this.routingCache.get(instanceIp).get(userId).put(dep, routingBean);
+    }
+
+    public Optional<String> getReplacement(String instanceIp) {
+        return Optional.of(this.replaceMap.get(instanceIp));
     }
 }

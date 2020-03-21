@@ -1,21 +1,31 @@
 package com.septemberhx.agent.controller;
 
+import com.netflix.appinfo.InstanceInfo;
 import com.septemberhx.agent.core.MRoutingInfo;
+import com.septemberhx.agent.utils.MClientUtils;
+import com.septemberhx.common.base.user.MUser;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
+import com.septemberhx.common.bean.agent.MAllUserBean;
+import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
 import com.septemberhx.common.bean.mclient.MUpdateSysDataBean;
+import com.septemberhx.common.bean.server.MUpdateCopyInstBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInstance;
+import com.septemberhx.common.utils.MRequestUtils;
+import com.septemberhx.common.utils.MUrlUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
+import java.util.*;
 
 /**
  * @author SeptemberHX
@@ -24,6 +34,8 @@ import java.util.Optional;
  */
 @Controller
 public class MDepRequestController {
+    @Autowired
+    private MClientUtils clientUtils;
 
     @PostMapping(path = MConfig.MCLUSTER_DEP_REQUEST_ROUTING)
     @ResponseBody
@@ -56,5 +68,38 @@ public class MDepRequestController {
         MRoutingInfo.inst().setSvcInstanceMap(instanceMap);
         MRoutingInfo.inst().setSvcMap(svcMap);
         return MResponse.successResponse();
+    }
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MCLUSTER_REPLACE_CALL)
+    public MResponse processReplacementRequest(@RequestBody MDepReplaceRequestBean requestBean, HttpServletRequest request) {
+        return MRequestUtils.sendRequest(
+                MUrlUtils.getRemoteUri(clientUtils.getServerIpAddr(), clientUtils.getServerPort(), MConfig.MSERVER_REPLACE_CALL),
+                requestBean,
+                MResponse.class,
+                RequestMethod.POST,
+                createHeader(request.getHeader(MConfig.PARAM_CALLER_URL), request.getHeader(MConfig.PARAM_CALLED_URL))
+        );
+    }
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MCLUSTER_UPDATE_COPY_MAP)
+    public MResponse updateCopyInsts(@RequestBody MUpdateCopyInstBean instBean) {
+        for (InstanceInfo info : this.clientUtils.getAllGatewayInstance()) {
+            URI uri = MUrlUtils.getRemoteUri(info.getIPAddr(), info.getPort(), MConfig.MGATEWAY_UPDATE_COPY_MAP);
+            MRequestUtils.sendRequest(uri, instBean, MResponse.class, RequestMethod.POST);
+        }
+        return MResponse.successResponse();
+    }
+
+    private Map<String, List<String>> createHeader(String callerUrl, String calledUrl) {
+        Map<String, List<String>> customHeaders = new HashMap<>();
+        List<String> p1 = new ArrayList<>();
+        p1.add(callerUrl);
+        List<String> p2 = new ArrayList<>();
+        p2.add(calledUrl);
+        customHeaders.put(MConfig.PARAM_CALLER_URL, p1);
+        customHeaders.put(MConfig.PARAM_CALLED_URL, p2);
+        return customHeaders;
     }
 }

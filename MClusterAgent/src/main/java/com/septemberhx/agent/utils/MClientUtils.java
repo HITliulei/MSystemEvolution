@@ -14,6 +14,7 @@ import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import io.kubernetes.client.models.*;
 import io.kubernetes.client.util.Yaml;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,9 +37,11 @@ public class MClientUtils {
     @Autowired
     private MServiceManager clusterMiddleware;
 
+    @Getter
     @Value("${mvf4ms.center.ip}")
     private String serverIpAddr;
 
+    @Getter
     @Value("${mvf4ms.center.port}")
     private Integer serverPort;
 

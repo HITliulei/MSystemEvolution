@@ -4,6 +4,7 @@ import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
+import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
 import com.septemberhx.common.config.MConfig;
@@ -78,13 +79,27 @@ public class MGatewayRequest {
         }
 
         if (routingBeanOpt.isPresent()) {
-            response = MRequestUtils.sendRequest(
-                    MUrlUtils.getRemoteUri(routingBeanOpt.get()),
-                    parameters,
-                    MResponse.class,
-                    RequestMethod.POST,
-                    createHeader(calledUrl, routingBeanOpt.get().getPatternUrl())
-            );
+            Optional<String> replaceOpt = MGatewayInfo.inst().getReplacement(routingBeanOpt.get().getIpAddr());
+            if (replaceOpt.isPresent()) {
+                InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+                if (agentInfo != null) {
+                    response = MRequestUtils.sendRequest(
+                            MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_REPLACE_CALL),
+                            new MDepReplaceRequestBean(parameters, routingBeanOpt.get(), replaceOpt.get()),
+                            MResponse.class,
+                            RequestMethod.POST,
+                            createHeader(calledUrl, routingBeanOpt.get().getPatternUrl())
+                    );
+                }
+            } else {
+                response = MRequestUtils.sendRequest(
+                        MUrlUtils.getRemoteUri(routingBeanOpt.get()),
+                        parameters,
+                        MResponse.class,
+                        RequestMethod.POST,
+                        createHeader(calledUrl, routingBeanOpt.get().getPatternUrl())
+                );
+            }
         }
         return response;
     }
@@ -97,6 +112,7 @@ public class MGatewayRequest {
         String userId = requestCacheBean.getClientId();
         BaseSvcDependency dependency = requestCacheBean.getBaseSvcDependency();
         MResponse parameters = requestCacheBean.getParameters();
+        MResponse response = MResponse.failResponse();
 
         MGatewayInfo.inst().recordUserDepRequest(requestCacheBean);  // record it for server to analyse
         Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRouting(userId, dependency, userId);
@@ -106,14 +122,27 @@ public class MGatewayRequest {
         }
 
         if (routingBeanOpt.isPresent()) {
-
-            MResponse response = MRequestUtils.sendRequest(
-                    MUrlUtils.getRemoteUri(routingBeanOpt.get()),
-                    parameters,
-                    MResponse.class,
-                    RequestMethod.POST,
-                    createHeader(null, routingBeanOpt.get().getPatternUrl())
-            );
+            Optional<String> replaceOpt = MGatewayInfo.inst().getReplacement(routingBeanOpt.get().getIpAddr());
+            if (replaceOpt.isPresent()) {
+                InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+                if (agentInfo != null) {
+                    response = MRequestUtils.sendRequest(
+                            MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_REPLACE_CALL),
+                            new MDepReplaceRequestBean(parameters, routingBeanOpt.get(), replaceOpt.get()),
+                            MResponse.class,
+                            RequestMethod.POST,
+                            createHeader(null, routingBeanOpt.get().getPatternUrl())
+                    );
+                }
+            } else {
+                response = MRequestUtils.sendRequest(
+                        MUrlUtils.getRemoteUri(routingBeanOpt.get()),
+                        parameters,
+                        MResponse.class,
+                        RequestMethod.POST,
+                        createHeader(null, routingBeanOpt.get().getPatternUrl())
+                );
+            }
 
             try {
                 URI uri = new URI((String) parameters.get(MConfig.MGATEWAY_CALL_BACK_URL_ID));

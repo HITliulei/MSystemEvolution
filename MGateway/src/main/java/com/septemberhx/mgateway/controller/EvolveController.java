@@ -4,6 +4,7 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MTimeIntervalBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheListBean;
+import com.septemberhx.common.bean.server.MUpdateCopyInstBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.mgateway.core.MGatewayInfo;
 import org.springframework.stereotype.Controller;
@@ -32,5 +33,12 @@ public class EvolveController {
         return new MDepRequestCacheListBean(MGatewayInfo.inst().getRequestBetweenTime(
                 timeIntervalBean.getStartTimeInMills(), timeIntervalBean.getEndTimeInMills()
         ));
+    }
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MGATEWAY_UPDATE_COPY_MAP)
+    public MResponse updateCopyInsts(@RequestBody MUpdateCopyInstBean instBean) {
+        MGatewayInfo.inst().setReplaceMap(instBean.getCopyMap());
+        return MResponse.successResponse();
     }
 }
