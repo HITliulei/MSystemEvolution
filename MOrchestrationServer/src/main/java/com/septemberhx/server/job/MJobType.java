@@ -10,4 +10,8 @@ public enum MJobType {
      * Build a given repo
      */
     JOB_BUILD,
+
+    JOB_DEPLOY,
+
+    JOB_DELETE,
 }
