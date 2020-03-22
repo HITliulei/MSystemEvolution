@@ -5,7 +5,7 @@
 # @Author : SeptemberHX
 # @File : config.py
 
-INPUT_SIZE = 10
-FEATURES = 1
-OUTPUT_SIZE = 4
+INPUT_WINDOW_SIZE = 10
+FEATURES = 2
+OUTPUT_WINDOW_SIZE = 4
 TRAIN_EPOCHS = 100

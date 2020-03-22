@@ -29,5 +29,20 @@ def predict():
     return json.dumps(model.predict(json_data))
 
 
+@app.route('/full_predict', methods=['POST'])
+def full_predict():
+    """
+    json_data: {
+      "demandId1": [n1, n2, n3, ..., nn],
+      "demandId2": [.., .., .., ..., ..],
+      ......
+    }
+
+    :return: Map[int, List[int]]
+    """
+    json_data = json.loads(request.get_data().decode('utf-8'))
+    return json.dumps(model.full_predict(json_data))
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=22222, debug=True)
