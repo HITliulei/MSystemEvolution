@@ -11,12 +11,12 @@ import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.layers import Dense
-from tensorflow.python.keras.layers import RepeatVector, TimeDistributed
+from tensorflow.python.keras.layers import RepeatVector, TimeDistributed, Dropout
 
 import config
 
 model_dict = {}  # each types of demands has its own model on each node
-history_data = {}  # each types of demands has its own history data on each node
+history_data = None  # each types of demands has its own history data on each node
 full_model = None
 
 
@@ -84,16 +84,22 @@ class FullPredictor:
         with self.df_session.as_default():
             with self.df_graph.as_default():
                 self.model = Sequential()
-                self.model.add(LSTM(200, activation='relu', input_shape=(config.INPUT_WINDOW_SIZE, config.FEATURES)))
+                self.model.add(LSTM(100, activation='relu', input_shape=(config.INPUT_WINDOW_SIZE, config.FEATURES)))
+                # self.model.add(Dropout(rate=0.2))
                 self.model.add(RepeatVector(config.OUTPUT_WINDOW_SIZE))
-                self.model.add(LSTM(200, activation='relu', return_sequences=True))
+                # self.model.add(Dropout(rate=0.1))
+                self.model.add(LSTM(100, activation='relu', return_sequences=True))
+                # self.model.add(Dropout(rate=0.1))
+                self.model.add(LSTM(100, activation='relu', return_sequences=True))
                 self.model.add(TimeDistributed(Dense(config.FEATURES)))
+                # self.model.add(Dense(config.FEATURES, activation='linear'))
                 self.model.compile(optimizer='adam', loss='mse')
         self.history_data = None
 
     def train(self, x, y):
         with self.df_session.as_default():
             with self.df_graph.as_default():
+                print(x)
                 self.model.fit(x, y, epochs=config.TRAIN_EPOCHS, verbose=0)
 
     def predict(self, value_list):
@@ -105,25 +111,31 @@ class FullPredictor:
             with self.df_graph.as_default():
                 if self.history_data is not None:
                     # predict
-                    X = value_list.reshape((1, config.INPUT_WINDOW_SIZE, config.FEATURES))
-                    result = self.model.predict(X, verbose=0).tolist()
+                    if len(self.history_data) > config.INPUT_WINDOW_SIZE:
+                        X = value_list.reshape((1, config.INPUT_WINDOW_SIZE, config.FEATURES))
+                        if self.t is not None:
+                            self.t.join()
+                        result = self.model.predict(X, verbose=0).tolist()
+                    else:
+                        result = value_list[-config.OUTPUT_WINDOW_SIZE:].tolist()
+
+                    self.history_data = vstack((
+                        self.history_data[-(config.INPUT_WINDOW_SIZE + config.OUTPUT_WINDOW_SIZE - 1):, :],
+                        value_list[-config.OUTPUT_WINDOW_SIZE:, :]
+                    ))
 
                     # training with the new data
-                    X = vstack((self.history_data, value_list))
-                    X, y = full_split_sequence(X, config.INPUT_WINDOW_SIZE, config.OUTPUT_WINDOW_SIZE)
-                    threading.Thread(target=self.train, args=(X, y)).start()
+                    # X = vstack((self.history_data, value_list[-config.OUTPUT_WINDOW_SIZE:, :]))
+                    X, y = full_split_sequence(self.history_data, config.INPUT_WINDOW_SIZE, config.OUTPUT_WINDOW_SIZE)
+                    self.t = threading.Thread(target=self.train, args=(X, y))
+                    self.t.start()
                     # self.model.fit(X, y, epochs=config.TRAIN_EPOCHS, verbose=0)
                 else:
-                    # prepare data by adding 0
-                    X = zeros((config.OUTPUT_WINDOW_SIZE, config.FEATURES))
-                    X = vstack((X, value_list))
-                    X, y = full_split_sequence(X, config.INPUT_WINDOW_SIZE, config.OUTPUT_WINDOW_SIZE)
-                    print(X)
-                    self.model.fit(X, y, epochs=config.TRAIN_EPOCHS, verbose=0)
-                    result = self.model.predict(value_list.reshape((1, value_list.shape[0], value_list.shape[1]))).tolist()
+                    self.history_data = value_list
 
-                # update the history data
-                self.history_data = value_list
+                    # prepare data by adding 0
+                    result = value_list[-config.OUTPUT_WINDOW_SIZE:].tolist()
+
                 return result
 
 
@@ -168,7 +180,8 @@ class Predictor:
                     X = X.reshape((X.shape[0], X.shape[1], config.FEATURES))
                     self.model.fit(X, y, epochs=config.TRAIN_EPOCHS, verbose=0)
                     result = self.model.predict(
-                        array(value_list).reshape((config.FEATURES, config.INPUT_WINDOW_SIZE, config.FEATURES))).tolist()
+                        array(value_list).reshape(
+                            (config.FEATURES, config.INPUT_WINDOW_SIZE, config.FEATURES))).tolist()
 
                 # update the history data
                 self.history_data = value_list
