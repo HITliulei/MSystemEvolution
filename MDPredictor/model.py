@@ -80,27 +80,42 @@ class FullPredictor:
         self.config = tf.ConfigProto()
         self.config.gpu_options.allow_growth = True
         self.df_session = tf.Session(graph=self.df_graph, config=self.config)
+        self.last_train_set = None
         tf.keras.backend.set_session(self.df_session)
         with self.df_session.as_default():
             with self.df_graph.as_default():
                 self.model = Sequential()
-                self.model.add(LSTM(100, activation='relu', input_shape=(config.INPUT_WINDOW_SIZE, config.FEATURES)))
-                # self.model.add(Dropout(rate=0.2))
+                self.model.add(LSTM(256, activation='relu', input_shape=(config.INPUT_WINDOW_SIZE, config.FEATURES)))
+                # self.model.add(Dropout(rate=0.1))
                 self.model.add(RepeatVector(config.OUTPUT_WINDOW_SIZE))
                 # self.model.add(Dropout(rate=0.1))
-                self.model.add(LSTM(100, activation='relu', return_sequences=True))
+                self.model.add(LSTM(128, activation='relu', return_sequences=True))
                 # self.model.add(Dropout(rate=0.1))
-                self.model.add(LSTM(100, activation='relu', return_sequences=True))
-                self.model.add(TimeDistributed(Dense(config.FEATURES)))
-                # self.model.add(Dense(config.FEATURES, activation='linear'))
+                self.model.add(LSTM(64, activation='relu', return_sequences=True))
+                # self.model.add(TimeDistributed(Dense(config.FEATURES)))
+                self.model.add(Dense(config.FEATURES))
                 self.model.compile(optimizer='adam', loss='mse')
         self.history_data = None
 
     def train(self, x, y):
         with self.df_session.as_default():
             with self.df_graph.as_default():
-                print(x)
-                self.model.fit(x, y, epochs=config.TRAIN_EPOCHS, verbose=0)
+                if self.last_train_set is None:
+                    self.last_train_set = (x, y)
+                else:
+                    self.last_train_set = (
+                        vstack((self.last_train_set[0], x)),
+                        vstack((self.last_train_set[1], y))
+                    )
+                if self.last_train_set[0].shape[0] > config.MAX_TRAIN_SET_SIZE:
+                    self.last_train_set = (
+                        self.last_train_set[0][-config.MAX_TRAIN_SET_SIZE:],
+                        self.last_train_set[1][-config.MAX_TRAIN_SET_SIZE:]
+                    )
+
+                self.model.fit(
+                    self.last_train_set[0], self.last_train_set[1],
+                    epochs=config.TRAIN_EPOCHS, verbose=1, use_multiprocessing=True)
 
     def predict(self, value_list):
         """
@@ -136,7 +151,13 @@ class FullPredictor:
                     # prepare data by adding 0
                     result = value_list[-config.OUTPUT_WINDOW_SIZE:].tolist()
 
+                print(result)
                 return result
+
+    def pre_train(self, value_list):
+        X, y = full_split_sequence(value_list, config.INPUT_WINDOW_SIZE, config.OUTPUT_WINDOW_SIZE)
+        self.t = threading.Thread(target=self.train, args=(X, y))
+        self.t.start()
 
 
 class Predictor:
@@ -206,6 +227,13 @@ def full_predict(json_data):
     if full_model is None:
         full_model = FullPredictor()
     return full_model.predict(array(json_data['data']).transpose())
+
+
+def pre_train(json_data):
+    global full_model
+    if full_model is None:
+        full_model = FullPredictor()
+    return full_model.pre_train(array(json_data['data']).transpose())
 
 
 if __name__ == '__main__':
