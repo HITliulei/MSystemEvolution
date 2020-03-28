@@ -44,6 +44,21 @@ def full_predict():
     return json.dumps(model.full_predict(json_data))
 
 
+@app.route('/pure_predict', methods=['POST'])
+def pure_predict():
+    """
+    json_data: {
+      "demandId1": [n1, n2, n3, ..., nn],
+      "demandId2": [.., .., .., ..., ..],
+      ......
+    }
+
+    :return: Map[int, List[int]]
+    """
+    json_data = json.loads(request.get_data().decode('utf-8'))
+    return json.dumps(model.pure_predict(json_data))
+
+
 @app.route('/pre_train', methods=['POST'])
 def pre_train():
     """

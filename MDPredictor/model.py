@@ -89,11 +89,13 @@ class FullPredictor:
                 # self.model.add(Dropout(rate=0.1))
                 self.model.add(RepeatVector(config.OUTPUT_WINDOW_SIZE))
                 # self.model.add(Dropout(rate=0.1))
-                self.model.add(LSTM(128, activation='relu', return_sequences=True))
-                # self.model.add(Dropout(rate=0.1))
-                self.model.add(LSTM(64, activation='relu', return_sequences=True))
-                # self.model.add(TimeDistributed(Dense(config.FEATURES)))
-                self.model.add(Dense(config.FEATURES))
+                self.model.add(LSTM(256, activation='relu', return_sequences=True))
+                # # self.model.add(Dropout(rate=0.1))
+                # self.model.add(LSTM(64, activation='relu'))
+                self.model.add(TimeDistributed(Dense(100, activation='relu')))
+                self.model.add(TimeDistributed(Dense(config.FEATURES)))
+                # self.model.add(Dense(100, activation='relu'))
+                # self.model.add(Dense(config.FEATURES))
                 self.model.compile(optimizer='adam', loss='mse')
         self.history_data = None
 
@@ -112,12 +114,12 @@ class FullPredictor:
                         self.last_train_set[0][-config.MAX_TRAIN_SET_SIZE:],
                         self.last_train_set[1][-config.MAX_TRAIN_SET_SIZE:]
                     )
-
+                print(self.last_train_set)
                 self.model.fit(
                     self.last_train_set[0], self.last_train_set[1],
                     epochs=config.TRAIN_EPOCHS, verbose=1, use_multiprocessing=True)
 
-    def predict(self, value_list):
+    def predict_and_train(self, value_list):
         """
         :param value_list: arrays[config.INPUT_WINDOW_SIZE * config.FEATURES]
         :return:
@@ -154,7 +156,17 @@ class FullPredictor:
                 print(result)
                 return result
 
+    def predict(self, value_list):
+        with self.df_session.as_default():
+            with self.df_graph.as_default():
+                X = value_list.reshape((1, config.INPUT_WINDOW_SIZE, config.FEATURES))
+                if self.t is not None:
+                    self.t.join()
+                result = self.model.predict(X, verbose=0).tolist()
+        return result
+
     def pre_train(self, value_list):
+        self.history_data = value_list
         X, y = full_split_sequence(value_list, config.INPUT_WINDOW_SIZE, config.OUTPUT_WINDOW_SIZE)
         self.t = threading.Thread(target=self.train, args=(X, y))
         self.t.start()
@@ -218,11 +230,18 @@ def predict(json_data):
                 model_dict[node_id] = {}
             if demand_id not in model_dict[node_id]:
                 model_dict[node_id][demand_id] = Predictor()
-            result = model_dict[node_id][demand_id].predict(json_data[node_id][demand_id])
+            result = model_dict[node_id][demand_id].predict_and_train(json_data[node_id][demand_id])
     return result
 
 
 def full_predict(json_data):
+    global full_model
+    if full_model is None:
+        full_model = FullPredictor()
+    return full_model.predict_and_train(array(json_data['data']).transpose())
+
+
+def pure_predict(json_data):
     global full_model
     if full_model is None:
         full_model = FullPredictor()
