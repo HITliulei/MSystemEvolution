@@ -12,6 +12,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import LSTM
 from tensorflow.keras.layers import Dense
 from tensorflow.python.keras.layers import RepeatVector, TimeDistributed, Dropout
+from tensorflow.python.keras import callbacks
 
 import config
 
@@ -81,6 +82,8 @@ class FullPredictor:
         self.config.gpu_options.allow_growth = True
         self.df_session = tf.Session(graph=self.df_graph, config=self.config)
         self.last_train_set = None
+        # self.early_stopping = callbacks.EarlyStopping(monitor='loss', patience=50, verbose=1, mode='min')
+
         tf.keras.backend.set_session(self.df_session)
         with self.df_session.as_default():
             with self.df_graph.as_default():
@@ -91,7 +94,7 @@ class FullPredictor:
                 # self.model.add(Dropout(rate=0.1))
                 self.model.add(LSTM(256, activation='relu', return_sequences=True))
                 # # self.model.add(Dropout(rate=0.1))
-                # self.model.add(LSTM(64, activation='relu'))
+                # self.model.add(LSTM(128, activation='relu', return_sequences=True))
                 self.model.add(TimeDistributed(Dense(100, activation='relu')))
                 self.model.add(TimeDistributed(Dense(config.FEATURES)))
                 # self.model.add(Dense(100, activation='relu'))
@@ -117,7 +120,9 @@ class FullPredictor:
                 print(self.last_train_set)
                 self.model.fit(
                     self.last_train_set[0], self.last_train_set[1],
-                    epochs=config.TRAIN_EPOCHS, verbose=1, use_multiprocessing=True)
+                    epochs=config.TRAIN_EPOCHS, verbose=1, use_multiprocessing=True,
+                    # callbacks=[self.early_stopping]
+                )
 
     def predict_and_train(self, value_list):
         """

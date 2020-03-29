@@ -79,6 +79,7 @@ public class MGatewayRequest {
         }
 
         if (routingBeanOpt.isPresent()) {
+            logger.info(String.format("Routing: %s", routingBeanOpt.get()));
             Optional<String> replaceOpt = MGatewayInfo.inst().getReplacement(routingBeanOpt.get().getIpAddr());
             if (replaceOpt.isPresent()) {
                 InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
@@ -100,6 +101,8 @@ public class MGatewayRequest {
                         createHeader(calledUrl, routingBeanOpt.get().getPatternUrl())
                 );
             }
+        } else {
+            logger.warn(String.format("Cannot response to request from %s with dep %s", instanceIp, dependency));
         }
         return response;
     }
