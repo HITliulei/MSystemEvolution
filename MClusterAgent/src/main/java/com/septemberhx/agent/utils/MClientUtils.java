@@ -191,7 +191,7 @@ public class MClientUtils {
         instanceInfoBean.setClusterId(this.clusterId);
         instanceInfoBean.setServiceName(instanceInfo.getAppName());
         instanceInfoBean.setVersion(instanceInfo.getMetadata().get(MConfig.MCLUSTER_SVC_VER_NAME));
-M
+
         if (!dockerManager.checkIfDockerRunning(instanceInfo.getIPAddr())) {
             return instanceInfoBean;
         }
