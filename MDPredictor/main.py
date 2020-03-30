@@ -74,5 +74,35 @@ def pre_train():
     return json.dumps(model.pre_train(json_data))
 
 
+@app.route('/snn_predict', methods=['POST'])
+def pure_predict_snn():
+    """
+    json_data: {
+      "demandId1": [n1, n2, n3, ..., nn],
+      "demandId2": [.., .., .., ..., ..],
+      ......
+    }
+
+    :return: Map[int, List[int]]
+    """
+    json_data = json.loads(request.get_data().decode('utf-8'))
+    return json.dumps(model.snn_predict(json_data))
+
+
+@app.route('/pre_train_snn', methods=['POST'])
+def pre_train_snn():
+    """
+    json_data: {
+      "demandId1": [n1, n2, n3, ..., nn],
+      "demandId2": [.., .., .., ..., ..],
+      ......
+    }
+
+    :return: Map[int, List[int]]
+    """
+    json_data = json.loads(request.get_data().decode('utf-8'))
+    return json.dumps(model.snn_train(json_data))
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=22222, debug=True)

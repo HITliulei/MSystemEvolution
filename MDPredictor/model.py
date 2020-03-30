@@ -87,20 +87,23 @@ class FullPredictor:
         tf.keras.backend.set_session(self.df_session)
         with self.df_session.as_default():
             with self.df_graph.as_default():
-                self.model = Sequential()
-                self.model.add(LSTM(256, activation='relu', input_shape=(config.INPUT_WINDOW_SIZE, config.FEATURES)))
-                # self.model.add(Dropout(rate=0.1))
-                self.model.add(RepeatVector(config.OUTPUT_WINDOW_SIZE))
-                # self.model.add(Dropout(rate=0.1))
-                self.model.add(LSTM(256, activation='relu', return_sequences=True))
-                # # self.model.add(Dropout(rate=0.1))
-                # self.model.add(LSTM(128, activation='relu', return_sequences=True))
-                self.model.add(TimeDistributed(Dense(100, activation='relu')))
-                self.model.add(TimeDistributed(Dense(config.FEATURES)))
-                # self.model.add(Dense(100, activation='relu'))
-                # self.model.add(Dense(config.FEATURES))
-                self.model.compile(optimizer='adam', loss='mse')
+                self.create_model()
         self.history_data = None
+
+    def create_model(self):
+        self.model = Sequential()
+        self.model.add(LSTM(256, activation='relu', input_shape=(config.INPUT_WINDOW_SIZE, config.FEATURES)))
+        # self.model.add(Dropout(rate=0.1))
+        self.model.add(RepeatVector(config.OUTPUT_WINDOW_SIZE))
+        # self.model.add(Dropout(rate=0.1))
+        self.model.add(LSTM(256, activation='relu', return_sequences=True))
+        # # self.model.add(Dropout(rate=0.1))
+        # self.model.add(LSTM(128, activation='relu', return_sequences=True))
+        self.model.add(TimeDistributed(Dense(100, activation='relu')))
+        self.model.add(TimeDistributed(Dense(config.FEATURES)))
+        # self.model.add(Dense(100, activation='relu'))
+        # self.model.add(Dense(config.FEATURES))
+        self.model.compile(optimizer='adam', loss='mse')
 
     def train(self, x, y):
         with self.df_session.as_default():
@@ -165,6 +168,113 @@ class FullPredictor:
         with self.df_session.as_default():
             with self.df_graph.as_default():
                 X = value_list.reshape((1, config.INPUT_WINDOW_SIZE, config.FEATURES))
+                if self.t is not None:
+                    self.t.join()
+                result = self.model.predict(X, verbose=0).tolist()
+        return result
+
+    def pre_train(self, value_list):
+        self.history_data = value_list
+        X, y = full_split_sequence(value_list, config.INPUT_WINDOW_SIZE, config.OUTPUT_WINDOW_SIZE)
+        self.t = threading.Thread(target=self.train, args=(X, y))
+        self.t.start()
+
+
+class FullPredictorSNN:
+    def __init__(self):
+        self.df_graph = tf.Graph()
+        self.config = tf.ConfigProto()
+        self.config.gpu_options.allow_growth = True
+        self.df_session = tf.Session(graph=self.df_graph, config=self.config)
+        self.last_train_set = None
+        # self.early_stopping = callbacks.EarlyStopping(monitor='loss', patience=50, verbose=1, mode='min')
+
+        tf.keras.backend.set_session(self.df_session)
+        with self.df_session.as_default():
+            with self.df_graph.as_default():
+                self.create_model_snn()
+        self.history_data = None
+
+    def create_model_snn(self):
+        self.model = Sequential()
+        self.model.add(Dense(512, activation='relu', input_shape=(config.INPUT_WINDOW_SIZE * config.FEATURES,)))
+        # self.model.add(Dropout(rate=0.1))
+        self.model.add(Dense(256, activation='relu'))
+        # self.model.add(Dropout(rate=0.1))
+        self.model.add(Dense(128, activation='relu'))
+        # # self.model.add(Dropout(rate=0.1))
+        # self.model.add(LSTM(128, activation='relu', return_sequences=True))
+        # self.model.add(Dense(100, activation='relu'))
+        self.model.add(Dense(config.FEATURES))
+        self.model.compile(optimizer='adam', loss='mse')
+
+    def train(self, x, y):
+        with self.df_session.as_default():
+            with self.df_graph.as_default():
+                if self.last_train_set is None:
+                    self.last_train_set = (x, y)
+                else:
+                    self.last_train_set = (
+                        vstack((self.last_train_set[0], x)),
+                        vstack((self.last_train_set[1], y))
+                    )
+                if self.last_train_set[0].shape[0] > config.MAX_TRAIN_SET_SIZE:
+                    self.last_train_set = (
+                        self.last_train_set[0][-config.MAX_TRAIN_SET_SIZE:],
+                        self.last_train_set[1][-config.MAX_TRAIN_SET_SIZE:]
+                    )
+                self.last_train_set[0].reshape((self.last_train_set[0].shape[0],
+                                                self.last_train_set[0].shape[1] * self.last_train_set[0].shape[2]))
+                self.last_train_set[1].reshape((self.last_train_set[1].shape[0],
+                                                self.last_train_set[1].shape[1] * self.last_train_set[1].shape[2]))
+                print(self.last_train_set)
+                self.model.fit(
+                    self.last_train_set[0], self.last_train_set[1],
+                    epochs=config.TRAIN_EPOCHS, verbose=1, use_multiprocessing=True,
+                    # callbacks=[self.early_stopping]
+                )
+
+    def predict_and_train(self, value_list):
+        """
+        :param value_list: arrays[config.INPUT_WINDOW_SIZE * config.FEATURES]
+        :return:
+        """
+        with self.df_session.as_default():
+            with self.df_graph.as_default():
+                if self.history_data is not None:
+                    # predict
+                    if len(self.history_data) > config.INPUT_WINDOW_SIZE:
+                        X = value_list.reshape((1, config.INPUT_WINDOW_SIZE, config.FEATURES))
+                        if self.t is not None:
+                            self.t.join()
+                        result = self.model.predict(X, verbose=0).tolist()
+                    else:
+                        result = value_list[-config.OUTPUT_WINDOW_SIZE:].tolist()
+
+                    self.history_data = vstack((
+                        self.history_data[-(config.INPUT_WINDOW_SIZE + config.OUTPUT_WINDOW_SIZE - 1):, :],
+                        value_list[-config.OUTPUT_WINDOW_SIZE:, :]
+                    ))
+
+                    # training with the new data
+                    # X = vstack((self.history_data, value_list[-config.OUTPUT_WINDOW_SIZE:, :]))
+                    X, y = full_split_sequence(self.history_data, config.INPUT_WINDOW_SIZE, config.OUTPUT_WINDOW_SIZE)
+                    self.t = threading.Thread(target=self.train, args=(X, y))
+                    self.t.start()
+                    # self.model.fit(X, y, epochs=config.TRAIN_EPOCHS, verbose=0)
+                else:
+                    self.history_data = value_list
+
+                    # prepare data by adding 0
+                    result = value_list[-config.OUTPUT_WINDOW_SIZE:].tolist()
+
+                print(result)
+                return result
+
+    def predict(self, value_list):
+        with self.df_session.as_default():
+            with self.df_graph.as_default():
+                X = value_list.reshape((1, config.INPUT_WINDOW_SIZE * config.FEATURES))
                 if self.t is not None:
                     self.t.join()
                 result = self.model.predict(X, verbose=0).tolist()
@@ -258,6 +368,23 @@ def pre_train(json_data):
     if full_model is None:
         full_model = FullPredictor()
     return full_model.pre_train(array(json_data['data']).transpose())
+
+
+full_model_snn = None
+
+
+def snn_train(json_data):
+    global full_model_snn
+    if full_model_snn is None:
+        full_model_snn = FullPredictorSNN()
+    return full_model_snn.pre_train(array(json_data['data']).transpose())
+
+
+def snn_predict(json_data):
+    global full_model_snn
+    if full_model_snn is None:
+        full_model_snn = FullPredictorSNN()
+    return full_model_snn.predict(array(json_data['data']).transpose())
 
 
 if __name__ == '__main__':

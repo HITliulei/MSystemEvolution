@@ -11,5 +11,5 @@ import java.lang.annotation.*;
 @Documented
 public @interface MFuncDescription {
     String value() default "";
-    int lavel() default 1;
+    int level() default 1;
 }
