@@ -70,6 +70,28 @@ public class MDepAlgorithm {
         return Optional.empty();
     }
 
+    public static void updateDepCallCount(Map<String, Map<String, Map<BaseSvcDependency, Integer>>> svcId2Api2DepCount,
+                                          Map<String, Map<String, Integer>> svcId2ApiCallCount, MSvcManager svcManager) {
+        for (String svcId : svcId2ApiCallCount.keySet()) {
+            Optional<MService> svcOpt = svcManager.getById(svcId);
+            svcOpt.ifPresent(service -> {
+                for (String patternUrl : svcId2ApiCallCount.get(svcId).keySet()) {
+                    Optional<MSvcInterface> apiOpt = service.getInterfaceByPatternUrl(patternUrl);
+                    apiOpt.ifPresent(svcInterface -> {
+                        if (svcId2Api2DepCount.containsKey(svcId)
+                                && svcId2Api2DepCount.get(svcId).containsKey(patternUrl)) {
+                            for (BaseSvcDependency dependency : svcId2Api2DepCount.get(svcId).get(patternUrl).keySet()) {
+                                int newCoe = svcId2Api2DepCount.get(svcId).get(patternUrl).get(dependency)
+                                        / svcId2ApiCallCount.get(svcId).get(patternUrl);
+                                svcInterface.getInvokeCountMap().put(dependency, newCoe);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
     /*
      * Main part of the evolution algorithm. Greedy algorithm will be used to help find the solution
      *
