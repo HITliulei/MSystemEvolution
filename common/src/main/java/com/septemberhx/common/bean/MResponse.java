@@ -33,6 +33,10 @@ public class MResponse {
         return response;
     }
 
+    public boolean isFailed() {
+        return "Fail".equals(this.status);
+    }
+
     public static MResponse successResponse() {
         return new MResponse();
     }
