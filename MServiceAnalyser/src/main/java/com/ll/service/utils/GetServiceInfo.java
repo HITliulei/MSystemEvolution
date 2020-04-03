@@ -294,7 +294,6 @@ public class GetServiceInfo {
                 /*获取  接口层级的参数*/
                 List<MParamer> paramerList = getParamers(m.getParameters());
                 mSvcInterface.setParams(paramerList);
-                mSvcInterface.setPatternUrl(pathurl.get(0));
                 /* 遍历函数内部寻找 版本依赖的调用方法 */
 //                Optional<BlockStmt> bodyOptional = m.getBody();
 //                if (bodyOptional.isPresent()) {
@@ -305,6 +304,10 @@ public class GetServiceInfo {
 //                        map.put(string, mSvcInterface);
 //                    }
 //                }
+                for (String patternUrl : pathurl) {
+                    mSvcInterface.setPatternUrl(patternUrl);
+                    map.put(mSvcInterface.getPatternUrl(), new MSvcInterface(mSvcInterface));
+                }
                 map.put(mSvcInterface.getPatternUrl(), mSvcInterface);
             }
         }

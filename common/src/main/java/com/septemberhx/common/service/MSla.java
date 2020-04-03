@@ -1,6 +1,7 @@
 package com.septemberhx.common.service;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
@@ -14,12 +15,17 @@ import java.util.Objects;
  * This class is created for possible future extension
  */
 @Getter
+@Setter
 public class MSla {
 
     private int level;
 
     public MSla(int level) {
         this.level = level;
+    }
+
+    public MSla(MSla sla) {
+        this.level = sla.level;
     }
 
     public boolean ifSatisfied(MSla other) {

@@ -26,6 +26,18 @@ public class MParamer {
     // 参数的请求方式   path / Paramer / requestBody
     private String method;
 
+    public MParamer() {
+
+    }
+
+    public MParamer(MParamer other) {
+        this.name = other.name;
+        this.requestname = other.requestname;
+        this.defaultObject = other.defaultObject;
+        this.type = other.type;
+        this.method = other.method;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

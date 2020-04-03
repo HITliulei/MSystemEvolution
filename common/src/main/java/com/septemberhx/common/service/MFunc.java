@@ -1,6 +1,7 @@
 package com.septemberhx.common.service;
 
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Objects;
 
@@ -14,12 +15,17 @@ import java.util.Objects;
  * This class is created for possible future extension
  */
 @Getter
+@Setter
 public class MFunc {
 
     private String functionName;
 
     public MFunc(String functionName) {
         this.functionName = functionName;
+    }
+
+    public MFunc(MFunc func) {
+        this.functionName = func.functionName;
     }
 
     public boolean ifSatisfied(MFunc func) {

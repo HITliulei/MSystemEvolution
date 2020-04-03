@@ -28,6 +28,11 @@ public class MFuncDescription {
         this.sla = new MSla(sla);
     }
 
+    public MFuncDescription(MFuncDescription other) {
+        this.func = new MFunc(other.func);
+        this.sla = new MSla(other.sla);
+    }
+
     /**
      * Check whether this function can satisfy demand
      *

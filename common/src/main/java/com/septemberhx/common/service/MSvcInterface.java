@@ -6,9 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author SeptemberHX
@@ -46,5 +44,18 @@ public class MSvcInterface extends MUniqueObject {
                 Objects.equals(requestMethod, that.requestMethod) &&
                 Objects.equals(returnType, that.returnType) &&
                 Objects.equals(serviceId, that.serviceId);
+    }
+
+    public MSvcInterface() {}
+
+    public MSvcInterface(MSvcInterface other) {
+        this.patternUrl = other.patternUrl;
+        this.funcDescription = new MFuncDescription(other.funcDescription);
+        this.functionName = other.functionName;
+        this.requestMethod = other.requestMethod;
+        this.params = new ArrayList<>(params);
+        this.returnType = other.returnType;
+        this.serviceId = other.serviceId;
+        this.invokeCountMap = new HashMap<>(other.invokeCountMap);
     }
 }
