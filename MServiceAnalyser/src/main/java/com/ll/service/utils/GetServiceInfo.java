@@ -246,7 +246,7 @@ public class GetServiceInfo {
                                 }
                             }
                         }
-                    } else if ("MFuncDescription ".equals(annoName)) {
+                    } else if ("MFuncDescription".equals(annoName)) {
                         String functionDescribtion = "";
                         int lavael = 1;
                         if (childNodes.size() == 2) {
@@ -294,6 +294,7 @@ public class GetServiceInfo {
                 /*获取  接口层级的参数*/
                 List<MParamer> paramerList = getParamers(m.getParameters());
                 mSvcInterface.setParams(paramerList);
+                mSvcInterface.setPatternUrl(pathurl.get(0));
                 /* 遍历函数内部寻找 版本依赖的调用方法 */
 //                Optional<BlockStmt> bodyOptional = m.getBody();
 //                if (bodyOptional.isPresent()) {

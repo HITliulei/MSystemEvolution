@@ -1,6 +1,8 @@
 package com.septemberhx.common.service;
 
 import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Objects;
 
@@ -10,6 +12,8 @@ import java.util.Objects;
  * @date 2019/12/13
  */
 @Getter
+@ToString
+@Setter
 public class MFuncDescription {
 
     private MFunc func;
