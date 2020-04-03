@@ -45,7 +45,7 @@ public class MOperation {
     @ResponseBody
     @PostMapping(MConfig.ANALYZE_ANALYZE_URI)
     public MResponse getAllVersionInfo(@RequestBody MServiceRegisterBean mServiceRegisterBean) {
-        executorService.submit(() -> {
+//        executorService.submit(() -> {
             Map<String, MPathInfo> map = GetSourceCode.getCodeAndGetMPathInfo(mServiceRegisterBean.getGitUrl());
             List<MService> serviceList = new ArrayList<>();
             for (Map.Entry<String, MPathInfo> entry : map.entrySet()) {
@@ -58,7 +58,7 @@ public class MOperation {
             logger.info("Trying to send service infos to server...");
             MResponse response = this.serverClient.pushServiceInfos(new MServiceAnalyzeResultBean(serviceList));
             logger.info(String.format("Receive %s from server", response.getStatus()));
-        });
+//        });
         return MResponse.successResponse();
     }
 

@@ -118,7 +118,8 @@ public class GetSourceCode {
             ClassOrInterfaceDeclaration c = compilationUnit.getClassByName(className).get();
             NodeList<AnnotationExpr> annotations = c.getAnnotations();
             for (Node node : annotations) {
-                if ("RestController".equals(node.getChildNodes().get(0).toString())) {
+                if ("RestController".equals(node.getChildNodes().get(0).toString())
+                        || "Controller".equals(node.getChildNodes().get(0).toString())) {
                     return true;
                 }
             }
@@ -137,6 +138,8 @@ public class GetSourceCode {
             if (file1.isFile()) {
                 if ("application.yml".equals(file1.getName())) {
                     return "application.yml";
+                } else if ("application.yaml".equals(file1.getName())) {
+                    return "application.yaml";
                 } else if ("application.properties".equals(file1.getName())) {
                     return "application.properties";
                 } else {

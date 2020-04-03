@@ -96,7 +96,7 @@ public class GetServiceInfo {
     public static MSvcDepDesc parseDependencyInYml(String service, Map mvf4ms){
         String version = (String) mvf4ms.get("version");
         MSvcVersion mSvcVersion = MSvcVersion.fromStr(version);
-        List<Map> dependencies = (List) mvf4ms.get("dependencies");
+        List<Map> dependencies = (List) mvf4ms.getOrDefault("dependencies", new ArrayList<>());
         Map<String, Map<String, BaseSvcDependency>> dependencyMaps = new HashMap<>();
         for(Map map : dependencies){
             String dependencyName = (String) map.get("name");
@@ -304,6 +304,7 @@ public class GetServiceInfo {
 //                        map.put(string, mSvcInterface);
 //                    }
 //                }
+                map.put(mSvcInterface.getPatternUrl(), mSvcInterface);
             }
         }
         return map;
@@ -342,6 +343,12 @@ public class GetServiceInfo {
         for (Parameter parameter : parameters) {
             MParamer paramer = new MParamer();
             List<Node> childNodes = parameter.getChildNodes();
+
+            // jump over the parameters without annotation
+            if (childNodes.size() != 3) {
+                continue;
+            }
+
             paramer.setName(childNodes.get(2).toString());
             paramer.setType(childNodes.get(1).toString());
             Node node = childNodes.get(0);
