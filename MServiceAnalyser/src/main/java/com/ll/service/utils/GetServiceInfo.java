@@ -48,7 +48,7 @@ public class GetServiceInfo {
 
     public static MService getConfig(String path) {
         String[] paths = path.split("\\.");
-        if ("yml".equals(paths[paths.length - 1])) {
+        if ("yml".equals(paths[paths.length - 1]) || "yaml".equals(paths[paths.length - 1])) {
             try {
                 return getFromYml(new File(path));
             } catch (IOException e) {
@@ -157,7 +157,7 @@ public class GetServiceInfo {
         MService mService = new MService();
         Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream("src/main/resources/" + path));
+            properties.load(new FileInputStream(path));
             if (properties.get("server.port") == null) {
                 mService.setPort(8080);
             } else {
