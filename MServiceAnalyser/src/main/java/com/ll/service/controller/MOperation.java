@@ -51,8 +51,10 @@ public class MOperation {
             for (Map.Entry<String, MPathInfo> entry : map.entrySet()) {
                 MService service = GetServiceInfo.getMservice(entry.getKey(), entry.getValue());
                 service.setServiceName(mServiceRegisterBean.getServiceName());
-                logger.info(service.toString());
+                service.setMaxPlotNum(mServiceRegisterBean.getPlotMap().get(service.getServiceVersion().toString()));
+                service.setResource(mServiceRegisterBean.getResMap().get(service.getServiceVersion().toString()));
                 serviceList.add(service);
+                logger.info(service.toString());
             }
 
             logger.info("Trying to send service infos to server...");
