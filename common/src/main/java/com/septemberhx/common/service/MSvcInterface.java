@@ -53,7 +53,7 @@ public class MSvcInterface extends MUniqueObject {
         this.funcDescription = new MFuncDescription(other.funcDescription);
         this.functionName = other.functionName;
         this.requestMethod = other.requestMethod;
-        this.params = new ArrayList<>(params);
+        this.params = new ArrayList<>(other.params);
         this.returnType = other.returnType;
         this.serviceId = other.serviceId;
         this.invokeCountMap = new HashMap<>(other.invokeCountMap);
