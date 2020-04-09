@@ -56,6 +56,6 @@ public class MSvcInterface extends MUniqueObject {
         this.params = new ArrayList<>(other.params);
         this.returnType = other.returnType;
         this.serviceId = other.serviceId;
-        this.invokeCountMap = new HashMap<>(other.invokeCountMap);
+        this.invokeCountMap = new HashMap<>();
     }
 }
