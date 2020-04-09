@@ -10,6 +10,7 @@ import com.septemberhx.server.job.MBuildJob;
 import com.septemberhx.server.job.MJobExecutor;
 import com.septemberhx.server.model.MServerSkeleton;
 import com.septemberhx.server.utils.MIDUtils;
+import com.septemberhx.server.utils.MServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,6 +43,12 @@ public class MServiceController {
         return this.analyzerClient.analyzerOne(mServiceRegisterOneBean);
     }
 
+    @PostMapping(value = "/allServices")
+    @ResponseBody
+    public List<MService> getAllServices() {
+        return MServerSkeleton.getCurrSvcManager().getAllValues();
+    }
+
     @PostMapping(value = "/compare")
     @ResponseBody
     public MResponse compare(@RequestBody MServiceCompareNormalBean mServiceCompareNormalBean){
@@ -67,14 +74,14 @@ public class MServiceController {
             }
             MServerSkeleton.getCurrSvcManager().registerService(service);
 
-            // step 3, if the image url doesn't exist, build it. and update into database.
-            String git = service.getGitUrl();
-            MBuildJobBean mBuildJobBean = new MBuildJobBean();
-            mBuildJobBean.setGitUrl(git);
-            mBuildJobBean.setGitTag(service.getServiceVersion().toCommonStr());
-            mBuildJobBean.setServiceName(service.getServiceName());
-            mBuildJobBean.setId(service.getServiceName()+"_"+service.getServiceVersion().toString());
-            mBuildCenterClient.build(mBuildJobBean);
+//            // step 3, if the image url doesn't exist, build it. and update into database.
+//            String git = service.getGitUrl();
+//            MBuildJobBean mBuildJobBean = new MBuildJobBean();
+//            mBuildJobBean.setGitUrl(git);
+//            mBuildJobBean.setGitTag(service.getServiceVersion().toCommonStr());
+//            mBuildJobBean.setServiceName(service.getServiceName());
+//            mBuildJobBean.setId(service.getServiceName()+"_"+service.getServiceVersion().toString());
+//            MServiceUtils.doBuildJob(mBuildJobBean);
         }
 
         // step 2, if the image url doesn't exist, build it.

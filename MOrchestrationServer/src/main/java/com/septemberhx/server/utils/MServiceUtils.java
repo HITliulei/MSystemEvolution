@@ -3,6 +3,7 @@ package com.septemberhx.server.utils;
 import com.septemberhx.common.base.node.MServerCluster;
 import com.septemberhx.common.bean.agent.MInstanceInfoBean;
 import com.septemberhx.common.bean.agent.MInstanceInfoResponse;
+import com.septemberhx.common.bean.server.MBuildJobBean;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import com.septemberhx.server.model.MServerSkeleton;
@@ -35,6 +36,15 @@ public class MServiceUtils {
     @Value("${msystemevolution.orchestration.buildCenter.port}")
     public void setBuildCenterPort(Integer buildCenterPort) {
         BUILD_CENTER_PORT = buildCenterPort;
+    }
+
+    public static void doBuildJob(MBuildJobBean jobBean) {
+        MRequestUtils.sendRequest(
+                MUrlUtils.getBuildCenterBuildUri(BUILD_CENTER_IP, BUILD_CENTER_PORT),
+                jobBean,
+                null,
+                RequestMethod.POST
+        );
     }
 
     public static List<MInstanceInfoBean> getInstanceInfoListByClusterId(String clusterId) {
