@@ -260,7 +260,7 @@ public class GetServiceInfo {
                             functionDescribtion = childNodes.get(1).getChildNodes().get(1).toString();
                             lavael = Integer.parseInt(childNodes.get(2).getChildNodes().get(1).toString());
                         }
-                        MFuncDescription mFuncDescription = new MFuncDescription(functionDescribtion, lavael);
+                        MFuncDescription mFuncDescription = new MFuncDescription(functionDescribtion.replaceAll("\"", ""), lavael);
                         mSvcInterface.setFuncDescription(mFuncDescription);
                         continue;
                     }
