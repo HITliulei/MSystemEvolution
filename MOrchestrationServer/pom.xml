@@ -87,6 +87,7 @@
     <properties>
         <maven.compiler.target>${compiler.target}</maven.compiler.target>
         <maven.compiler.source>${compiler.source}</maven.compiler.source>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
