@@ -4,6 +4,7 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.server.*;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInterface;
+import com.septemberhx.server.bean.MServicesRegisterBean;
 import com.septemberhx.server.client.MAnalyzerClient;
 import com.septemberhx.server.client.MBuildCenterClient;
 import com.septemberhx.server.job.MBuildJob;
@@ -37,6 +38,15 @@ public class MServiceController {
         return this.analyzerClient.analyzer(registerBean);
     }
 
+    @PostMapping(value = "/registerList")
+    @ResponseBody
+    public MResponse registerServices(@RequestBody MServicesRegisterBean registerBeans) {
+        for (MServiceRegisterBean registerBean : registerBeans.getServices()) {
+            this.analyzerClient.analyzer(registerBean);
+        }
+        return MResponse.successResponse();
+    }
+
     @PostMapping(value = "/registerOne")
     @ResponseBody
     public MResponse registerOneService(@RequestBody MFetchServiceInfoBean mServiceRegisterOneBean){
@@ -67,7 +77,7 @@ public class MServiceController {
 
         for (MService service : serviceList) {
             // step 2, save all the services to the model and database
-            service.setId(service.getServiceName()+"_"+service.getServiceVersion().toCommonStr());
+            service.setId(service.getServiceName()+"-"+service.getServiceVersion().toCommonStr());
             for (MSvcInterface serviceInterface : service.getServiceInterfaceMap().values()) {
                 serviceInterface.setId(MIDUtils.uniqueInterfaceId(service.getServiceName(), serviceInterface.getFunctionName()));
                 serviceInterface.setServiceId(service.getId());
