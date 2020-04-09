@@ -30,6 +30,8 @@ public class MSvcDepDesc {
     // unique dependency name for this service
     private String name;
 
+    public MSvcDepDesc() {}
+
     public MSvcDepDesc(String serviceId, String name, Map<String, Map<String, BaseSvcDependency>> dependencyMaps) {
         this.serviceId = serviceId;
         this.name = name;

@@ -23,6 +23,10 @@ public class MFuncDescription {
      */
     private MSla sla;
 
+    public MFuncDescription() {
+
+    }
+
     public MFuncDescription(String func, int sla) {
         this.func = new MFunc(func);
         this.sla = new MSla(sla);

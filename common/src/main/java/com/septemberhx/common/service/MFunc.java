@@ -20,6 +20,8 @@ public class MFunc {
 
     private String functionName;
 
+    public MFunc() {}
+
     public MFunc(String functionName) {
         this.functionName = functionName;
     }

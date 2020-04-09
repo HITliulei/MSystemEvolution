@@ -20,6 +20,8 @@ public class MSla {
 
     private int level;
 
+    public MSla() {}
+
     public MSla(int level) {
         this.level = level;
     }
