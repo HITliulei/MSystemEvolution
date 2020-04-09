@@ -25,7 +25,7 @@ public class MSvcInterface extends MUniqueObject {
     private String returnType;
     private String serviceId;
     //private List<MDependency> mDependencies;
-    private Map<BaseSvcDependency, Integer> invokeCountMap;
+    private Map<BaseSvcDependency, Integer> invokeCountMap = new HashMap<>();
 
     @Override
     public boolean equals(Object o) {
