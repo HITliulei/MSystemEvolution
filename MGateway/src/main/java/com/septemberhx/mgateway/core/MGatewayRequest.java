@@ -151,7 +151,7 @@ public class MGatewayRequest {
                 URI uri = new URI((String) parameters.get(MConfig.MGATEWAY_CALL_BACK_URL_ID));
                 MRequestUtils.sendRequest(uri, response, null, RequestMethod.POST);
             } catch (Exception e) {
-                logger.debug(String.format(
+                logger.info(String.format(
                         "Illegal call back url for request from user %s with dependency %s", userId, dependency.getId())
                 );
             }

@@ -114,7 +114,7 @@ public class MClientSkeleton {
     }
 
     public void printParentIdMap() {
-        logger.debug(this.parentIdMap.toString());
+        logger.info(this.parentIdMap.toString());
     }
 
     public List<String> getMObjectIdList() {
@@ -232,7 +232,7 @@ public class MClientSkeleton {
                 if (clusterAgentInstances.size() > 0) {
                     // request MClusterAgent for remote uri
                     URI requestUri = MUrlUtils.getMClientRequestRemoteUri(clusterAgentInstances.get(0).getIPAddr(), clusterAgentInstances.get(0).getPort());
-                    logger.debug(requestUri);
+                    logger.info(requestUri);
                     if (requestUri != null) {
                         String rawPatterns = null;
                         Map<RequestMappingInfo, HandlerMethod> mapping = MClientSkeleton.inst().requestMappingHandlerMapping.getHandlerMethods();
@@ -247,7 +247,7 @@ public class MClientSkeleton {
                         getRemoteUriRequest.setObjectId(mObjectId);
                         getRemoteUriRequest.setRawPatterns(rawPatterns);
                         URI remoteUri = MRequestUtils.sendRequest(requestUri, getRemoteUriRequest, URI.class, RequestMethod.POST);
-                        logger.debug(remoteUri);
+                        logger.info(remoteUri);
                         if (remoteUri != null) {
                             // redirect to remote uri with parameters in json style
                             try {

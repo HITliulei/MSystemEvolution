@@ -52,7 +52,7 @@ public class MRequestUtils {
                 result = entity.getBody();
             }
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
             logger.warn(String.format("Failed to send request to %s in %s", uri, method));
         }
         return result;

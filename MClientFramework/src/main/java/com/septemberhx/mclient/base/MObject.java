@@ -66,7 +66,7 @@ public abstract class MObject {
                 }
             }
             MClientSkeleton.inst().registerMObject(this);
-            logger.debug(this.getId() + " created");
+            logger.info(this.getId() + " created");
             MClientSkeleton.inst().printParentIdMap();
         }
     }

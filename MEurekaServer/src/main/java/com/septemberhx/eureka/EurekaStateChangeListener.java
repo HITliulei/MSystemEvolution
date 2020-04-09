@@ -51,7 +51,7 @@ public class EurekaStateChangeListener {
                 this.clusterAgentClient.instanceRegistered(notifyRequest);
                 logger.info(instanceInfo);
             } catch (Exception e) {
-                logger.debug(e);
+                logger.info(e);
                 logger.warn("Failed to connect to MClusterAgent!");
             }
         }

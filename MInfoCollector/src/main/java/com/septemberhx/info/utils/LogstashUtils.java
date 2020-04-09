@@ -32,7 +32,7 @@ public class LogstashUtils {
         try {
             send(MUrlUtils.getRemoteUri(logstashIp, logstashPort, "").toString(), jsonObjectStr, "utf-8");
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         }
 
     }
@@ -58,7 +58,7 @@ public class LogstashUtils {
             EntityUtils.consume(entity);
             response.close();
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         } finally {
             client.close();
         }

@@ -104,7 +104,7 @@ public class MClientUtils {
             FileWriter writer = new FileWriter("./test.yaml");
             Yaml.dump(deployment, writer);
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         }
         return deployment;
     }
@@ -117,7 +117,7 @@ public class MClientUtils {
                 pod = (V1Pod) podYamlObj;
             }
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         }
         return pod;
     }

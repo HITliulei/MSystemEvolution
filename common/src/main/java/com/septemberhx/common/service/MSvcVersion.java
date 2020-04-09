@@ -55,7 +55,7 @@ public class MSvcVersion {
             version = new MSvcVersion(
                     Integer.parseInt(numArr[0]), Integer.parseInt(numArr[1]), Integer.parseInt(numArr[2]));
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         }
         return version;
     }

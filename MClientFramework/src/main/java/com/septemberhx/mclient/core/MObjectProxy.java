@@ -47,7 +47,7 @@ public class MObjectProxy implements MethodInterceptor {
     @Override
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         if (method.getAnnotation(MApiFunction.class) != null) {
-            logger.debug("=================== WE ARE HERE !!! ====================");
+            logger.info("=================== WE ARE HERE !!! ====================");
         }
 
         Object result = null;

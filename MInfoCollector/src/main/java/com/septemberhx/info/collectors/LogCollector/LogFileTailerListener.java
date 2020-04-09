@@ -39,10 +39,10 @@ public class LogFileTailerListener implements TailerListener {
     }
 
     public void handle(String s) {
-        logger.debug("Tailer handles: " + s);
+        logger.info("Tailer handles: " + s);
         MBaseLog baseLog = MBaseLog.getLogFromStr(s);
         if (baseLog == null) {
-            logger.debug("Failed to parse: " + s + ", ignored");
+            logger.info("Failed to parse: " + s + ", ignored");
             return;
         }
         LogstashUtils.sendInfoToLogstash(logstashIp, logstashPort, MBaseLog.convertLog2JsonObejct(baseLog).toString());

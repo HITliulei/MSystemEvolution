@@ -72,7 +72,7 @@ public class ElasticSearchUtils {
 //                            logger.info(baseLog.toString());
                         }
                     } catch (Exception e) {
-                        logger.debug(e);
+                        logger.info(e);
                     }
                 }
 
@@ -98,7 +98,7 @@ public class ElasticSearchUtils {
         GetRequest rq = new GetRequest(index, id);
         try {
             GetResponse getResponse = client.get(rq, RequestOptions.DEFAULT);
-            logger.debug(getResponse.getField("message"));
+            logger.info(getResponse.getField("message"));
         } catch (IOException e) {
             logger.warn("Exception happens. Cannot get log from elasticsearch!");
             logger.warn(e);
@@ -120,7 +120,7 @@ public class ElasticSearchUtils {
         try {
             esClient.close();
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         }
     }
 }

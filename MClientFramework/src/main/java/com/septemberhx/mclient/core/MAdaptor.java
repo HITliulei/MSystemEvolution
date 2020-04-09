@@ -32,8 +32,8 @@ public class MAdaptor {
     }
 
     public static <T extends MObject> T getProxy(T target, MObject parent) {
-        logger.debug(target.getId() + " --> " + parent.getId());
-        logger.debug(target.getClass().toString() + " --> " + parent.getClass().toString());
+        logger.info(target.getId() + " --> " + parent.getId());
+        logger.info(target.getClass().toString() + " --> " + parent.getClass().toString());
         MObjectProxy mObjectProxy = new MObjectProxy();
         MAdaptor.getInstance().registerProxy(target.getId(), mObjectProxy);
         return (T) mObjectProxy.getInstance(target);
@@ -55,8 +55,8 @@ public class MAdaptor {
     public static <T extends MObject> T getProxy(Class<T> tClass, MObject parent) {
         T result = getProxy(tClass);
         if (result != null) {
-            logger.debug(result.getId() + " --> " + parent.getId());
-            logger.debug(tClass.toString() + " --> " + parent.getClass().toString());
+            logger.info(result.getId() + " --> " + parent.getId());
+            logger.info(tClass.toString() + " --> " + parent.getClass().toString());
         }
         return result;
     }
@@ -77,8 +77,8 @@ public class MAdaptor {
     public static MObject getProxy(String className, MObject parent) {
         MObject result = getProxy(className);
         if (result != null) {
-            logger.debug(result.getId() + " --> " + parent.getId());
-            logger.debug(className + " --> " + parent.getClass().toString());
+            logger.info(result.getId() + " --> " + parent.getId());
+            logger.info(className + " --> " + parent.getClass().toString());
         }
         return result;
     }

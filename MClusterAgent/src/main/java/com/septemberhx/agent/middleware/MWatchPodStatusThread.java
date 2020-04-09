@@ -36,7 +36,7 @@ public class MWatchPodStatusThread extends Thread {
             Configuration.setDefaultApiClient(client);
             this.coreV1Api = new CoreV1Api(this.client);
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         }
     }
 
@@ -57,7 +57,7 @@ public class MWatchPodStatusThread extends Thread {
                 for (Watch.Response<V1Pod> item : watch) {
                     String podStatus = item.object.getStatus().getPhase();
                     String podName = item.object.getMetadata().getName();
-                    logger.debug(item.type + "|" + podName + "|" + podStatus);
+                    logger.info(item.type + "|" + podName + "|" + podStatus);
                     switch (item.type) {
                         case "DELETED":
                             logger.info(podName + " now deleted");
@@ -77,14 +77,14 @@ public class MWatchPodStatusThread extends Thread {
                     }
                 }
             } catch (ApiException e) {
-                logger.debug(e);
+                logger.info(e);
             } finally {
                 if (watch != null) {
                     watch.close();
                 }
             }
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         }
 //        }
     }

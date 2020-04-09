@@ -190,7 +190,7 @@ public class GetServiceInfo {
         try {
             file = new File(codepath);
             if (!file.exists()) {
-                logger.debug ("源码路径错误");
+                logger.info ("源码路径错误");
             } else {
                 compilationUnit = JavaParser.parse(file);
             }

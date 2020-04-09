@@ -180,7 +180,7 @@ public class MAgentController {
             MRequestUtils.sendRequest(serverLoadUri, infoBean, null, RequestMethod.POST);
             this.clientUtils.notifyDeployJobFinished(infoBean);
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
             logger.warn("Failed to notify server with data in MAgentController::instanceRegistered");
         }
     }

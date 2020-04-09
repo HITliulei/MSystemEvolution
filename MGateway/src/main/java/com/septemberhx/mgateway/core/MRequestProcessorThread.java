@@ -39,7 +39,7 @@ public class MRequestProcessorThread implements Runnable {
                 });
             }
         } catch (InterruptedException e) {
-            logger.debug(e);
+            logger.info(e);
         }
     }
 }

@@ -144,9 +144,9 @@ public class MUrlUtils {
                     path, null, null
             );
         } catch (URISyntaxException e) {
-            logger.debug(e);
+            logger.info(e);
         }
-        logger.debug(uri);
+        logger.info(uri);
         return uri;
     }
 
@@ -161,7 +161,7 @@ public class MUrlUtils {
         try {
             uri = UriComponentsBuilder.fromUri(oldUri).queryParams(pMap).build().toUri();
         } catch (Exception e) {
-            logger.debug(e);
+            logger.info(e);
         }
         return uri;
     }
