@@ -86,7 +86,6 @@ public class MServiceController {
 
         // step 2, if the image url doesn't exist, build it.
         for (MService service : serviceList) {
-            service.setId(service.getServiceName());
             for (MSvcInterface serviceInterface : service.getServiceInterfaceMap().values()) {
                 serviceInterface.setId(MIDUtils.uniqueInterfaceId(service.getServiceName(), serviceInterface.getFunctionName()));
                 serviceInterface.setServiceId(service.getId());

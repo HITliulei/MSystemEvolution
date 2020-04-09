@@ -11,3 +11,10 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://${MCLUSTER_IP}:${MCLUSTER_PORT}/eureka
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 80000000
+        readTimeout: 80000000

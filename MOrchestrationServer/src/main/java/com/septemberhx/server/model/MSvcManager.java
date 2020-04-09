@@ -41,8 +41,8 @@ public class MSvcManager extends MUniqueObjectManager<MService> {
     }
 
     public boolean updateService(MService newService) {
-        MDatabaseUtils.databaseUtils.deleteService(newService);
-        MDatabaseUtils.databaseUtils.insertService(newService);
+//        MDatabaseUtils.databaseUtils.deleteService(newService);
+//        MDatabaseUtils.databaseUtils.insertService(newService);
         this.objectMap.put(newService.getId(), newService);
         return true;
     }
@@ -67,7 +67,7 @@ public class MSvcManager extends MUniqueObjectManager<MService> {
     public void updateImageUrl(String serviceId, String imageUrl) {
         Optional<MService> serviceOptional = this.getById(serviceId);
         if (serviceOptional.isPresent()) {
-            MDatabaseUtils.databaseUtils.updateServiceImageUrl(serviceId, imageUrl);
+//            MDatabaseUtils.databaseUtils.updateServiceImageUrl(serviceId, imageUrl);
             serviceOptional.get().setImageUrl(imageUrl);
         }
     }
