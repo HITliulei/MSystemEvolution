@@ -78,28 +78,29 @@ public class MServiceController {
             mBuildJobBean.setId(service.getServiceName()+"_"+service.getServiceVersion().toString());
             mBuildCenterClient.build(mBuildJobBean);
         }
-//        // step 2, if the image url doesn't exist, build it.
-//        for (MService service : serviceList) {
-//            service.setId(service.getServiceName());
-//            for (MSvcInterface serviceInterface : service.getServiceInterfaceMap().values()) {
-//                serviceInterface.setId(MIDUtils.uniqueInterfaceId(service.getServiceName(), serviceInterface.getFunctionName()));
-//                serviceInterface.setServiceId(service.getId());
-//            }
-//
-//            // construct the build job and execute it
-//            MBuildJob buildJob = new MBuildJob(
-//                    service.getServiceName(),
-//                    service.getGitUrl(),
-//                    service.getServiceVersion().toCommonStr(),
-//                    service.getId()
-//            );
-//            MServerSkeleton.getCurrJobManager().update(buildJob);
-//            MJobExecutor.start(buildJob);
-//        }
-//
-//        // todo: step 3, join compare the services, and store the differences
-//        List<MService> existServiceList = MServerSkeleton.getCurrSvcManager()
-//                .getServicesByServiceName(serviceList.get(0).getServiceName());
+
+        // step 2, if the image url doesn't exist, build it.
+        for (MService service : serviceList) {
+            service.setId(service.getServiceName());
+            for (MSvcInterface serviceInterface : service.getServiceInterfaceMap().values()) {
+                serviceInterface.setId(MIDUtils.uniqueInterfaceId(service.getServiceName(), serviceInterface.getFunctionName()));
+                serviceInterface.setServiceId(service.getId());
+            }
+
+            // construct the build job and execute it
+            MBuildJob buildJob = new MBuildJob(
+                    service.getServiceName(),
+                    service.getGitUrl(),
+                    service.getServiceVersion().toCommonStr(),
+                    service.getId()
+            );
+            MServerSkeleton.getCurrJobManager().update(buildJob);
+            MJobExecutor.start(buildJob);
+        }
+
+        // todo: step 3, join compare the services, and store the differences
+        List<MService> existServiceList = MServerSkeleton.getCurrSvcManager()
+                .getServicesByServiceName(serviceList.get(0).getServiceName());
 
         return MResponse.successResponse();
     }
