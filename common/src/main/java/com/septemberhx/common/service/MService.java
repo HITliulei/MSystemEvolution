@@ -54,7 +54,7 @@ public class MService extends MUniqueObject {
     }
 
     public Optional<BaseSvcDependency> getDepByHashCode(int hashcode) {
-        for (BaseSvcDependency svcDependency : this.getDepList()) {
+        for (BaseSvcDependency svcDependency : this.allDepList()) {
             if (svcDependency.hashCode() == hashcode) {
                 return Optional.of(svcDependency);
             }
@@ -96,8 +96,8 @@ public class MService extends MUniqueObject {
         return false;
     }
 
-    public List<BaseSvcDependency> getDepList() {
-        return this.mSvcDepDesc.getDepList();
+    public List<BaseSvcDependency> allDepList() {
+        return this.mSvcDepDesc.allDepList();
     }
 
     @Override

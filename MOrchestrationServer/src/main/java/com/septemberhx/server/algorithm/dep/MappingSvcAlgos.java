@@ -75,7 +75,7 @@ public class MappingSvcAlgos {
     public static Map<BaseSvcDependency, MService> _buildSvcTree(Set<MService> solvedSvcSet, Set<MService> unsolvedSvcSet) {
         Set<BaseSvcDependency> depSet = new HashSet<>();
         for (MService svc : unsolvedSvcSet) {
-            depSet.addAll(svc.getDepList());
+            depSet.addAll(svc.allDepList());
         }
 
         List<MService> svcList = svcManager.getAllValues();

@@ -38,7 +38,7 @@ public class MSvcDepDesc {
         this.dependencyMaps = dependencyMaps;
     }
 
-    public List<BaseSvcDependency> getDepList() {
+    public List<BaseSvcDependency> allDepList() {
         List<BaseSvcDependency> resultList = new ArrayList<>();
         dependencyMaps.values().stream().map(Map::values).forEach(resultList::addAll);
         return resultList;
