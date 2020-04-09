@@ -41,13 +41,22 @@ public class MService extends MUniqueObject {
      */
     public List<MSvcInterface> getInterfacesContainDep(BaseSvcDependency dependency) {
         return this.serviceInterfaceMap.values().stream()
-                .filter(s -> s.getInvokeCountMap().containsKey(dependency)).collect(Collectors.toList());
+                .filter(s -> s.getInvokeCountMap().containsKey(dependency.hashCode())).collect(Collectors.toList());
     }
 
     public Optional<MSvcInterface> getInterfaceByPatternUrl(String patternUrl) {
         for (MSvcInterface svcInterface : this.serviceInterfaceMap.values()) {
             if (svcInterface.getPatternUrl().equals(patternUrl)) {
                 return Optional.of(svcInterface);
+            }
+        }
+        return Optional.empty();
+    }
+
+    public Optional<BaseSvcDependency> getDepByHashCode(int hashcode) {
+        for (BaseSvcDependency svcDependency : this.getDepList()) {
+            if (svcDependency.hashCode() == hashcode) {
+                return Optional.of(svcDependency);
             }
         }
         return Optional.empty();

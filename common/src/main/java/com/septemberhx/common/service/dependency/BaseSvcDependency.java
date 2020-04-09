@@ -28,10 +28,6 @@ public class BaseSvcDependency {
 
     private PureSvcDependency dep = new PureSvcDependency();
 
-    // Coefficient for calculating user number
-    // It stands for the average calling count for one request
-    protected Integer coefficient = 1;
-
     public BaseSvcDependency toRealDependency() {
         if (dep.func != null && dep.slaSet != null && !dep.slaSet.isEmpty()) {
             return new SvcFuncDependency(this.id, dep.func, dep.slaSet);
@@ -84,13 +80,12 @@ public class BaseSvcDependency {
         if (o == null || getClass() != o.getClass()) return false;
         BaseSvcDependency that = (BaseSvcDependency) o;
         return Objects.equals(id, that.id) &&
-                Objects.equals(dep, that.dep) &&
-                Objects.equals(coefficient, that.coefficient);
+                Objects.equals(dep, that.dep);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, dep, coefficient);
+        return Objects.hash(id, dep);
     }
 
     public String getServiceName() {

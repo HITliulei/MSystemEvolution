@@ -57,11 +57,14 @@ public class MappingSvcAlgos {
     public static void _calcSvcUserCount(MService calledSvc, MSvcInterface calledApi, int calledCount,
                                          Map<BaseSvcDependency, MService> svcDepMap, Map<MService, Integer> countMap) {
         countMap.put(calledSvc, countMap.get(calledSvc) + calledCount);
-        for (BaseSvcDependency svcDependency : calledApi.getInvokeCountMap().keySet()) {
-            MService targetSvc = svcDepMap.get(svcDependency);
-            Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(svcDependency.getDep());
-            apiOpt.ifPresent(svcInterface -> _calcSvcUserCount(
-                    targetSvc, svcInterface, calledCount * calledApi.getInvokeCountMap().get(svcDependency), svcDepMap, countMap));
+        for (Integer svcDepHashCode : calledApi.getInvokeCountMap().keySet()) {
+            Optional<BaseSvcDependency> depOpt = calledSvc.getDepByHashCode(svcDepHashCode);
+            if (depOpt.isPresent()) {
+                MService targetSvc = svcDepMap.get(depOpt.get());
+                Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(depOpt.get().getDep());
+                apiOpt.ifPresent(svcInterface -> _calcSvcUserCount(
+                        targetSvc, svcInterface, calledCount * calledApi.getInvokeCountMap().get(svcDepHashCode), svcDepMap, countMap));
+            }
         }
     }
 

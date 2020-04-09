@@ -83,7 +83,7 @@ public class MDepAlgorithm {
                             for (BaseSvcDependency dependency : svcId2Api2DepCount.get(svcId).get(patternUrl).keySet()) {
                                 int newCoe = svcId2Api2DepCount.get(svcId).get(patternUrl).get(dependency)
                                         / svcId2ApiCallCount.get(svcId).get(patternUrl);
-                                svcInterface.getInvokeCountMap().put(dependency, newCoe);
+                                svcInterface.getInvokeCountMap().put(dependency.hashCode(), newCoe);
                             }
                         }
                     });

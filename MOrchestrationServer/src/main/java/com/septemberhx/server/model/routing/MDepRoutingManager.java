@@ -56,16 +56,20 @@ public class MDepRoutingManager {
 
                 // we also need to check whether instance invoked by this one has free plot
                 MSvcInterface svcInterface = serviceOpt.get().getInterfaceById(interfaceId);
-                for (BaseSvcDependency svcDependency : svcInterface.getInvokeCountMap().keySet()) {
-                    Pair<String, String> routingPair = this.routingTable.get(instanceId).get(svcDependency);
-                    // do not forget the coe of the invoked count
-                    if (!this.checkInstHasAvailablePlot(
-                            routingPair.getValue0(),
-                            routingPair.getValue1(),
-                            svcManager,
-                            instManager,
-                            plotNum * svcInterface.getInvokeCountMap().get(svcDependency))) {
-                        return false;
+                for (Integer depHash : svcInterface.getInvokeCountMap().keySet()) {
+                    Optional<BaseSvcDependency> depOpt = serviceOpt.get().getDepByHashCode(depHash);
+                    if (depOpt.isPresent()) {
+                        BaseSvcDependency svcDependency = depOpt.get();
+                        Pair<String, String> routingPair = this.routingTable.get(instanceId).get(svcDependency);
+                        // do not forget the coe of the invoked count
+                        if (!this.checkInstHasAvailablePlot(
+                                routingPair.getValue0(),
+                                routingPair.getValue1(),
+                                svcManager,
+                                instManager,
+                                plotNum * svcInterface.getInvokeCountMap().get(svcDependency.hashCode()))) {
+                            return false;
+                        }
                     }
                 }
                 return true;
@@ -112,7 +116,7 @@ public class MDepRoutingManager {
 
                 // the interface that calls pair.getValue1()
                 for (MSvcInterface svcInterface : this.getInterfaceIdsCalledDep(svcDependency, serviceOpt.get())) {
-                    int coe = svcInterface.getInvokeCountMap().get(svcDependency);
+                    int coe = svcInterface.getInvokeCountMap().get(svcDependency.hashCode());
                     int plotCount = this.usedPlot.get(instanceId).get(svcInterface.getId());
                     int releaseCount = coe * plotCount;
                     this.releasePlotNum(pair.getValue0(), pair.getValue1(), releaseCount, currSvcManager);
@@ -157,7 +161,7 @@ public class MDepRoutingManager {
 
             totalCount = 0;
             for (MSvcInterface svcInterface : this.getInterfaceIdsCalledDep(dependency, serviceOpt.get())) {
-                totalCount += svcInterface.getInvokeCountMap().getOrDefault(dependency, 0)
+                totalCount += svcInterface.getInvokeCountMap().getOrDefault(dependency.hashCode(), 0)
                         * this.usedPlot.get(clientId).getOrDefault(svcInterface.getId(), 0);
             }
         }
@@ -204,14 +208,19 @@ public class MDepRoutingManager {
         // release the invoked interface in the given interface
         Optional<MSvcInterface> interfaceOpt = svcManager.getInterfaceById(interfaceId);
         if (interfaceOpt.isPresent()) {
-            for (BaseSvcDependency svcDependency : interfaceOpt.get().getInvokeCountMap().keySet()) {
-                Pair<String, String> instIdInterfaceIdPair = this.routingTable.get(instanceId).get(svcDependency);
-                int coe = interfaceOpt.get().getInvokeCountMap().get(svcDependency);
-                this.releasePlotNum(
-                        instIdInterfaceIdPair.getValue0(),
-                        instIdInterfaceIdPair.getValue1(),
-                        coe * releaseNum, svcManager
-                );
+            Optional<MService> svcOpt = svcManager.getById(interfaceOpt.get().getServiceId());
+            for (Integer depHash : interfaceOpt.get().getInvokeCountMap().keySet()) {
+                Optional<BaseSvcDependency> depOpt = svcOpt.get().getDepByHashCode(depHash);
+                if (depOpt.isPresent()) {
+                    BaseSvcDependency svcDependency = depOpt.get();
+                    Pair<String, String> instIdInterfaceIdPair = this.routingTable.get(instanceId).get(svcDependency);
+                    int coe = interfaceOpt.get().getInvokeCountMap().get(svcDependency.hashCode());
+                    this.releasePlotNum(
+                            instIdInterfaceIdPair.getValue0(),
+                            instIdInterfaceIdPair.getValue1(),
+                            coe * releaseNum, svcManager
+                    );
+                }
             }
         }
     }

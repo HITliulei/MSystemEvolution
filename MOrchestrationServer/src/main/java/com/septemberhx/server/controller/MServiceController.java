@@ -1,6 +1,5 @@
 package com.septemberhx.server.controller;
 
-import com.netflix.discovery.converters.Auto;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.server.*;
 import com.septemberhx.common.service.MService;
@@ -48,7 +47,7 @@ public class MServiceController {
     public MResponse compare(@RequestBody MServiceCompareNormalBean mServiceCompareNormalBean){
         return null;
     }
-
+    
     @PostMapping(value = "/pushServiceInfos")
     @ResponseBody
     public MResponse pushServiceInfos(@RequestBody MServiceAnalyzeResultBean resultBean) {

@@ -78,7 +78,7 @@ public class MRoutingInfo {
                     MService callerSvc = svcMap.get(svcInstanceMap.get(clientId).getServiceId());
                     Optional<MSvcInterface> callerApiOpt = callerSvc.getInterfaceByPatternUrl(callerPatternUrl);
                     if (callerApiOpt.isPresent()) {
-                        usedPlot *= callerApiOpt.get().getInvokeCountMap().getOrDefault(dependency, 1);
+                        usedPlot *= callerApiOpt.get().getInvokeCountMap().getOrDefault(dependency.hashCode(), 1);
                     }
                 }
             }
@@ -100,7 +100,7 @@ public class MRoutingInfo {
             if (apiOpt.isPresent()) {
                 for (MSvcInstance inst : svcInstanceMap.values()) {
                     if (inst.getServiceId().equals(this.pureRoutingMap.get(dep.getDep()))) {
-                        if (checkInstHasAvailablePlot(inst.getId(), apiOpt.get().getInvokeCountMap().get(dep))) {
+                        if (checkInstHasAvailablePlot(inst.getId(), apiOpt.get().getInvokeCountMap().get(dep.hashCode()))) {
                             return Optional.of(new MRoutingBean(
                                     inst.getIp(),
                                     inst.getPort(),
