@@ -12,10 +12,7 @@ import com.septemberhx.server.job.MJobExecutor;
 import com.septemberhx.server.model.MServerSkeleton;
 import com.septemberhx.server.utils.MIDUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -35,23 +32,25 @@ public class MServiceController {
     private MBuildCenterClient mBuildCenterClient;
 
     @PostMapping(value = "/register")
+    @ResponseBody
     public MResponse registerService(@RequestBody MServiceRegisterBean registerBean) {
         return this.analyzerClient.analyzer(registerBean);
     }
+
     @PostMapping(value = "/registerOne")
+    @ResponseBody
     public MResponse registerOneService(@RequestBody MFetchServiceInfoBean mServiceRegisterOneBean){
         return this.analyzerClient.analyzerOne(mServiceRegisterOneBean);
     }
 
-
     @PostMapping(value = "/compare")
+    @ResponseBody
     public MResponse compare(@RequestBody MServiceCompareNormalBean mServiceCompareNormalBean){
         return null;
     }
 
-
-
     @PostMapping(value = "/pushServiceInfos")
+    @ResponseBody
     public MResponse pushServiceInfos(@RequestBody MServiceAnalyzeResultBean resultBean) {
         // step 1, fetch the service list
         List<MService> serviceList = resultBean.getServiceList();
