@@ -47,7 +47,7 @@ public class MServiceController {
     public MResponse compare(@RequestBody MServiceCompareNormalBean mServiceCompareNormalBean){
         return null;
     }
-    
+
     @PostMapping(value = "/pushServiceInfos")
     @ResponseBody
     public MResponse pushServiceInfos(@RequestBody MServiceAnalyzeResultBean resultBean) {
