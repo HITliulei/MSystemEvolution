@@ -37,7 +37,7 @@ public class MServerCluster extends MUniqueObject {
      */
     private Map<String, MServerNode> nodeMap;
 
-    public Collection<? extends MServerNode> getAllNodes() {
+    public Collection<? extends MServerNode> allNodes() {
         return this.nodeMap.values();
     }
 }

@@ -52,7 +52,7 @@ public class MClusterController {
     @ResponseBody
     @PostMapping(value = "/allNodes")
     public List<MServerNode> getAllNodes() {
-        return MServerSkeleton.getCurrNodeManager().getAllNodes();
+        return MServerSkeleton.getCurrNodeManager().allNodes();
     }
 
     @ResponseBody

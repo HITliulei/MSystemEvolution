@@ -7,7 +7,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://192.168.122.199:30761/eureka
+      defaultZone: http://10.244.2.2:8080/eureka
 
 mvf4ms:
   center:
