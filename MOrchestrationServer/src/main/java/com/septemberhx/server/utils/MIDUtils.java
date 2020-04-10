@@ -43,8 +43,10 @@ public class MIDUtils {
             ++MIDUtils.instanceCountEachMill;
         }
 
+        String verStr = new String(version);
+        verStr = verStr.replace(".", "-");
         return String.format(
-                "%s-%s-%s-%s", serviceName, version, MIDUtils.lastJobIdTimeMills, MIDUtils.instanceCountEachMill);
+                "%s-%s-%s-%s", serviceName.toLowerCase(), verStr, MIDUtils.lastJobIdTimeMills, MIDUtils.instanceCountEachMill);
     }
 
     public static boolean checkIfUserId(String idStr) {
@@ -53,5 +55,9 @@ public class MIDUtils {
 
     public static boolean checkIfInstId(String idStr) {
         return idStr != null && idStr.startsWith(INSTANCE_ID_PREFIX);
+    }
+
+    public static void main(String[] args) {
+        System.out.println(uniqueInstanceId("SampleGaoDe", "1.2.3"));
     }
 }
