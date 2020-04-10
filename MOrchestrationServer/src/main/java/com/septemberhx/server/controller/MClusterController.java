@@ -87,7 +87,7 @@ public class MClusterController {
         if (clusterOpt.isPresent()) {
             URI uri = MUrlUtils.getMClientAgentDeployUri(
                     clusterOpt.get().getClusterAgentIp(), clusterOpt.get().getClusterAgentPort());
-            MRequestUtils.sendRequest(uri, deployBean.getDeployJob().toMDeployPodRequest(), null, RequestMethod.POST);
+            MRequestUtils.sendRequest(uri, deployBean.getDeployJob(), null, RequestMethod.POST);
         }
     }
 }

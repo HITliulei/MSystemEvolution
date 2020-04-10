@@ -1,6 +1,6 @@
 package com.septemberhx.server.bean;
 
-import com.septemberhx.server.job.MDeployJob;
+import com.septemberhx.common.bean.agent.MDeployPodRequest;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,5 +15,5 @@ import lombok.ToString;
 @ToString
 public class MTestDeployBean {
     private String clusterId;
-    private MDeployJob deployJob;
+    private MDeployPodRequest deployJob;
 }
