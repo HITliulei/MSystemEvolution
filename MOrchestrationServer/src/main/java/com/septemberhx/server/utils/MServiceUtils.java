@@ -53,7 +53,7 @@ public class MServiceUtils {
             MInstanceInfoResponse response = MRequestUtils.sendRequest(MUrlUtils.getMclusterFetchInstanceInfoUri(
                     clusterOptional.get().getClusterAgentIp(),
                     clusterOptional.get().getClusterAgentPort()
-            ), null, MInstanceInfoResponse.class, RequestMethod.POST);
+            ), null, MInstanceInfoResponse.class, RequestMethod.GET);
 
             if (response != null) {
                 return response.getInfoBeanList();

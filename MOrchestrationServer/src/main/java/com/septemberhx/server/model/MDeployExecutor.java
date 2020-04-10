@@ -166,7 +166,6 @@ public class MDeployExecutor {
     /*
      * Create a service instance of service `serviceId` with pod id `podId` on node `cloudNodeId`
      * return job id
-     * todo: finish this function
      */
     public String deployInstanceOnCloud(String cloudNodeId, String serviceId, String podId) {
         MDeployJob deployJob = new MDeployJob(cloudNodeId, serviceId, podId);
