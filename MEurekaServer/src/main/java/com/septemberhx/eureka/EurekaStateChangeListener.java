@@ -41,6 +41,11 @@ public class EurekaStateChangeListener {
     @EventListener
     public void listen(EurekaInstanceRegisteredEvent event) {
         Application clusterAgentApp = this.eurekaClient.getApplication(MConfig.MCLUSTERAGENT_NAME);
+        System.out.println("=====");
+        for (Application app : this.eurekaClient.getApplications().getRegisteredApplications()) {
+            System.out.println(app.getName());
+        }
+        System.out.println("-----");
         if (clusterAgentApp != null) {
             InstanceInfo clusterInfo = clusterAgentApp.getInstances().get(0);
             InstanceInfo instanceInfo = event.getInstanceInfo();

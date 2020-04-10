@@ -34,8 +34,6 @@ public class MConfig {
 
     public final static String MCLUSTERAGENT_FETCH_CLIENT_INFO = "/mclient/info";
     public final static String MSERVER_GET_REMOTE_URI = "/mserver/remoteuri";
-    public final static String MSERVER_JOB_NOTIFY_URI = "/mserver/notifyJob";
-    public final static String MSERVER_DEPLOY_JOB_NOTIFY_URI = "/mserver/notifyDeployJob";
     public final static String MSERVER_FETCH_REQUEST_URL = "/mserver/fetchRequestUrl";
     public final static String MSERVER_DO_REQUEST_URL = "/mserver/doRequest";
 
@@ -67,6 +65,7 @@ public class MConfig {
     public final static String MSERVER_CLUSTER_REGISTER = "/cluster/registerCluster";
     public final static String MSERVER_NEW_DEP_REQUEST = "/request/newDepRequest";
     public final static String MSERVER_REPLACE_CALL = "request/replaceCall";
+    public final static String MSERVER_JOB_NOTIFY_URI = "/mserver/job/notify";
 
     public final static String MCLUSTER_SVC_METADATA_NAME = "mclient";
     public final static String MCLUSTER_SVC_METADATA_VALUE = "true";

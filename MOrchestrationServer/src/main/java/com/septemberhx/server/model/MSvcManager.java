@@ -74,7 +74,7 @@ public class MSvcManager extends MUniqueObjectManager<MService> {
 
     public Optional<MService> getByServiceNameAndVersion(String serviceName, String version) {
         for (MService service : this.objectMap.values()) {
-            if (service.getServiceName().equals(serviceName) && service.getServiceVersion().toString().equals(version)) {
+            if (service.getServiceName().toLowerCase().equals(serviceName.toLowerCase()) && service.getServiceVersion().toString().equals(version)) {
                 return Optional.of(service);
             }
         }

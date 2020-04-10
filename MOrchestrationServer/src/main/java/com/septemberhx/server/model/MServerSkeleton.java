@@ -35,6 +35,7 @@ public class MServerSkeleton {
 
     private MServerSkeleton() {
         this.currSystemModel = new MSystemModel();
+        this.nextSystemModel = new MSystemModel();
     }
 
     public static MServerSkeleton getInstance() {

@@ -10,6 +10,7 @@ import com.septemberhx.common.bean.agent.MDeployPodRequest;
 import com.septemberhx.common.bean.agent.MInstanceInfoBean;
 import com.septemberhx.common.bean.mclient.MClientInfoBean;
 import com.septemberhx.common.bean.mclient.MInstanceRestInfoBean;
+import com.septemberhx.common.bean.server.MJobFinishedBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
@@ -252,9 +253,11 @@ public class MClientUtils {
         String jobId = podDuringDeploying.get(infoBean.getDockerInfo().getInstanceId()).getId();
 
         MDeployNotifyRequest deployNotifyRequest = new MDeployNotifyRequest(jobId, instanceId);
+        MJobFinishedBean jobFinishedBean = new MJobFinishedBean();
+        jobFinishedBean.setJobId(jobId);
         MRequestUtils.sendRequest(
-                MUrlUtils.getMServerDeployNotifyJobUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort()),
-                deployNotifyRequest, null, RequestMethod.POST);
+                MUrlUtils.getMServerNotifyJobUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort()),
+                jobFinishedBean, null, RequestMethod.POST);
 
 
         logger.info("Job " + jobId + " finished and notified");
@@ -264,8 +267,8 @@ public class MClientUtils {
 
     public synchronized void notifyDeleteJobFinished(String jobId) {
         URI serverUri = MUrlUtils.getMServerNotifyJobUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort());
-        Map<String, String> params = new HashMap<>();
-        params.put("jobId", jobId);
-        MRequestUtils.sendRequest(serverUri, params, null, RequestMethod.GET);
+        MJobFinishedBean jobFinishedBean = new MJobFinishedBean();
+        jobFinishedBean.setJobId(jobId);
+        MRequestUtils.sendRequest(serverUri, jobFinishedBean, null, RequestMethod.POST);
     }
 }

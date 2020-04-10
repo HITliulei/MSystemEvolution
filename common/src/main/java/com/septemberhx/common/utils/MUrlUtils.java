@@ -71,10 +71,6 @@ public class MUrlUtils {
         return MUrlUtils.getRemoteUri(serverIpAddr, serverPort, MConfig.MSERVER_JOB_NOTIFY_URI);
     }
 
-    public static URI getMServerDeployNotifyJobUri(String serverIpAddr, int serverPort) {
-        return MUrlUtils.getRemoteUri(serverIpAddr, serverPort, MConfig.MSERVER_DEPLOY_JOB_NOTIFY_URI);
-    }
-
     public static URI getMClientSetApiCStatus(String instanceIpAddr, int port) {
         return MUrlUtils.getRemoteUri(instanceIpAddr, port, MConfig.MCLIENT_SET_APICS_URI);
     }
