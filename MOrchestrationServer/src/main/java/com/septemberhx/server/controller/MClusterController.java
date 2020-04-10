@@ -1,8 +1,11 @@
 package com.septemberhx.server.controller;
 
+import com.septemberhx.common.base.node.MServerCluster;
+import com.septemberhx.common.base.node.MServerNode;
+import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.agent.MInstanceInfoBean;
-import com.septemberhx.server.bean.MConnectionJson;
-import com.septemberhx.server.bean.MRegisterClusterBean;
+import com.septemberhx.common.bean.agent.MConnectionJson;
+import com.septemberhx.common.bean.agent.MRegisterClusterBean;
 import com.septemberhx.server.model.MServerSkeleton;
 import com.septemberhx.server.utils.MServiceUtils;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +28,8 @@ public class MClusterController {
      * @param clusterBean
      */
     @PostMapping(path = "/registerCluster")
-    public void registerCluster(@RequestBody MRegisterClusterBean clusterBean) {
+    @ResponseBody
+    public MResponse registerCluster(@RequestBody MRegisterClusterBean clusterBean) {
         // remove the old cluster if exists
         MServerSkeleton.getCurrNodeManager().remove(clusterBean.getServerCluster().getId());
         // add the cluster
@@ -42,6 +46,19 @@ public class MClusterController {
         for (MInstanceInfoBean infoBean : beanList) {
             this.loadInstanceInfo(infoBean);
         }
+        return MResponse.successResponse();
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/allNodes")
+    public List<MServerNode> getAllNodes() {
+        return MServerSkeleton.getCurrNodeManager().getAllNodes();
+    }
+
+    @ResponseBody
+    @PostMapping(value = "/allClusters")
+    public List<MServerCluster> getAllClusters() {
+        return MServerSkeleton.getCurrNodeManager().getAllValues();
     }
 
     @RequestMapping(path = "/reportInstanceInfo", method = RequestMethod.POST)

@@ -4,6 +4,7 @@ import com.septemberhx.common.base.MUniqueObject;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -35,4 +36,8 @@ public class MServerCluster extends MUniqueObject {
      * Server node map
      */
     private Map<String, MServerNode> nodeMap;
+
+    public Collection<? extends MServerNode> getAllNodes() {
+        return this.nodeMap.values();
+    }
 }

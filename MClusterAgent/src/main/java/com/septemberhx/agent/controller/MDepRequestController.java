@@ -1,6 +1,7 @@
 package com.septemberhx.agent.controller;
 
 import com.netflix.appinfo.InstanceInfo;
+import com.septemberhx.agent.config.MAgentConfig;
 import com.septemberhx.agent.core.MRoutingInfo;
 import com.septemberhx.agent.utils.MClientUtils;
 import com.septemberhx.common.base.user.MUser;
@@ -36,6 +37,9 @@ import java.util.*;
 public class MDepRequestController {
     @Autowired
     private MClientUtils clientUtils;
+
+    @Autowired
+    private MAgentConfig agentConfig;
 
     @PostMapping(path = MConfig.MCLUSTER_DEP_REQUEST_ROUTING)
     @ResponseBody
@@ -74,7 +78,7 @@ public class MDepRequestController {
     @PostMapping(path = MConfig.MCLUSTER_REPLACE_CALL)
     public MResponse processReplacementRequest(@RequestBody MDepReplaceRequestBean requestBean, HttpServletRequest request) {
         return MRequestUtils.sendRequest(
-                MUrlUtils.getRemoteUri(clientUtils.getServerIpAddr(), clientUtils.getServerPort(), MConfig.MSERVER_REPLACE_CALL),
+                MUrlUtils.getRemoteUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort(), MConfig.MSERVER_REPLACE_CALL),
                 requestBean,
                 MResponse.class,
                 RequestMethod.POST,

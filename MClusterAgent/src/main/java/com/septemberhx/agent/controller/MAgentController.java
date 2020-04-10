@@ -1,6 +1,7 @@
 package com.septemberhx.agent.controller;
 
 import com.netflix.appinfo.InstanceInfo;
+import com.septemberhx.agent.config.MAgentConfig;
 import com.septemberhx.agent.utils.ElasticSearchUtils;
 import com.septemberhx.agent.utils.MClientUtils;
 import com.septemberhx.common.bean.MResponse;
@@ -40,20 +41,11 @@ public class MAgentController {
 
     private static Logger logger = LogManager.getLogger(MAgentController.class);
 
-    @Value("${mclientagent.server.ip}")
-    private String serverIpAddr;
-
-    @Value("${mclientagent.server.port}")
-    private Integer serverPort;
-
-    @Value("${mclientagent.elasticsearch.ip}")
-    private String elasticsearchIpAddr;
-
-    @Value("${mclientagent.elasticsearch.port}")
-    private Integer elasticsearchPort;
-
     @Autowired
     private MClientUtils clientUtils;
+
+    @Autowired
+    private MAgentConfig agentConfig;
 
     private RestHighLevelClient esClient;
     // use it to record who send the instance info to server
@@ -63,10 +55,10 @@ public class MAgentController {
 
     @PostConstruct
     public void init() throws IOException {
-        logger.info("Elasticsearch: " + elasticsearchIpAddr + ":" + elasticsearchPort);
+        logger.info("Elasticsearch: " + this.agentConfig.getElasticsearch().getIp() + ":" + this.agentConfig.getElasticsearch().getIp());
         this.esClient = new RestHighLevelClient(
                 RestClient.builder(
-                        new HttpHost(this.elasticsearchIpAddr, this.elasticsearchPort)
+                        new HttpHost(this.agentConfig.getElasticsearch().getIp(), this.agentConfig.getElasticsearch().getPort())
                 )
         );
     }
@@ -74,7 +66,7 @@ public class MAgentController {
     @ResponseBody
     @RequestMapping(path = "/doRequest", method = RequestMethod.POST)
     public MResponse doRequest(@RequestBody MUserRequestBean requestBean) {
-        URI uri = MUrlUtils.getMServerDoRequestUri(this.serverIpAddr, this.serverPort);
+        URI uri = MUrlUtils.getMServerDoRequestUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort());
         return MRequestUtils.sendRequest(uri, requestBean, MResponse.class, RequestMethod.POST);
     }
 
@@ -83,7 +75,7 @@ public class MAgentController {
     public String fetchRequestUrl(@RequestBody MUserDemand userDemand) {
         String result = null;
         try {
-            URI requestUri = MUrlUtils.getMServerFetchRequestUrl(this.serverIpAddr, this.serverPort);
+            URI requestUri = MUrlUtils.getMServerFetchRequestUrl(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort());
             result = MRequestUtils.sendRequest(requestUri, userDemand, String.class, RequestMethod.POST);
         } catch (Exception e) { }
         return result;
@@ -144,7 +136,7 @@ public class MAgentController {
     @ResponseBody
     @RequestMapping(path = "/remoteuri", method = RequestMethod.POST)
     public URI getRemoteUri(@RequestBody MGetRemoteUriRequest remoteUriRequest) {
-        URI serverRemoteUri = MUrlUtils.getMServerRemoteUri(this.serverIpAddr, this.serverPort);
+        URI serverRemoteUri = MUrlUtils.getMServerRemoteUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort());
         return MRequestUtils.sendRequest(serverRemoteUri, remoteUriRequest, URI.class, RequestMethod.POST);
     }
 
@@ -173,7 +165,7 @@ public class MAgentController {
             return;
         }
 
-        URI serverLoadUri = MUrlUtils.getMServerLoadInstanceInfoUri(this.serverIpAddr, this.serverPort);
+        URI serverLoadUri = MUrlUtils.getMServerLoadInstanceInfoUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort());
 
         try {
 //            logger.info(infoBean.toString());

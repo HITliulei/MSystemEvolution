@@ -7,23 +7,18 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://10.111.1.102:30761/eureka
+      defaultZone: http://192.168.122.199:30761/eureka
 
 mvf4ms:
   center:
-    ip: 10.111.1.102
-    port: 2222
+    ip: 60.205.188.102
+    port: 30763
   cluster:
     name: test
+  elasticsearch:
+    ip: 192.168.1.102
+    port: 4000
 
 spring:
   application:
     name: MClusterAgent
-mclientagent:
-  server:
-    ip: 192.168.1.102
-    port: 9001
-  elasticsearch:
-    ip: 192.168.1.102
-    port: 4000
-  cluster: cluster-01

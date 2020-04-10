@@ -1,6 +1,7 @@
 package com.septemberhx.agent.utils;
 
 import com.netflix.appinfo.InstanceInfo;
+import com.septemberhx.agent.config.MAgentConfig;
 import com.septemberhx.agent.middleware.MDockerManager;
 import com.septemberhx.agent.middleware.MDockerManagerK8SImpl;
 import com.septemberhx.agent.middleware.MServiceManager;
@@ -37,16 +38,8 @@ public class MClientUtils {
     @Autowired
     private MServiceManager clusterMiddleware;
 
-    @Getter
-    @Value("${mvf4ms.center.ip}")
-    private String serverIpAddr;
-
-    @Getter
-    @Value("${mvf4ms.center.port}")
-    private Integer serverPort;
-
-    @Value("${mvf4ms.cluster.name}")
-    private String clusterId;
+    @Autowired
+    private MAgentConfig agentConfig;
 
     private static MDockerManager dockerManager = new MDockerManagerK8SImpl();
     private Map<String, MDeployPodRequest> podDuringDeploying = new HashMap<>();  // deployed but not running
@@ -188,7 +181,7 @@ public class MClientUtils {
         instanceInfoBean.setApiMap(response.getApiMap());
         instanceInfoBean.setMObjectIdMap(response.getMObjectIdSet());
 
-        instanceInfoBean.setClusterId(this.clusterId);
+        instanceInfoBean.setClusterId(this.agentConfig.getCluster().getName());
         instanceInfoBean.setServiceName(instanceInfo.getAppName());
         instanceInfoBean.setVersion(instanceInfo.getMetadata().get(MConfig.MCLUSTER_SVC_VER_NAME));
 
@@ -260,7 +253,7 @@ public class MClientUtils {
 
         MDeployNotifyRequest deployNotifyRequest = new MDeployNotifyRequest(jobId, instanceId);
         MRequestUtils.sendRequest(
-                MUrlUtils.getMServerDeployNotifyJobUri(serverIpAddr, serverPort),
+                MUrlUtils.getMServerDeployNotifyJobUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort()),
                 deployNotifyRequest, null, RequestMethod.POST);
 
 
@@ -270,7 +263,7 @@ public class MClientUtils {
     }
 
     public synchronized void notifyDeleteJobFinished(String jobId) {
-        URI serverUri = MUrlUtils.getMServerNotifyJobUri(serverIpAddr, serverPort);
+        URI serverUri = MUrlUtils.getMServerNotifyJobUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort());
         Map<String, String> params = new HashMap<>();
         params.put("jobId", jobId);
         MRequestUtils.sendRequest(serverUri, params, null, RequestMethod.GET);

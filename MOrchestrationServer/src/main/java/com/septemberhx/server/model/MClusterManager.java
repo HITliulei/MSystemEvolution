@@ -152,4 +152,12 @@ public class MClusterManager extends MUniqueObjectManager<MServerCluster> {
         }
         return null;
     }
+
+    public List<MServerNode> getAllNodes() {
+        List<MServerNode> resultList = new ArrayList<>();
+        for (MServerCluster cluster : this.objectMap.values()) {
+            resultList.addAll(cluster.getAllNodes());
+        }
+        return resultList;
+    }
 }

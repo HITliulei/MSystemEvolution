@@ -1,4 +1,4 @@
-package com.septemberhx.server.bean;
+package com.septemberhx.common.bean.agent;
 
 import com.septemberhx.common.base.node.MNodeConnectionInfo;
 import lombok.Getter;
