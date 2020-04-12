@@ -7,7 +7,11 @@ import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.server.utils.MIDUtils;
 import lombok.Getter;
 import lombok.ToString;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -19,6 +23,9 @@ import java.util.Optional;
 @Getter
 @ToString
 public class MDeployManager {
+
+    private static Logger logger = LogManager.getLogger(MDeployManager.class);
+
     private MSvcInstManager instManager;
     private MClusterManager clusterManager;
     private MSvcManager svcManager;
@@ -67,6 +74,30 @@ public class MDeployManager {
     }
 
     public void deployInstOnClouds(Map<MService, Integer> instCountMap) {
-        // todo: deploy instances on cloud cluster
+        if (instCountMap.size() > 0) {
+            List<MServerNode> cloudList = this.clusterManager.getCloudNodes();
+            if (cloudList.size() > 0) {
+                MServerNode cloudNode = cloudList.get(0);
+                for (MService svc : instCountMap.keySet()) {
+                    MSvcInstance svcInst = new MSvcInstance(
+                            null,
+                            cloudNode.getClusterId(),
+                            cloudNode.getId(),
+                            null,
+                            null,
+                            MIDUtils.uniqueInstanceId(svc.getServiceName(), svc.getServiceVersion().toString()),
+                            null,
+                            svc.getServiceName(),
+                            svc.getId(),
+                            null,
+                            svc.getServiceVersion().toString()
+                    );
+                    this.instManager.update(svcInst);
+                }
+            } else {
+                logger.warn("Some services should be deployed on clouds, but there is no cloud node at all");
+                logger.warn(String.format("There are %d services affected", instCountMap.size()));
+            }
+        }
     }
 }

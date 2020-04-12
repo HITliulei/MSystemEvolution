@@ -8,6 +8,7 @@ import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.dependency.PureSvcDependency;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
+import com.septemberhx.server.model.MDeployExecutor;
 import com.septemberhx.server.model.MDeployManager;
 import com.septemberhx.server.model.MServerSkeleton;
 import com.septemberhx.server.algorithm.dep.MDepAlgorithm;
@@ -53,6 +54,10 @@ public class MDepAdaptation implements MAdaptationInterface {
 
             // 4. execute
             logger.info(deployTopology);
+            MDeployExecutor executor = new MDeployExecutor(
+                    deployTopology, MServerSkeleton.getInstance().getCurrSystemModel(), cluster.getId());
+            MServerSkeleton.getInstance().setExecutor(executor);
+            executor.execute();
         }
     }
 
