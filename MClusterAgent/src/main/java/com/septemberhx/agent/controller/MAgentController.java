@@ -12,6 +12,9 @@ import com.septemberhx.common.base.user.MUser;
 import com.septemberhx.common.base.user.MUserDemand;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheListBean;
+import com.septemberhx.common.bean.gateway.MDepRequestCountBean;
+import com.septemberhx.common.bean.gateway.MDepRequestCountListBean;
+import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import org.apache.http.HttpHost;
@@ -102,6 +105,19 @@ public class MAgentController {
             resultList.addAll(cacheListBean.getRequestList());
         }
         return new MDepRequestCacheListBean(resultList);
+    }
+
+    @ResponseBody
+    @PostMapping(path = "/fetchDepRequestCount")
+    public MDepRequestCountListBean getRequestNumBetween(@RequestBody MTimeIntervalBean timeIntervalBean) {
+        List<MDepRequestCountBean> resultList = new ArrayList<>();
+        for (InstanceInfo info : this.clientUtils.getAllGatewayInstance()) {
+            URI uri = MUrlUtils.getRemoteUri(info.getIPAddr(), info.getPort(), MConfig.MGATEWAY_FETCH_REQUEST_NUMBER);
+            MDepRequestCountBean cacheListBean =
+                    MRequestUtils.sendRequest(uri, timeIntervalBean, MDepRequestCountBean.class, RequestMethod.POST);
+            resultList.add(cacheListBean);
+        }
+        return new MDepRequestCountListBean(resultList);
     }
 
     @ResponseBody

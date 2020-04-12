@@ -4,15 +4,19 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MTimeIntervalBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheListBean;
+import com.septemberhx.common.bean.gateway.MDepRequestCountBean;
 import com.septemberhx.common.bean.server.MUpdateCopyInstBean;
 import com.septemberhx.common.config.MConfig;
+import com.septemberhx.common.service.dependency.PureSvcDependency;
+import com.septemberhx.mgateway.config.MGatewayConfig;
 import com.septemberhx.mgateway.core.MGatewayInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * @author SeptemberHX
@@ -21,6 +25,9 @@ import java.util.List;
  */
 @Controller
 public class EvolveController {
+
+    @Autowired
+    private MGatewayConfig gatewayConfig;
 
     public MResponse updateRoutingTable() {
         // todo
@@ -33,6 +40,26 @@ public class EvolveController {
         return new MDepRequestCacheListBean(MGatewayInfo.inst().getRequestBetweenTime(
                 timeIntervalBean.getStartTimeInMills(), timeIntervalBean.getEndTimeInMills()
         ));
+    }
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MGATEWAY_FETCH_REQUEST_NUMBER)
+    public MDepRequestCountBean getRequestCountBetweenTime(@RequestBody MTimeIntervalBean intervalBean) {
+        MDepRequestCountBean requestCountBean = new MDepRequestCountBean(this.gatewayConfig.getNodeId());
+        Map<PureSvcDependency, Set<String>> depUserSet = new HashMap<>();
+        for (MDepRequestCacheBean cacheBean :
+                MGatewayInfo.inst().getRequestBetweenTime(intervalBean.getStartTimeInMills(), intervalBean.getEndTimeInMills())) {
+            PureSvcDependency dep = cacheBean.getBaseSvcDependency().getDep();
+            if (!depUserSet.containsKey(dep)) {
+                depUserSet.put(dep, new HashSet<>());
+            }
+            depUserSet.get(dep).add(cacheBean.getClientId());
+        }
+
+        for (PureSvcDependency dep : depUserSet.keySet()) {
+            requestCountBean.putValue(dep, depUserSet.get(dep).size());
+        }
+        return requestCountBean;
     }
 
     @ResponseBody

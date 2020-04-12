@@ -10,7 +10,7 @@ eureka:
     register-with-eureka: true
     fetch-registry: true
     service-url:
-      defaultZone: http://${MCLUSTER_IP}:${MCLUSTER_PORT}/eureka
+      defaultZone: http://${REGISTRY}/eureka
 
 mvf4ms:
   gateway:

@@ -75,6 +75,7 @@ public class MConfig {
     public final static String MCLUSTER_REPLACE_CALL = "/magent/replaceCall";
     public final static String MCLUSTER_UPDATE_COPY_MAP = "/magent/updateReplace";
     public final static String MCLUSTER_FETCH_DEP_REQUEST = "/magent/fetchDepRequests";
+    public final static String MCLUSTER_FETCH_DEP_REQUEST_COUNT = "/magent/fetchDepRequestCount";
 
     public final static String MGATEWAY_NAME = "MGateway";
     public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";
@@ -82,6 +83,7 @@ public class MConfig {
     public final static String MGATEWAY_DEPENDENCY_ID = "dependency";
     public final static String MGATEWAY_CLIENT_ID = "__client_id";
     public final static String MGATEWAY_FETCH_REQUESTS = "/evolve/requests";
+    public final static String MGATEWAY_FETCH_REQUEST_NUMBER = "/evolve/requestNum";
     public final static String MGATEWAY_UPDATE_COPY_MAP = "/evolve/updateReplace";
     public final static String MGATEWAY_CALL_BACK_URL_ID = "__call_back_url";
 
