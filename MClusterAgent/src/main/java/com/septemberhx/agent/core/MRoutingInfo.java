@@ -20,8 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MRoutingInfo {
     private static MRoutingInfo instance;
 
-    private Map<String, Map<String, Map<BaseSvcDependency, MRoutingBean>>> routingTable;
-
+    /*
+     * Routing guideline. It tells the system what service should be used to satisfy each kind of dep
+     * Map[ dep, service id ]
+     */
     private Map<PureSvcDependency, String> pureRoutingMap;
 
     @Setter
@@ -40,6 +42,20 @@ public class MRoutingInfo {
      * Map[instanceId, Map[interfaceId, used number]]
      */
     private Map<String, Map<String, Map<String, Integer>>> usedPlot;
+
+    /*
+     * This table is used to make sure each time window the same dep of the
+     *   same user will be directed to the same inst.
+     */
+    private Map<String, Map<String, Map<BaseSvcDependency, MRoutingBean>>> routingTable;
+
+    public void resetRoutingMap(Map<PureSvcDependency, String> rMap, Map<String, MService> svcMap, Map<String, MSvcInstance> svcInstanceMap) {
+        this.usedPlot.clear();
+        this.routingTable.clear();
+        this.pureRoutingMap = rMap;
+        this.svcMap = svcMap;
+        this.svcInstanceMap = svcInstanceMap;
+    }
 
     public Optional<MRoutingBean> getRoutingFromRecord(String clientId, String userId, BaseSvcDependency dependency) {
         if (this.routingTable.containsKey(clientId) && this.routingTable.containsKey(userId) && this.routingTable.containsKey(dependency)) {

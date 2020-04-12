@@ -40,7 +40,7 @@ public class MappingSvcAlgos {
      * The same user ask two apis of one services is counting as two user
      */
     public static Map<MService, Integer> calcSvcUserCount(
-            List<MService> demandSvcList, Map<BaseSvcDependency, MService> svcDepMap,
+            List<MService> demandSvcList, Map<PureSvcDependency, MService> svcDepMap,
             Map<PureSvcDependency, MService> userDepMap, Map<PureSvcDependency, Integer> userDepSet) {
         Map<MService, Integer> resultMap = new HashMap<>();
         Set<MService> allSvcSet = new HashSet<>(demandSvcList);
@@ -58,12 +58,12 @@ public class MappingSvcAlgos {
     }
 
     public static void _calcSvcUserCount(MService calledSvc, MSvcInterface calledApi, int calledCount,
-                                         Map<BaseSvcDependency, MService> svcDepMap, Map<MService, Integer> countMap) {
+                                         Map<PureSvcDependency, MService> svcDepMap, Map<MService, Integer> countMap) {
         countMap.put(calledSvc, countMap.getOrDefault(calledSvc, 0) + calledCount);
         for (Integer svcDepHashCode : calledApi.getInvokeCountMap().keySet()) {
             Optional<BaseSvcDependency> depOpt = calledSvc.getDepByHashCode(svcDepHashCode);
             if (depOpt.isPresent()) {
-                MService targetSvc = svcDepMap.get(depOpt.get());
+                MService targetSvc = svcDepMap.get(depOpt.get().getDep());
                 Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(depOpt.get().getDep());
                 apiOpt.ifPresent(svcInterface -> _calcSvcUserCount(
                         targetSvc, svcInterface, calledCount * calledApi.getInvokeCountMap().get(svcDepHashCode), svcDepMap, countMap));
@@ -71,11 +71,11 @@ public class MappingSvcAlgos {
         }
     }
 
-    public static Map<BaseSvcDependency, MService> buildSvcTree(Set<MService> demandSvcSet) {
+    public static Map<PureSvcDependency, MService> buildSvcTree(Set<MService> demandSvcSet) {
         return _buildSvcTree(demandSvcSet, demandSvcSet);
     }
 
-    public static Map<BaseSvcDependency, MService> _buildSvcTree(Set<MService> solvedSvcSet, Set<MService> unsolvedSvcSet) {
+    public static Map<PureSvcDependency, MService> _buildSvcTree(Set<MService> solvedSvcSet, Set<MService> unsolvedSvcSet) {
         Set<BaseSvcDependency> depSet = new HashSet<>();
         for (MService svc : unsolvedSvcSet) {
             depSet.addAll(svc.allDepList());
@@ -86,14 +86,14 @@ public class MappingSvcAlgos {
         for (MService svc : svcList) {
             Set<BaseSvcDependency> tmpDepSet = new HashSet<>();
             for (BaseSvcDependency svcDependency : depSet) {
-                if (checkIfSvcMeetDep(svc, svcDependency)) {
+                if (checkIfSvcMeetDep(svc, svcDependency.getDep())) {
                     tmpDepSet.add(svcDependency);
                 }
             }
             metMap.put(svc, tmpDepSet);
         }
 
-        Map<BaseSvcDependency, MService> mapResult = new HashMap<>();
+        Map<PureSvcDependency, MService> mapResult = new HashMap<>();
         Set<MService> tmpSolvedSvcSet = new HashSet<>(solvedSvcSet);
         tmpSolvedSvcSet.addAll(unsolvedSvcSet);
         while (!depSet.isEmpty()) {
@@ -110,7 +110,7 @@ public class MappingSvcAlgos {
             MService targetSvc = targetSvcList.get(0);
 
             for (BaseSvcDependency svcDependency : metMap.get(targetSvc)) {
-                mapResult.put(svcDependency, targetSvc);
+                mapResult.put(svcDependency.getDep(), targetSvc);
                 depSet.remove(svcDependency);
             }
             for (Set<BaseSvcDependency> tmpSet : metMap.values()) {
@@ -123,8 +123,8 @@ public class MappingSvcAlgos {
         newUnsolvedSvcSet.removeAll(tmpSolvedSvcSet);
 
         if (!newUnsolvedSvcSet.isEmpty()) {
-            Map<BaseSvcDependency, MService> recursionResult = _buildSvcTree(tmpSolvedSvcSet, newUnsolvedSvcSet);
-            for (BaseSvcDependency svcDependency : recursionResult.keySet()) {
+            Map<PureSvcDependency, MService> recursionResult = _buildSvcTree(tmpSolvedSvcSet, newUnsolvedSvcSet);
+            for (PureSvcDependency svcDependency : recursionResult.keySet()) {
                 mapResult.put(svcDependency, recursionResult.get(svcDependency));
             }
         }
@@ -140,8 +140,7 @@ public class MappingSvcAlgos {
         for (MService svc : svcList) {
             Set<PureSvcDependency> meetDep = new HashSet<>();
             for (PureSvcDependency dep : depSet) {
-                BaseSvcDependency tmpDep = BaseSvcDependency.tranPure(dep);
-                if (checkIfSvcMeetDep(svc, tmpDep)) {
+                if (checkIfSvcMeetDep(svc, dep)) {
                     meetDep.add(dep);
                 }
             }
@@ -172,22 +171,22 @@ public class MappingSvcAlgos {
         return mapResult;
     }
 
-    public static boolean checkIfSvcMeetDep(MService svc, BaseSvcDependency svcDependency) {
-        svcDependency = svcDependency.toRealDependency();
-        if (svcDependency instanceof SvcFuncDependency) {
+    public static boolean checkIfSvcMeetDep(MService svc, PureSvcDependency svcDependency) {
+        BaseSvcDependency dep = BaseSvcDependency.tranPure(svcDependency);
+        if (dep instanceof SvcFuncDependency) {
             for (MSla sla : svcDependency.getSlaSet()) {
                 if (svc.ifSatisfied(svcDependency.getFunc(), sla)) {
                     return true;
                 }
             }
-        } else if (svcDependency instanceof SvcSlaDependency) {
+        } else if (dep instanceof SvcSlaDependency) {
             if (svc.getServiceName().equals(svcDependency.getServiceName())) {
                 Optional<MSvcInterface> apiOpt = svc.getInterfaceByPatternUrl(svcDependency.getPatternUrl());
                 if (apiOpt.isPresent() && svcDependency.getSlaSet().contains(apiOpt.get().getFuncDescription().getSla())) {
                     return true;
                 }
             }
-        } else if (svcDependency instanceof SvcVerDependency) {
+        } else if (dep instanceof SvcVerDependency) {
             if (svc.getServiceName().equals(svcDependency.getServiceName()) && svcDependency.getVersionSet().contains(svc.getServiceVersion())) {
                 return true;
             }

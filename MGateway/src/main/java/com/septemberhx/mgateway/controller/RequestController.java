@@ -40,17 +40,20 @@ public class RequestController {
     @PostMapping(path = MConfig.MGATEWAY_DEPENDENCY_CALL)
     @ResponseBody
     public MResponse dependencyRequest(@RequestBody MResponse requestBody, HttpServletRequest request) {
-        logger.info(String.format("Receive request from %s: %s", request.getRemoteAddr(), requestBody.toString()));
+        String userId = request.getHeader(MConfig.PARAM_USER_ID);
+        logger.info(String.format(
+                "Receive request from %s: %s with userId %s", request.getRemoteAddr(), requestBody.toString(), userId));
         Mvf4msDep dep = gson.fromJson(gson.toJson(requestBody.get(MConfig.MGATEWAY_DEPENDENCY_ID)), Mvf4msDep.class);
         BaseSvcDependency baseSvcDependency = BaseSvcDependency.tranConfig2Dependency(dep);
 
-        String userId = (String) requestBody.get(MConfig.MGATEWAY_CLIENT_ID);
-        if (userId != null) {
+        String clientId = request.getHeader(MConfig.PARAM_CLIENT_ID);
+        if (clientId != null) {
             MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency, requestBody, gatewayConfig.getNodeId());
             return MResponse.successResponse();
         } else {
+            // the ip of the client is used as the client id for calls between instances
             return this.gatewayRequest.solveInstDepRequest(
-                    request.getRemoteAddr(), baseSvcDependency, requestBody, request.getHeader(MConfig.PARAM_CALLED_URL));
+                    request.getRemoteAddr(), baseSvcDependency, requestBody, request.getHeader(MConfig.PARAM_CALLED_URL), userId);
         }
     }
 }

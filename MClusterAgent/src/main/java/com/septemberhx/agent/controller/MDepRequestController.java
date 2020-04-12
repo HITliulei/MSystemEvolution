@@ -8,6 +8,7 @@ import com.septemberhx.common.base.user.MUser;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.bean.agent.MAllUserBean;
+import com.septemberhx.common.bean.agent.MDepResetRoutingBean;
 import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
 import com.septemberhx.common.bean.mclient.MUpdateSysDataBean;
@@ -40,6 +41,14 @@ public class MDepRequestController {
 
     @Autowired
     private MAgentConfig agentConfig;
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MCLUSTER_DEP_ROUTING_RESET)
+    public MResponse resetRouting(@RequestBody MDepResetRoutingBean resetRoutingBean) {
+        MRoutingInfo.inst().resetRoutingMap(
+                resetRoutingBean.depMap(), resetRoutingBean.getServiceMap(), resetRoutingBean.getInstMap());
+        return MResponse.successResponse();
+    }
 
     @PostMapping(path = MConfig.MCLUSTER_DEP_REQUEST_ROUTING)
     @ResponseBody

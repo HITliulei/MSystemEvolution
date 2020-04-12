@@ -4,8 +4,10 @@ import com.septemberhx.common.base.MResource;
 import com.septemberhx.common.base.node.MServerNode;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInstance;
+import com.septemberhx.common.service.dependency.PureSvcDependency;
 import com.septemberhx.server.utils.MIDUtils;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -29,6 +31,9 @@ public class MDeployManager {
     private MSvcInstManager instManager;
     private MClusterManager clusterManager;
     private MSvcManager svcManager;
+
+    @Setter
+    private Map<String, Map<PureSvcDependency, String>> nodeDepSvcMap;
 
     public MDeployManager(MClusterManager clusterManager, MSvcManager svcManager) {
         this.instManager = new MSvcInstManager();

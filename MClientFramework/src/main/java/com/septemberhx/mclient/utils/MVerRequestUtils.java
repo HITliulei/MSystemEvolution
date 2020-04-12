@@ -26,13 +26,17 @@ public class MVerRequestUtils {
         parameters.set(MConfig.MGATEWAY_DEPENDENCY_ID, MClientSkeleton.inst().getDepListById(requestId).get(0));
         String calledUrl = request.getHeader(MConfig.PARAM_CALLED_URL);
         String callerUrl = request.getHeader(MConfig.PARAM_CALLER_URL);
+        String userId = request.getHeader(MConfig.PARAM_USER_ID);
         Map<String, List<String>> customHeaders = new HashMap<>();
         List<String> p1 = new ArrayList<>();
         p1.add(callerUrl);
         List<String> p2 = new ArrayList<>();
         p2.add(calledUrl);
+        List<String> p3 = new ArrayList<>();
+        p3.add(userId);
         customHeaders.put(MConfig.PARAM_CALLER_URL, p1);
         customHeaders.put(MConfig.PARAM_CALLED_URL, p2);
+        customHeaders.put(MConfig.PARAM_USER_ID, p3);
 
         // Get an online MGateway instance randomly, and send the request to it
         InstanceInfo gatewayInstance = MClientSkeleton.inst().getRandomServiceInstance(MConfig.MGATEWAY_NAME);

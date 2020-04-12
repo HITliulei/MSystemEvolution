@@ -70,8 +70,7 @@ public class MGatewayRequest {
      * Solve the request that is identified by the dependency from instances
      * It corresponds to RequestController#dependencyRequest
      */
-    public MResponse solveInstDepRequest(String instanceIp, BaseSvcDependency dependency, MResponse parameters, String calledUrl) {
-        String userId = (String) parameters.get(MConfig.PARAM_USER_ID);
+    public MResponse solveInstDepRequest(String instanceIp, BaseSvcDependency dependency, MResponse parameters, String calledUrl, String userId) {
         Optional<MRoutingBean> routingBeanOpt = MGatewayInfo.inst().getRouting(instanceIp, dependency, userId);
         MResponse response = MResponse.failResponse();
 
@@ -91,7 +90,7 @@ public class MGatewayRequest {
                             new MDepReplaceRequestBean(parameters, routingBeanOpt.get(), replaceOpt.get()),
                             MResponse.class,
                             RequestMethod.POST,
-                            createHeader(calledUrl, routingBeanOpt.get().getPatternUrl())
+                            createHeader(calledUrl, routingBeanOpt.get().getPatternUrl(), userId)
                     );
                 }
             } else {
@@ -100,7 +99,7 @@ public class MGatewayRequest {
                         parameters,
                         MResponse.class,
                         RequestMethod.POST,
-                        createHeader(calledUrl, routingBeanOpt.get().getPatternUrl())
+                        createHeader(calledUrl, routingBeanOpt.get().getPatternUrl(), userId)
                 );
             }
         } else {
@@ -136,7 +135,7 @@ public class MGatewayRequest {
                             new MDepReplaceRequestBean(parameters, routingBeanOpt.get(), replaceOpt.get()),
                             MResponse.class,
                             RequestMethod.POST,
-                            createHeader(null, routingBeanOpt.get().getPatternUrl())
+                            createHeader(null, routingBeanOpt.get().getPatternUrl(), userId)
                     );
                 }
             } else {
@@ -145,7 +144,7 @@ public class MGatewayRequest {
                         parameters,
                         MResponse.class,
                         RequestMethod.POST,
-                        createHeader(null, routingBeanOpt.get().getPatternUrl())
+                        createHeader(null, routingBeanOpt.get().getPatternUrl(), userId)
                 );
             }
 
@@ -164,14 +163,17 @@ public class MGatewayRequest {
         }
     }
 
-    public Map<String, List<String>> createHeader(String callerUrl, String calledUrl) {
+    public Map<String, List<String>> createHeader(String callerUrl, String calledUrl, String userId) {
         Map<String, List<String>> customHeaders = new HashMap<>();
         List<String> p1 = new ArrayList<>();
         p1.add(callerUrl);
         List<String> p2 = new ArrayList<>();
         p2.add(calledUrl);
+        List<String> p3 = new ArrayList<>();
+        p3.add(userId);
         customHeaders.put(MConfig.PARAM_CALLER_URL, p1);
         customHeaders.put(MConfig.PARAM_CALLED_URL, p2);
+        customHeaders.put(MConfig.PARAM_USER_ID, p3);
         return customHeaders;
     }
 }

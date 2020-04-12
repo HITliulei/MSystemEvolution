@@ -100,8 +100,9 @@ public class MDepAlgorithm {
             Map<String, Map<PureSvcDependency, Integer>> userDepMap, MSvcManager svcManager,
             MClusterManager clusterManager, String clusterId) {
 
-        Map<String, Pair<Map<MService, Integer>, Map<BaseSvcDependency, MService>>> nodeInfoList = new HashMap<>();
+        Map<String, Pair<Map<MService, Integer>, Map<PureSvcDependency, MService>>> nodeInfoList = new HashMap<>();
         MappingSvcAlgos.svcManager = svcManager;
+        Map<String, Map<PureSvcDependency, String>> nodeDepSvcMap = new HashMap<>();
 
         // calculate the svc set and how many users each service should serve at the same time window
         for (String nodeId : demandCountMap.keySet()) {
@@ -110,7 +111,7 @@ public class MDepAlgorithm {
                     demandCountMap.get(nodeId), demandCountMap.get(nodeId).keySet());
 
             // calculate the smallest service set with dependency
-            Map<BaseSvcDependency, MService> svcTree = MappingSvcAlgos.buildSvcTree(new HashSet<>(svcResult.values()));
+            Map<PureSvcDependency, MService> svcTree = MappingSvcAlgos.buildSvcTree(new HashSet<>(svcResult.values()));
 
             // calculate how many users each of the service set should serve at the same time
             Map<MService, Integer> svcUserCount = MappingSvcAlgos.calcSvcUserCount(
@@ -118,9 +119,17 @@ public class MDepAlgorithm {
 
             // record the info about one node
             nodeInfoList.put(nodeId, new Pair<>(svcUserCount, svcTree));
+
+            Map<PureSvcDependency, String> depSvcMap = new HashMap<>();
+            for (PureSvcDependency dep : svcTree.keySet()) {
+                depSvcMap.put(dep, svcTree.get(dep).getId());
+            }
+            nodeDepSvcMap.put(nodeId, depSvcMap);
         }
 
         // use the service set with dependency and the user count of each service to create the topology
-        return MDeployAlgos.calcDeployTopology(nodeInfoList, svcManager, clusterManager, clusterId);
+        MDeployManager deployManager = MDeployAlgos.calcDeployTopology(nodeInfoList, svcManager, clusterManager, clusterId);
+        deployManager.setNodeDepSvcMap(nodeDepSvcMap);
+        return deployManager;
     }
 }

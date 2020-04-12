@@ -2,6 +2,7 @@ package com.septemberhx.server.model;
 
 import com.septemberhx.common.base.node.MServerCluster;
 import com.septemberhx.common.bean.MResponse;
+import com.septemberhx.common.bean.agent.MDepResetRoutingBean;
 import com.septemberhx.common.bean.server.MUpdateCopyInstBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.MService;
@@ -56,6 +57,12 @@ public class MDeployExecutor {
     }
 
     public void execute() {
+        if (this.checkIfFinished()) {
+            MDepResetRoutingBean resetRoutingBean = new MDepResetRoutingBean();
+
+            return;
+        }
+
         if (this.currNodeId == null && this.nodeIdList.size() > 0) {
             this.currNodeId = nodeIdList.get(0);
             nodeIdList.remove(0);

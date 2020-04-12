@@ -3,6 +3,7 @@ package com.septemberhx.server.algorithm.dep;
 import com.septemberhx.common.base.node.MServerNode;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
+import com.septemberhx.common.service.dependency.PureSvcDependency;
 import com.septemberhx.server.model.MClusterManager;
 import com.septemberhx.server.model.MDeployManager;
 import com.septemberhx.server.model.MSvcManager;
@@ -20,7 +21,7 @@ public class MDeployAlgos {
 
 
     public static Map<MService, Integer> calcDeployTopologyOnOneNode(
-            Map<MService, Integer> svcUserCount, Map<BaseSvcDependency, MService> svcDepMap, String nodeId, MDeployManager deployManager) {
+            Map<MService, Integer> svcUserCount, Map<PureSvcDependency, MService> svcDepMap, String nodeId, MDeployManager deployManager) {
         Map<MService, Double> svcScore = new HashMap<>();
         List<MService> svcList = new ArrayList<>();
         Map<MService, Integer> svcInstSize = new HashMap<>();
@@ -68,7 +69,7 @@ public class MDeployAlgos {
      *              }
      */
     public static MDeployManager calcDeployTopology(
-            Map<String, Pair<Map<MService, Integer>, Map<BaseSvcDependency, MService>>> nodeInfoList,
+            Map<String, Pair<Map<MService, Integer>, Map<PureSvcDependency, MService>>> nodeInfoList,
             MSvcManager svcManager, MClusterManager clusterManager, String clusterId) {
         MDeployManager deployManager = new MDeployManager(clusterManager, svcManager);
 
