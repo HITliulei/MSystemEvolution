@@ -57,7 +57,7 @@ public class MDepRequestController {
         Optional<MRoutingBean> routingOpt = MRoutingInfo.inst().getRoutingFromRecord(
                 routingBean.getClientId(), routingBean.getUserId(), routingBean.getDependency());
         if (!routingOpt.isPresent()) {
-            routingOpt = MRoutingInfo.inst().findNewRoutingBean(routingBean.getDependency());
+            routingOpt = MRoutingInfo.inst().findNewRoutingBean(routingBean.getDependency(), routingBean.getGatewayNodeId());
             routingOpt.ifPresent(mRoutingBean -> MRoutingInfo.inst().recordRouting(
                     routingBean.getClientId(),
                     routingBean.getCallerPatternUrl(),

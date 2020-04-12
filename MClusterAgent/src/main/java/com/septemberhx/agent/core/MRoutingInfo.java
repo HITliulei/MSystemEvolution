@@ -22,9 +22,9 @@ public class MRoutingInfo {
 
     /*
      * Routing guideline. It tells the system what service should be used to satisfy each kind of dep
-     * Map[ dep, service id ]
+     * Map[ nodeId, [dep, service id ]]
      */
-    private Map<PureSvcDependency, String> pureRoutingMap;
+    private Map<String, Map<PureSvcDependency, String>> pureRoutingMap;
 
     @Setter
     private Map<String, MService> svcMap;
@@ -49,7 +49,7 @@ public class MRoutingInfo {
      */
     private Map<String, Map<String, Map<BaseSvcDependency, MRoutingBean>>> routingTable;
 
-    public void resetRoutingMap(Map<PureSvcDependency, String> rMap, Map<String, MService> svcMap, Map<String, MSvcInstance> svcInstanceMap) {
+    public void resetRoutingMap(Map<String, Map<PureSvcDependency, String>> rMap, Map<String, MService> svcMap, Map<String, MSvcInstance> svcInstanceMap) {
         this.usedPlot.clear();
         this.routingTable.clear();
         this.pureRoutingMap = rMap;
@@ -109,13 +109,13 @@ public class MRoutingInfo {
         }
     }
 
-    public Optional<MRoutingBean> findNewRoutingBean(BaseSvcDependency dep) {
-        MService targetSvc = svcMap.get(this.pureRoutingMap.get(dep.getDep()));
+    public Optional<MRoutingBean> findNewRoutingBean(BaseSvcDependency dep, String nodeId) {
+        MService targetSvc = svcMap.get(this.pureRoutingMap.get(nodeId).get(dep.getDep()));
         if (targetSvc != null) {
             Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(dep.getDep());
             if (apiOpt.isPresent()) {
                 for (MSvcInstance inst : svcInstanceMap.values()) {
-                    if (inst.getServiceId().equals(this.pureRoutingMap.get(dep.getDep()))) {
+                    if (inst.getServiceId().equals(this.pureRoutingMap.get(nodeId).get(dep.getDep()))) {
                         if (checkInstHasAvailablePlot(inst.getId(), apiOpt.get().getInvokeCountMap().get(dep.hashCode()))) {
                             return Optional.of(new MRoutingBean(
                                     inst.getIp(),

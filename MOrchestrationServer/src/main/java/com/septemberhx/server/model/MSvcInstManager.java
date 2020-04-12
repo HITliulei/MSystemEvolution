@@ -35,6 +35,11 @@ public class MSvcInstManager extends MUniqueObjectManager<MSvcInstance> {
                 .filter(s -> s.getNodeId().equals(nodeId)).collect(Collectors.toList());
     }
 
+    public List<MSvcInstance> getInstanceByClusterId(String clusterId) {
+        return this.objectMap.values().stream()
+                .filter(s -> s.getClusterId().equals(clusterId)).collect(Collectors.toList());
+    }
+
     public Map<String, Map<String, Integer>> getSvcInstMap() {
         Map<String, Map<String, Integer>> resultInstMap = new HashMap<>();
         for (MSvcInstance svcInstance : this.getAllValues()) {

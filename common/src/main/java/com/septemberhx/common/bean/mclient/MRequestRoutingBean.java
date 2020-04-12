@@ -18,11 +18,13 @@ public class MRequestRoutingBean {
     private String userId;
     private BaseSvcDependency dependency;
     private String callerPatternUrl;
+    private String gatewayNodeId;
 
-    public MRequestRoutingBean(String clientId, String userId, BaseSvcDependency dependency) {
+    public MRequestRoutingBean(String clientId, String userId, BaseSvcDependency dependency, String gatewayNodeId) {
         this.clientId = clientId;
         this.userId = userId;
         this.dependency = dependency;
+        this.gatewayNodeId = gatewayNodeId;
     }
 
     public MRequestRoutingBean() {

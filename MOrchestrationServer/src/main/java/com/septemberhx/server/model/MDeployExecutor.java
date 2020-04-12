@@ -47,6 +47,7 @@ public class MDeployExecutor {
     private List<MSvcInstance> removedInstList = new ArrayList<>();
 
     private Random random = new Random(1000000);
+    private MDeployManager deployManager;
     private static Logger logger = LogManager.getLogger(MDeployExecutor.class);
 
     public MDeployExecutor(MDeployManager deployManager, MSystemModel currModel, String clusterId) {
@@ -54,12 +55,28 @@ public class MDeployExecutor {
         this.diffMap = MDeployAlgos.diff(deployManager, currModel);
         this.nodeIdList = new ArrayList<>(this.diffMap.keySet());
         this.clusterId = clusterId;
+        this.deployManager = deployManager;
     }
 
     public void execute() {
         if (this.checkIfFinished()) {
             MDepResetRoutingBean resetRoutingBean = new MDepResetRoutingBean();
+            Map<String, MSvcInstance> instMap = new HashMap<>();
+            for (MSvcInstance instance : this.currModel.getInstanceManager().getInstanceByClusterId(this.clusterId)) {
+                instMap.put(instance.getIp(), instance);
+            }
+            resetRoutingBean.setInstMap(instMap);
 
+            Map<String, MService> svcMap = new HashMap<>();
+            for (MService svc : this.currModel.getServiceManager().getAllValues()) {
+                svcMap.put(svc.getId(), svc);
+            }
+            resetRoutingBean.setServiceMap(svcMap);
+            resetRoutingBean.putValues(this.deployManager.getNodeDepSvcMap());
+
+            Pair<String, Integer> agentInfo = this.getClusterAgentInfo(this.clusterId);
+            URI uri = MUrlUtils.getRemoteUri(agentInfo.getValue0(), agentInfo.getValue1(), MConfig.MCLUSTER_DEP_ROUTING_RESET);
+            MRequestUtils.sendRequest(uri, resetRoutingBean, null, RequestMethod.POST);
             return;
         }
 
