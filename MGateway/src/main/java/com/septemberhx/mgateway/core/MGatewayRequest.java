@@ -148,6 +148,9 @@ public class MGatewayRequest {
                 );
             }
 
+            logger.info(String.format("Routing request from %s of user %s with dep %s to %s:%d%s",
+                    userId, userId, dependency.getId(), routingBeanOpt.get().getIpAddr(),
+                    routingBeanOpt.get().getPort(), routingBeanOpt.get().getPatternUrl()));
             try {
                 URI uri = new URI((String) parameters.get(MConfig.MGATEWAY_CALL_BACK_URL_ID));
                 MRequestUtils.sendRequest(uri, response, null, RequestMethod.POST);

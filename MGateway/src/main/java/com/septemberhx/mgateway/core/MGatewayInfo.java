@@ -24,7 +24,7 @@ public class MGatewayInfo {
 
     // hold the requests from clients
     // at the beginning of each time window
-    private PriorityBlockingQueue<MDepRequestCacheBean> requestQueue;
+    private final PriorityBlockingQueue<MDepRequestCacheBean> requestQueue;
 
     private PriorityBlockingQueue<MDepRequestCacheBean> userRequestRecordQueue;
 
@@ -51,8 +51,17 @@ public class MGatewayInfo {
 
     private static final long MAX_RECORD_TIME_IN_MILLS = TimeUnit.HOURS.toMillis(1);
 
-    public List<MDepRequestCacheBean> faildRequests() {
+    public List<MDepRequestCacheBean> failedRequests() {
         return new ArrayList<>(cannotSatisfiedRequestQueue);
+    }
+
+    public void retryFailedRequests() {
+        synchronized (this.requestQueue) {
+            while (!this.cannotSatisfiedRequestQueue.isEmpty()) {
+                MDepRequestCacheBean cacheBean = this.cannotSatisfiedRequestQueue.poll();
+                this.requestQueue.add(cacheBean);
+            }
+        }
     }
 
     public void recordUserDepRequest(MDepRequestCacheBean cacheBean) {

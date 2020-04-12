@@ -30,6 +30,8 @@ public class MSvcInstance extends MUniqueObject {
     private Set<String> mObjectIdSet;           // For the possible future works. Not used for now
     private Map<String, String> parentIdMap;    // For the possible future works. Not used for now
 
+    public MSvcInstance() {}
+
     public MSvcInstance(Map<String, String> parentIdMap, String clusterId, String nodeId, String ip, Integer port,
                         String instanceId, Set<String> mObjectIdSet, String serviceName, String serviceId, String registryId, String version) {
         this.parentIdMap = parentIdMap;
