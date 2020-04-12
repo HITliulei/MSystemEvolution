@@ -59,7 +59,7 @@ public class MappingSvcAlgos {
 
     public static void _calcSvcUserCount(MService calledSvc, MSvcInterface calledApi, int calledCount,
                                          Map<BaseSvcDependency, MService> svcDepMap, Map<MService, Integer> countMap) {
-        countMap.put(calledSvc, countMap.get(calledSvc) + calledCount);
+        countMap.put(calledSvc, countMap.getOrDefault(calledSvc, 0) + calledCount);
         for (Integer svcDepHashCode : calledApi.getInvokeCountMap().keySet()) {
             Optional<BaseSvcDependency> depOpt = calledSvc.getDepByHashCode(svcDepHashCode);
             if (depOpt.isPresent()) {
