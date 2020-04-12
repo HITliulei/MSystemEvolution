@@ -93,21 +93,6 @@ public class MDepAlgorithm {
     }
 
     /*
-     * Main part of the evolution algorithm. Greedy algorithm will be used to help find the solution
-     *
-     * todo: check whether the unmet demand sets should be concerned since the predictor can detect part of them
-     */
-    public static void evolve(MPredictBean nextDemands, Map<String, List<MDepRequestCacheBean>> unMetDemandsOnEachNode, String clusterId) {
-        Map<String, Map<PureSvcDependency, Integer>> demandCountMap = new HashMap<>();
-        Map<String, Map<PureSvcDependency, Integer>> userDepMap = new HashMap<>();
-        for (String nodeId : unMetDemandsOnEachNode.keySet()) {
-            // todo: extract the result from the predicted values
-        }
-        MDeployManager deployTopology = getSuggestedTopology(
-                demandCountMap, userDepMap, MServerSkeleton.getCurrSvcManager(), MServerSkeleton.getCurrNodeManager(), clusterId);
-    }
-
-    /*
      * Get the deploy topology of next few time windows, including what instances should be deployed on each node
      */
     public static MDeployManager getSuggestedTopology(

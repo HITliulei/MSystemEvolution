@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -13,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
  * @version 0.1
  * @date 2020/3/3
  */
+@EnableConfigurationProperties
+@ConfigurationProperties(prefix = "mvf4ms.gateway")
 @Configuration
 @Getter
 @Setter
@@ -21,4 +25,6 @@ public class MGatewayConfig {
     @Qualifier("eurekaClient")
     @Autowired
     private EurekaClient discoveryClient;
+
+    private String nodeId;
 }

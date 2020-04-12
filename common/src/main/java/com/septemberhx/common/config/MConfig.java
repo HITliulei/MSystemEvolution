@@ -74,6 +74,7 @@ public class MConfig {
     public final static String MCLUSTER_UPDATE_SYS_DATA_URI = "/magent/updating";
     public final static String MCLUSTER_REPLACE_CALL = "/magent/replaceCall";
     public final static String MCLUSTER_UPDATE_COPY_MAP = "/magent/updateReplace";
+    public final static String MCLUSTER_FETCH_DEP_REQUEST = "/magent/fetchDepRequests";
 
     public final static String MGATEWAY_NAME = "MGateway";
     public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";

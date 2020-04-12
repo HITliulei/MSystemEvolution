@@ -30,13 +30,18 @@ public class MDepRequestCacheBean implements Comparable<MDepRequestCacheBean> {
      */
     private long timestamp;
 
+    private String nodeId;
+
     private MResponse parameters;
 
-    public MDepRequestCacheBean(BaseSvcDependency baseSvcDependency, String clientId, long timestamp, MResponse parameters) {
+    public MDepRequestCacheBean() { }
+
+    public MDepRequestCacheBean(BaseSvcDependency baseSvcDependency, String clientId, long timestamp, MResponse parameters, String nodeId) {
         this.baseSvcDependency = baseSvcDependency;
         this.clientId = clientId;
         this.timestamp = timestamp;
         this.parameters = parameters;
+        this.nodeId = nodeId;
     }
 
     @Override

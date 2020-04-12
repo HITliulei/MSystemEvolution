@@ -2,10 +2,12 @@ package com.septemberhx.server.model;
 
 import com.septemberhx.common.base.MUniqueObjectManager;
 import com.septemberhx.common.service.MSvcInstance;
+import lombok.ToString;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@ToString
 public class MSvcInstManager extends MUniqueObjectManager<MSvcInstance> {
 
     public Map<String, List<MSvcInstance>> getInstancesGroupByClusterId() {

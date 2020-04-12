@@ -27,7 +27,7 @@ public class MDemandPredAlgoTest extends TestCase {
         slaSet.add(new MSla(1));
         svcDependency.setSlaSet(slaSet);
         MDepRequestCacheBean bean1 = new MDepRequestCacheBean(
-                svcDependency, "user-01", 0, MResponse.successResponse()
+                svcDependency, "user-01", 0, MResponse.successResponse(), "node1"
         );
         beanList.add(bean1);
 
@@ -39,7 +39,7 @@ public class MDemandPredAlgoTest extends TestCase {
         slaSet1.add(new MSla(1));
         svcDependency1.setSlaSet(slaSet1);
         MDepRequestCacheBean bean2 = new MDepRequestCacheBean(
-                svcDependency1, "user-01", 0, MResponse.successResponse()
+                svcDependency1, "user-01", 0, MResponse.successResponse(), "node1"
         );
         beanList.add(bean2);
 
@@ -51,7 +51,7 @@ public class MDemandPredAlgoTest extends TestCase {
         slaSet2.add(new MSla(1));
         svcDependency2.setSlaSet(slaSet2);
         MDepRequestCacheBean bean3 = new MDepRequestCacheBean(
-                svcDependency2, "user-01", 1, MResponse.successResponse()
+                svcDependency2, "user-01", 1, MResponse.successResponse(), "node1"
         );
         beanList.add(bean3);
 
@@ -72,7 +72,7 @@ public class MDemandPredAlgoTest extends TestCase {
         slaSet.add(new MSla(1));
         svcDependency.setSlaSet(slaSet);
         MDepRequestCacheBean bean1 = new MDepRequestCacheBean(
-                svcDependency, "user-01", 0, MResponse.successResponse()
+                svcDependency, "user-01", 0, MResponse.successResponse(), "node1"
         );
         beanList.add(bean1);
 
@@ -84,7 +84,7 @@ public class MDemandPredAlgoTest extends TestCase {
         slaSet1.add(new MSla(1));
         svcDependency1.setSlaSet(slaSet1);
         MDepRequestCacheBean bean2 = new MDepRequestCacheBean(
-                svcDependency1, "user-01", 4, MResponse.successResponse()
+                svcDependency1, "user-01", 4, MResponse.successResponse(), "node1"
         );
         beanList.add(bean2);
 
@@ -96,7 +96,7 @@ public class MDemandPredAlgoTest extends TestCase {
         slaSet2.add(new MSla(1));
         svcDependency2.setSlaSet(slaSet2);
         MDepRequestCacheBean bean3 = new MDepRequestCacheBean(
-                svcDependency2, "user-01", 7, MResponse.successResponse()
+                svcDependency2, "user-01", 7, MResponse.successResponse(), "node1"
         );
         beanList.add(bean3);
 

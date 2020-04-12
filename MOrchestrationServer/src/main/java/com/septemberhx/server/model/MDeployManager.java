@@ -6,6 +6,7 @@ import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.server.utils.MIDUtils;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Map;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import java.util.Optional;
  * @date 2020/3/18
  */
 @Getter
+@ToString
 public class MDeployManager {
     private MSvcInstManager instManager;
     private MClusterManager clusterManager;

@@ -7,6 +7,7 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.config.Mvf4msDep;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
+import com.septemberhx.mgateway.config.MGatewayConfig;
 import com.septemberhx.mgateway.core.MGatewayInfo;
 import com.septemberhx.mgateway.core.MGatewayRequest;
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +31,9 @@ public class RequestController {
     @Autowired
     private MGatewayRequest gatewayRequest;
 
+    @Autowired
+    private MGatewayConfig gatewayConfig;
+
     private static final Logger logger = LogManager.getLogger(RequestController.class);
     private Gson gson = new GsonBuilder().create();
 
@@ -42,7 +46,7 @@ public class RequestController {
 
         String userId = (String) requestBody.get(MConfig.MGATEWAY_CLIENT_ID);
         if (userId != null) {
-            MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency, requestBody);
+            MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency, requestBody, gatewayConfig.getNodeId());
             return MResponse.successResponse();
         } else {
             return this.gatewayRequest.solveInstDepRequest(
