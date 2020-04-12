@@ -9,6 +9,8 @@ import com.septemberhx.common.utils.CommonUtils;
 import com.septemberhx.server.model.MSvcManager;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 
@@ -20,6 +22,7 @@ import java.util.*;
 public class MappingSvcAlgos {
 
     public static MSvcManager svcManager;
+    private static Logger logger = LogManager.getLogger(MappingSvcAlgos.class);
 
     @Getter
     @Setter
@@ -149,16 +152,22 @@ public class MappingSvcAlgos {
         while (!depSet.isEmpty()) {
             List<MService> targetSvcList = new ArrayList<>(metMap.keySet());
             targetSvcList.sort(Comparator.comparingInt(v -> metMap.get(v).stream().mapToInt(depCount::get).sum()));
-            MService targetSvc = targetSvcList.get(targetSvcList.size() - 1);
+            if (targetSvcList.size() > 0) {
+                MService targetSvc = targetSvcList.get(targetSvcList.size() - 1);
 
-            for (PureSvcDependency svcDependency : metMap.get(targetSvc)) {
-                mapResult.put(svcDependency, targetSvc);
-                depSet.remove(svcDependency);
+                for (PureSvcDependency svcDependency : metMap.get(targetSvc)) {
+                    mapResult.put(svcDependency, targetSvc);
+                    depSet.remove(svcDependency);
+                }
+                for (Set<PureSvcDependency> tmpSet : metMap.values()) {
+                    tmpSet.removeAll(metMap.get(targetSvc));
+                }
+                metMap.remove(targetSvc);
+            } else {
+                logger.warn("All the services can not satisfy the left dependencies");
+                logger.warn(String.format("There are %d dependencies can not be met", depSet.size()));
+                break;
             }
-            for (Set<PureSvcDependency> tmpSet : metMap.values()) {
-                tmpSet.removeAll(metMap.get(targetSvc));
-            }
-            metMap.remove(targetSvc);
         }
         return mapResult;
     }
