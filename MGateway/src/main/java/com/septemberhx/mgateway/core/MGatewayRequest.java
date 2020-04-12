@@ -59,7 +59,9 @@ public class MGatewayRequest {
              URI uri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTERAGENT_REQUEST_REMOTE_URI);
              MRoutingBean result = MRequestUtils.sendRequest(
                      uri, new MRequestRoutingBean(clientId, userId, dep), MRoutingBean.class, RequestMethod.POST);
-             return Optional.of(result);
+             if (result.getIpAddr() != null) {
+                 return Optional.of(result);
+             }
          }
          return Optional.empty();
      }

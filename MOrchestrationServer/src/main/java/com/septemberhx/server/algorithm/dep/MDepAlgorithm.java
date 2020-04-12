@@ -101,6 +101,7 @@ public class MDepAlgorithm {
             MClusterManager clusterManager, String clusterId) {
 
         Map<String, Pair<Map<MService, Integer>, Map<BaseSvcDependency, MService>>> nodeInfoList = new HashMap<>();
+        MappingSvcAlgos.svcManager = svcManager;
 
         // calculate the svc set and how many users each service should serve at the same time window
         for (String nodeId : demandCountMap.keySet()) {
