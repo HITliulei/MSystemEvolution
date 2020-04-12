@@ -64,8 +64,8 @@ public class MConfig {
     public final static String MSERVER_CLUSTER_REPORT_INSTANCEINFO = "/cluster/reportInstanceInfo";
     public final static String MSERVER_CLUSTER_REGISTER = "/cluster/registerCluster";
     public final static String MSERVER_NEW_DEP_REQUEST = "/request/newDepRequest";
-    public final static String MSERVER_REPLACE_CALL = "request/replaceCall";
-    public final static String MSERVER_JOB_NOTIFY_URI = "/mserver/job/notify";
+    public final static String MSERVER_REPLACE_CALL = "/request/replaceCall";
+    public final static String MSERVER_JOB_NOTIFY_URI = "/job/notify";
 
     public final static String MCLUSTER_SVC_METADATA_NAME = "mclient";
     public final static String MCLUSTER_SVC_METADATA_VALUE = "true";

@@ -149,8 +149,13 @@ public class MDeployExecutor {
             }
 
             this.nodeJobState = null;
+            this.currNodeId = null;
             this.execute();
         }
+    }
+
+    public boolean checkIfFinished() {
+        return this.nodeIdList.isEmpty() && this.currNodeId == null;
     }
 
     public boolean notifyCopyInsts() {
