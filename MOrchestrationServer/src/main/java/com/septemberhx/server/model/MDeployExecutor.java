@@ -72,7 +72,8 @@ public class MDeployExecutor {
                 svcMap.put(svc.getId(), svc);
             }
             resetRoutingBean.setServiceMap(svcMap);
-            resetRoutingBean.putValues(this.deployManager.getNodeDepSvcMap());
+            resetRoutingBean.putInstValues(this.deployManager.getNodeDepSvcMap());
+            resetRoutingBean.putUserValues(this.deployManager.getNodeUserDepSvcMap());
 
             Pair<String, Integer> agentInfo = this.getClusterAgentInfo(this.clusterId);
             URI uri = MUrlUtils.getRemoteUri(agentInfo.getValue0(), agentInfo.getValue1(), MConfig.MCLUSTER_DEP_ROUTING_RESET);

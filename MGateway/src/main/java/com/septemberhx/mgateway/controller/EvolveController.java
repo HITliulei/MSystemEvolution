@@ -42,6 +42,8 @@ public class EvolveController {
         ));
     }
 
+    @ResponseBody
+    @PostMapping(path = MConfig.MGATEWAY_RETRY_FAILED_REQUESTS)
     public MResponse retryFailedRequests() {
         MGatewayInfo.inst().retryFailedRequests();
         return MResponse.successResponse();

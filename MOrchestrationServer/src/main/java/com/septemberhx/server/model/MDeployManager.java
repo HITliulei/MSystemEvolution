@@ -35,6 +35,9 @@ public class MDeployManager {
     @Setter
     private Map<String, Map<PureSvcDependency, String>> nodeDepSvcMap;
 
+    @Setter
+    private Map<String, Map<PureSvcDependency, String>> nodeUserDepSvcMap;
+
     public MDeployManager(MClusterManager clusterManager, MSvcManager svcManager) {
         this.instManager = new MSvcInstManager();
         this.svcManager = svcManager;

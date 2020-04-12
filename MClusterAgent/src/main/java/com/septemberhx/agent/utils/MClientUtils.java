@@ -174,12 +174,17 @@ public class MClientUtils {
         if (!dockerManager.checkIfDockerRunning(instanceInfo.getIPAddr())) {
             return instanceInfoBean;
         }
-        MClientInfoBean response = MRequestUtils.sendRequest(
-                MUrlUtils.getMClusterAgentFetchClientInfoUri(instanceInfo.getIPAddr(), instancePort),
-                null,
-                MClientInfoBean.class,
-                RequestMethod.GET
-        );
+        MClientInfoBean response = null;
+        try {
+            response = MRequestUtils.sendRequest(
+                    MUrlUtils.getMClusterAgentFetchClientInfoUri(instanceInfo.getIPAddr(), instancePort),
+                    null,
+                    MClientInfoBean.class,
+                    RequestMethod.GET
+            );
+        } catch (Exception e) {
+            return instanceInfoBean;
+        }
 
         if (response == null) {
             return instanceInfoBean;

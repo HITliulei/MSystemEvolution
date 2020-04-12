@@ -102,7 +102,8 @@ public class MDepAlgorithm {
 
         Map<String, Pair<Map<MService, Integer>, Map<PureSvcDependency, MService>>> nodeInfoList = new HashMap<>();
         MappingSvcAlgos.svcManager = svcManager;
-        Map<String, Map<PureSvcDependency, String>> nodeDepSvcMap = new HashMap<>();
+        Map<String, Map<PureSvcDependency, String>> nodeInstDepSvcMap = new HashMap<>();
+        Map<String, Map<PureSvcDependency, String>> nodeUserDepSvcMap = new HashMap<>();
 
         // calculate the svc set and how many users each service should serve at the same time window
         for (String nodeId : demandCountMap.keySet()) {
@@ -124,12 +125,18 @@ public class MDepAlgorithm {
             for (PureSvcDependency dep : svcTree.keySet()) {
                 depSvcMap.put(dep, svcTree.get(dep).getId());
             }
-            nodeDepSvcMap.put(nodeId, depSvcMap);
+            Map<PureSvcDependency, String> userDepSvcMap = new HashMap<>();
+            for (PureSvcDependency dep : svcResult.keySet()) {
+                userDepSvcMap.put(dep, svcResult.get(dep).getId());
+            }
+            nodeInstDepSvcMap.put(nodeId, depSvcMap);
+            nodeUserDepSvcMap.put(nodeId, userDepSvcMap);
         }
 
         // use the service set with dependency and the user count of each service to create the topology
         MDeployManager deployManager = MDeployAlgos.calcDeployTopology(nodeInfoList, svcManager, clusterManager, clusterId);
-        deployManager.setNodeDepSvcMap(nodeDepSvcMap);
+        deployManager.setNodeDepSvcMap(nodeInstDepSvcMap);
+        deployManager.setNodeUserDepSvcMap(nodeUserDepSvcMap);
         return deployManager;
     }
 }

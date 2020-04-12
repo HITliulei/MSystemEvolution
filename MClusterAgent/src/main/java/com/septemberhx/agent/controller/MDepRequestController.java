@@ -4,10 +4,8 @@ import com.netflix.appinfo.InstanceInfo;
 import com.septemberhx.agent.config.MAgentConfig;
 import com.septemberhx.agent.core.MRoutingInfo;
 import com.septemberhx.agent.utils.MClientUtils;
-import com.septemberhx.common.base.user.MUser;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
-import com.septemberhx.common.bean.agent.MAllUserBean;
 import com.septemberhx.common.bean.agent.MDepResetRoutingBean;
 import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
@@ -46,7 +44,7 @@ public class MDepRequestController {
     @PostMapping(path = MConfig.MCLUSTER_DEP_ROUTING_RESET)
     public MResponse resetRouting(@RequestBody MDepResetRoutingBean resetRoutingBean) {
         MRoutingInfo.inst().resetRoutingMap(
-                resetRoutingBean.depMap(), resetRoutingBean.getServiceMap(), resetRoutingBean.getInstMap());
+                resetRoutingBean.instDepMap(), resetRoutingBean.userDepMap(), resetRoutingBean.getServiceMap(), resetRoutingBean.getInstMap());
         return MResponse.successResponse();
     }
 
@@ -57,7 +55,7 @@ public class MDepRequestController {
         Optional<MRoutingBean> routingOpt = MRoutingInfo.inst().getRoutingFromRecord(
                 routingBean.getClientId(), routingBean.getUserId(), routingBean.getDependency());
         if (!routingOpt.isPresent()) {
-            routingOpt = MRoutingInfo.inst().findNewRoutingBean(routingBean.getDependency(), routingBean.getGatewayNodeId());
+            routingOpt = MRoutingInfo.inst().findNewRoutingBean(routingBean.getDependency(), routingBean.getGatewayNodeId(), routingBean.getClientId().toLowerCase().startsWith("user"));
             routingOpt.ifPresent(mRoutingBean -> MRoutingInfo.inst().recordRouting(
                     routingBean.getClientId(),
                     routingBean.getCallerPatternUrl(),

@@ -24,7 +24,8 @@ public class MRoutingInfo {
      * Routing guideline. It tells the system what service should be used to satisfy each kind of dep
      * Map[ nodeId, [dep, service id ]]
      */
-    private Map<String, Map<PureSvcDependency, String>> pureRoutingMap;
+    private Map<String, Map<PureSvcDependency, String>> pureInstRoutingMap;
+    private Map<String, Map<PureSvcDependency, String>> pureUserRoutingMap;
 
     @Setter
     private Map<String, MService> svcMap;
@@ -49,10 +50,11 @@ public class MRoutingInfo {
      */
     private Map<String, Map<String, Map<BaseSvcDependency, MRoutingBean>>> routingTable;
 
-    public void resetRoutingMap(Map<String, Map<PureSvcDependency, String>> rMap, Map<String, MService> svcMap, Map<String, MSvcInstance> svcInstanceMap) {
+    public void resetRoutingMap(Map<String, Map<PureSvcDependency, String>> rMap, Map<String, Map<PureSvcDependency, String>> uMap, Map<String, MService> svcMap, Map<String, MSvcInstance> svcInstanceMap) {
         this.usedPlot.clear();
         this.routingTable.clear();
-        this.pureRoutingMap = rMap;
+        this.pureInstRoutingMap = rMap;
+        this.pureUserRoutingMap = uMap;
         this.svcMap = svcMap;
         this.svcInstanceMap = svcInstanceMap;
     }
@@ -109,14 +111,19 @@ public class MRoutingInfo {
         }
     }
 
-    public Optional<MRoutingBean> findNewRoutingBean(BaseSvcDependency dep, String nodeId) {
-        if (this.pureRoutingMap.containsKey(nodeId) && this.pureRoutingMap.get(nodeId).containsKey(dep.getDep())) {
-            MService targetSvc = svcMap.get(this.pureRoutingMap.get(nodeId).get(dep.getDep()));
+    public Optional<MRoutingBean> findNewRoutingBean(BaseSvcDependency dep, String nodeId, boolean ifUser) {
+        Map<String, Map<PureSvcDependency, String>> routingMap = this.pureInstRoutingMap;
+        if (ifUser) {
+            routingMap = this.pureUserRoutingMap;
+        }
+
+        if (routingMap.containsKey(nodeId) && routingMap.get(nodeId).containsKey(dep.getDep())) {
+            MService targetSvc = svcMap.get(routingMap.get(nodeId).get(dep.getDep()));
             if (targetSvc != null) {
                 Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(dep.getDep());
                 if (apiOpt.isPresent()) {
                     for (MSvcInstance inst : svcInstanceMap.values()) {
-                        if (inst.getServiceId().equals(this.pureRoutingMap.get(nodeId).get(dep.getDep()))) {
+                        if (inst.getServiceId().equals(routingMap.get(nodeId).get(dep.getDep()))) {
                             if (checkInstHasAvailablePlot(inst.getId(), apiOpt.get().getInvokeCountMap().get(dep.hashCode()))) {
                                 return Optional.of(new MRoutingBean(
                                         inst.getIp(),
@@ -163,7 +170,8 @@ public class MRoutingInfo {
     private MRoutingInfo() {
         // for thread safety
         this.routingTable = new ConcurrentHashMap();
-        this.pureRoutingMap = new ConcurrentHashMap<>();
+        this.pureInstRoutingMap = new ConcurrentHashMap<>();
+        this.pureUserRoutingMap = new ConcurrentHashMap<>();
         this.usedPlot = new ConcurrentHashMap<>();
     }
 
