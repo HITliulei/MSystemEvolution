@@ -3,6 +3,7 @@ package com.septemberhx.server.controller;
 import com.septemberhx.common.bean.MTimeIntervalBean;
 import com.septemberhx.server.adaptation.MDepAdaptation;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MTestController {
 
     @PostMapping(value = "/depEvolve")
-    public void depEvolveTest(MTimeIntervalBean intervalBean) {
+    public void depEvolveTest(@RequestBody MTimeIntervalBean intervalBean) {
         MDepAdaptation adaptation = new MDepAdaptation();
         adaptation.evolve(intervalBean);
     }
