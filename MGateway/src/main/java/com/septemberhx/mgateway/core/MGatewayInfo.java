@@ -51,6 +51,9 @@ public class MGatewayInfo {
 
     private static final long MAX_RECORD_TIME_IN_MILLS = TimeUnit.HOURS.toMillis(1);
 
+    public List<MDepRequestCacheBean> faildRequests() {
+        return new ArrayList<>(cannotSatisfiedRequestQueue);
+    }
 
     public void recordUserDepRequest(MDepRequestCacheBean cacheBean) {
         this.userRequestRecordQueue.add(cacheBean);

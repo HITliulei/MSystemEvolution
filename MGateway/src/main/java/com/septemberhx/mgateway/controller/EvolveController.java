@@ -68,4 +68,10 @@ public class EvolveController {
         MGatewayInfo.inst().setReplaceMap(instBean.getCopyMap());
         return MResponse.successResponse();
     }
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MGATEWAY_FAILED_REQUESTS)
+    public List<MDepRequestCacheBean> failedRequests() {
+        return MGatewayInfo.inst().faildRequests();
+    }
 }

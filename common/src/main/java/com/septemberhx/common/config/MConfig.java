@@ -85,6 +85,7 @@ public class MConfig {
     public final static String MGATEWAY_FETCH_REQUESTS = "/evolve/requests";
     public final static String MGATEWAY_FETCH_REQUEST_NUMBER = "/evolve/requestNum";
     public final static String MGATEWAY_UPDATE_COPY_MAP = "/evolve/updateReplace";
+    public final static String MGATEWAY_FAILED_REQUESTS = "/evolve/failedRequests";
     public final static String MGATEWAY_CALL_BACK_URL_ID = "__call_back_url";
 
     public final static String MDPREDICTOR_PREDICT = "/predict";

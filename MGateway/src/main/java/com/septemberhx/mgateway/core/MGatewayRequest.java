@@ -56,7 +56,7 @@ public class MGatewayRequest {
      public Optional<MRoutingBean> askClusterAgentForRoutingBean(String clientId, BaseSvcDependency dep, String userId) {
          InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
          if (agentInfo != null) {
-             URI uri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTERAGENT_REQUEST_REMOTE_URI);
+             URI uri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_DEP_REQUEST_ROUTING);
              MRoutingBean result = MRequestUtils.sendRequest(
                      uri, new MRequestRoutingBean(clientId, userId, dep, gatewayConfig.getNodeId()), MRoutingBean.class, RequestMethod.POST);
              if (result.getIpAddr() != null) {
