@@ -173,7 +173,7 @@ public class MDeployExecutor {
     public String deployInstanceOnCloud(String cloudNodeId, String serviceId, String podId) {
         Optional<MService> svcOpt = this.currModel.getServiceManager().getById(serviceId);
         if (svcOpt.isPresent()) {
-            MDeployJob deployJob = new MDeployJob(cloudNodeId, serviceId, podId, svcOpt.get().getImageUrl());
+            MDeployJob deployJob = new MDeployJob(cloudNodeId, svcOpt.get().getServiceName(), podId, svcOpt.get().getImageUrl());
             Pair<String, Integer> agentInfo = this.getCloudAgentInfo();
             if (agentInfo != null) {
                 URI uri = MUrlUtils.getMClientAgentDeployUri(agentInfo.getValue0(), agentInfo.getValue1());
@@ -198,7 +198,7 @@ public class MDeployExecutor {
     public String deployInstanceOnCluster(String clusterId, String clusterNodeId, String serviceId, String podId) {
         Optional<MService> svcOpt = this.currModel.getServiceManager().getById(serviceId);
         if (svcOpt.isPresent()) {
-            MDeployJob deployJob = new MDeployJob(clusterNodeId, serviceId, podId, svcOpt.get().getImageUrl());
+            MDeployJob deployJob = new MDeployJob(clusterNodeId, svcOpt.get().getServiceName(), podId, svcOpt.get().getImageUrl());
             Pair<String, Integer> agentInfo = this.getClusterAgentInfo(clusterId);
             if (agentInfo != null) {
                 URI uri = MUrlUtils.getMClientAgentDeployUri(agentInfo.getValue0(), agentInfo.getValue1());
