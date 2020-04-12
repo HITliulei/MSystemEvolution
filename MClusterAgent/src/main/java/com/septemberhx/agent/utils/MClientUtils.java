@@ -167,6 +167,13 @@ public class MClientUtils {
 
         instanceInfoBean.setPort(instancePort);
 
+        instanceInfoBean.setClusterId(this.agentConfig.getCluster().getName());
+        instanceInfoBean.setServiceName(instanceInfo.getAppName());
+        instanceInfoBean.setVersion(instanceInfo.getMetadata().get(MConfig.MCLUSTER_SVC_VER_NAME));
+
+        if (!dockerManager.checkIfDockerRunning(instanceInfo.getIPAddr())) {
+            return instanceInfoBean;
+        }
         MClientInfoBean response = MRequestUtils.sendRequest(
                 MUrlUtils.getMClusterAgentFetchClientInfoUri(instanceInfo.getIPAddr(), instancePort),
                 null,
@@ -181,14 +188,6 @@ public class MClientUtils {
         instanceInfoBean.setParentIdMap(response.getParentIdMap());
         instanceInfoBean.setApiMap(response.getApiMap());
         instanceInfoBean.setMObjectIdMap(response.getMObjectIdSet());
-
-        instanceInfoBean.setClusterId(this.agentConfig.getCluster().getName());
-        instanceInfoBean.setServiceName(instanceInfo.getAppName());
-        instanceInfoBean.setVersion(instanceInfo.getMetadata().get(MConfig.MCLUSTER_SVC_VER_NAME));
-
-        if (!dockerManager.checkIfDockerRunning(instanceInfo.getIPAddr())) {
-            return instanceInfoBean;
-        }
         instanceInfoBean.setDockerInfo(dockerManager.getDockerInfoByIpAddr(instanceInfo.getIPAddr()));
 
         return instanceInfoBean;
