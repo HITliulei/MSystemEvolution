@@ -110,18 +110,20 @@ public class MRoutingInfo {
     }
 
     public Optional<MRoutingBean> findNewRoutingBean(BaseSvcDependency dep, String nodeId) {
-        MService targetSvc = svcMap.get(this.pureRoutingMap.get(nodeId).get(dep.getDep()));
-        if (targetSvc != null) {
-            Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(dep.getDep());
-            if (apiOpt.isPresent()) {
-                for (MSvcInstance inst : svcInstanceMap.values()) {
-                    if (inst.getServiceId().equals(this.pureRoutingMap.get(nodeId).get(dep.getDep()))) {
-                        if (checkInstHasAvailablePlot(inst.getId(), apiOpt.get().getInvokeCountMap().get(dep.hashCode()))) {
-                            return Optional.of(new MRoutingBean(
-                                    inst.getIp(),
-                                    inst.getPort(),
-                                    apiOpt.get().getPatternUrl()
-                            ));
+        if (this.pureRoutingMap.containsKey(nodeId) && this.pureRoutingMap.get(nodeId).containsKey(dep.getDep())) {
+            MService targetSvc = svcMap.get(this.pureRoutingMap.get(nodeId).get(dep.getDep()));
+            if (targetSvc != null) {
+                Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(dep.getDep());
+                if (apiOpt.isPresent()) {
+                    for (MSvcInstance inst : svcInstanceMap.values()) {
+                        if (inst.getServiceId().equals(this.pureRoutingMap.get(nodeId).get(dep.getDep()))) {
+                            if (checkInstHasAvailablePlot(inst.getId(), apiOpt.get().getInvokeCountMap().get(dep.hashCode()))) {
+                                return Optional.of(new MRoutingBean(
+                                        inst.getIp(),
+                                        inst.getPort(),
+                                        apiOpt.get().getPatternUrl()
+                                ));
+                            }
                         }
                     }
                 }
