@@ -41,12 +41,13 @@ public class MSla {
                 '}';
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        MSla mSla = (MSla) o;
-        return level == mSla.level;
+        MSla sla = (MSla) o;
+        return level == sla.level;
     }
 
     @Override
