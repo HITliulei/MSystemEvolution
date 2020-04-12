@@ -17,6 +17,9 @@ import java.util.Map;
 public class MUpdateCopyInstBean {
     private Map<String, String> copyMap;
 
+    public MUpdateCopyInstBean() {
+    }
+
     public MUpdateCopyInstBean(Map<String, String> copyMap) {
         this.copyMap = copyMap;
     }

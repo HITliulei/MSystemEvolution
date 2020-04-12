@@ -12,6 +12,8 @@ import com.septemberhx.server.algorithm.dep.MDeployAlgos;
 import com.septemberhx.server.job.MDeleteJob;
 import com.septemberhx.server.job.MDeployJob;
 import com.septemberhx.server.utils.MIDUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.javatuples.Pair;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -44,6 +46,7 @@ public class MDeployExecutor {
     private List<MSvcInstance> removedInstList = new ArrayList<>();
 
     private Random random = new Random(1000000);
+    private static Logger logger = LogManager.getLogger(MDeployExecutor.class);
 
     public MDeployExecutor(MDeployManager deployManager, MSystemModel currModel, String clusterId) {
         this.currModel = currModel;
@@ -168,15 +171,24 @@ public class MDeployExecutor {
      * return job id
      */
     public String deployInstanceOnCloud(String cloudNodeId, String serviceId, String podId) {
-        MDeployJob deployJob = new MDeployJob(cloudNodeId, serviceId, podId);
-        Pair<String, Integer> agentInfo = this.getCloudAgentInfo();
-        if (agentInfo != null) {
-            URI uri = MUrlUtils.getMClientAgentDeployUri(agentInfo.getValue0(), agentInfo.getValue1());
-            if (uri != null) {
-                MRequestUtils.sendRequest(uri, deployJob.toMDeployPodRequest(), null, RequestMethod.POST);
+        Optional<MService> svcOpt = this.currModel.getServiceManager().getById(serviceId);
+        if (svcOpt.isPresent()) {
+            MDeployJob deployJob = new MDeployJob(cloudNodeId, serviceId, podId, svcOpt.get().getImageUrl());
+            Pair<String, Integer> agentInfo = this.getCloudAgentInfo();
+            if (agentInfo != null) {
+                URI uri = MUrlUtils.getMClientAgentDeployUri(agentInfo.getValue0(), agentInfo.getValue1());
+                if (uri != null) {
+                    MRequestUtils.sendRequest(uri, deployJob.toMDeployPodRequest(), null, RequestMethod.POST);
+                }
             }
+            return deployJob.getId();
+        } else {
+            logger.error(String.format(
+                    "The system tries to deploy a instance of %s to node %s, but the service %s doesn't exist",
+                    serviceId, cloudNodeId, serviceId
+            ));
+            return null;
         }
-        return deployJob.getId();
     }
 
     /*
@@ -184,15 +196,24 @@ public class MDeployExecutor {
      * return job id
      */
     public String deployInstanceOnCluster(String clusterId, String clusterNodeId, String serviceId, String podId) {
-        MDeployJob deployJob = new MDeployJob(clusterNodeId, serviceId, podId);
-        Pair<String, Integer> agentInfo = this.getClusterAgentInfo(clusterId);
-        if (agentInfo != null) {
-            URI uri = MUrlUtils.getMClientAgentDeployUri(agentInfo.getValue0(), agentInfo.getValue1());
-            if (uri != null) {
-                MRequestUtils.sendRequest(uri, deployJob.toMDeployPodRequest(), null, RequestMethod.POST);
+        Optional<MService> svcOpt = this.currModel.getServiceManager().getById(serviceId);
+        if (svcOpt.isPresent()) {
+            MDeployJob deployJob = new MDeployJob(clusterNodeId, serviceId, podId, svcOpt.get().getImageUrl());
+            Pair<String, Integer> agentInfo = this.getClusterAgentInfo(clusterId);
+            if (agentInfo != null) {
+                URI uri = MUrlUtils.getMClientAgentDeployUri(agentInfo.getValue0(), agentInfo.getValue1());
+                if (uri != null) {
+                    MRequestUtils.sendRequest(uri, deployJob.toMDeployPodRequest(), null, RequestMethod.POST);
+                }
             }
+            return deployJob.getId();
+        } else {
+            logger.error(String.format(
+                    "The system tries to deploy a instance of %s to node %s, but the service %s doesn't exist",
+                    serviceId, clusterNodeId, serviceId
+            ));
+            return null;
         }
-        return deployJob.getId();
     }
 
     public String deleteInstanceOnCluster(String clusterId, String nodeId, String svcId, String podId) {
