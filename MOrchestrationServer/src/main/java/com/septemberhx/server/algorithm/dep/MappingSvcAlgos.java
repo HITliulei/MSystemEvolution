@@ -90,7 +90,9 @@ public class MappingSvcAlgos {
                     tmpDepSet.add(svcDependency);
                 }
             }
-            metMap.put(svc, tmpDepSet);
+            if (!tmpDepSet.isEmpty()) {
+                metMap.put(svc, tmpDepSet);
+            }
         }
 
         Map<PureSvcDependency, MService> mapResult = new HashMap<>();
@@ -180,14 +182,15 @@ public class MappingSvcAlgos {
                 }
             }
         } else if (dep instanceof SvcSlaDependency) {
-            if (svc.getServiceName().equals(svcDependency.getServiceName())) {
+            if (svc.getServiceName().toLowerCase().equals(svcDependency.getServiceName().toLowerCase())) {
                 Optional<MSvcInterface> apiOpt = svc.getInterfaceByPatternUrl(svcDependency.getPatternUrl());
                 if (apiOpt.isPresent() && svcDependency.getSlaSet().contains(apiOpt.get().getFuncDescription().getSla())) {
                     return true;
                 }
             }
         } else if (dep instanceof SvcVerDependency) {
-            if (svc.getServiceName().equals(svcDependency.getServiceName()) && svcDependency.getVersionSet().contains(svc.getServiceVersion())) {
+            if (svc.getServiceName().toLowerCase().equals(svcDependency.getServiceName().toLowerCase())
+                    && svcDependency.getVersionSet().contains(svc.getServiceVersion())) {
                 return true;
             }
         }
