@@ -52,7 +52,7 @@ public class PureSvcDependency {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         PureSvcDependency that = (PureSvcDependency) o;
-        return Objects.equals(func, that.func) &&
+        return func.equals(that.func) &&
                 Objects.equals(serviceName, that.serviceName) &&
                 equalsForSet(slaSet, that.slaSet) &&
                 Objects.equals(patternUrl, that.patternUrl) &&
