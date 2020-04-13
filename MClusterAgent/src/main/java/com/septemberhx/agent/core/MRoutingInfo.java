@@ -136,7 +136,7 @@ public class MRoutingInfo {
                 if (apiOpt.isPresent()) {
                     for (MSvcInstance inst : svcInstanceMap.values()) {
                         if (inst.getServiceId().equals(routingMap.get(nodeId).get(dep.getDep()))) {
-                            if (checkInstHasAvailablePlot(inst.getId(), 1)) {
+                            if (checkInstHasAvailablePlot(inst.getIp(), coe)) {
                                 return Optional.of(new MRoutingBean(
                                         inst.getIp(),
                                         inst.getPort(),
@@ -151,12 +151,12 @@ public class MRoutingInfo {
         return Optional.empty();
     }
 
-    public boolean checkInstHasAvailablePlot(String instanceId, int plotNum) {
-        MSvcInstance svcInstance = this.svcInstanceMap.get(instanceId);
+    public boolean checkInstHasAvailablePlot(String instanceIp, int plotNum) {
+        MSvcInstance svcInstance = this.svcInstanceMap.get(instanceIp);
         if (svcInstance != null) {
             MService service = this.svcMap.get(svcInstance.getServiceId());
             if (service != null) {
-                if (this.getUsedPlotNum(instanceId) + plotNum >= service.getMaxPlotNum()) {
+                if (this.getUsedPlotNum(instanceIp) + plotNum >= service.getMaxPlotNum()) {
                     return false;
                 }
                 return true;
@@ -167,12 +167,12 @@ public class MRoutingInfo {
         return false;
     }
 
-    public int getUsedPlotNum(String instanceId) {
+    public int getUsedPlotNum(String instanceIp) {
         int totalNum = 0;
-        if (this.usedPlot.containsKey(instanceId)) {
-            for (String apiUrl : this.usedPlot.get(instanceId).keySet()) {
-                for (String userId : this.usedPlot.get(instanceId).get(apiUrl).keySet()) {
-                    totalNum += this.usedPlot.get(instanceId).get(apiUrl).get(userId);
+        if (this.usedPlot.containsKey(instanceIp)) {
+            for (String apiUrl : this.usedPlot.get(instanceIp).keySet()) {
+                for (String userId : this.usedPlot.get(instanceIp).get(apiUrl).keySet()) {
+                    totalNum += this.usedPlot.get(instanceIp).get(apiUrl).get(userId);
                 }
             }
         }
