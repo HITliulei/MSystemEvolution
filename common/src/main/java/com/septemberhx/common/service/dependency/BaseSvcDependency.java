@@ -62,6 +62,8 @@ public class BaseSvcDependency {
 
         if (depConfig.getFunction() != null) {
             pureSvcDependency.func = new MFunc(depConfig.getFunction());
+        } else {
+            pureSvcDependency.func = null;
         }
 
         if (depConfig.getSlas() != null) {
