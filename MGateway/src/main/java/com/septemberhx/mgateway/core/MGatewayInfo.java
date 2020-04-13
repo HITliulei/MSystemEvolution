@@ -146,6 +146,10 @@ public class MGatewayInfo {
     }
 
     public Optional<String> getReplacement(String instanceIp) {
-        return Optional.of(this.replaceMap.get(instanceIp));
+        if (this.replaceMap.containsKey(instanceIp)) {
+            return Optional.of(this.replaceMap.get(instanceIp));
+        } else {
+            return Optional.empty();
+        }
     }
 }
