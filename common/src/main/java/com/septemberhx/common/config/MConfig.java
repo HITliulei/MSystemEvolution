@@ -88,6 +88,7 @@ public class MConfig {
     public final static String MGATEWAY_FAILED_REQUESTS = "/evolve/failedRequests";
     public final static String MGATEWAY_CALL_BACK_URL_ID = "__call_back_url";
     public static final String MGATEWAY_RETRY_FAILED_REQUESTS = "/evolve/retryFailed";
+    public static final String MGATEWAY_RESET_CACHE = "/evolve/resetCache";
 
     public final static String MDPREDICTOR_PREDICT = "/predict";
 

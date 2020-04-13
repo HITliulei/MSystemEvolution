@@ -29,8 +29,10 @@ public class EvolveController {
     @Autowired
     private MGatewayConfig gatewayConfig;
 
-    public MResponse updateRoutingTable() {
-        // todo
+    @ResponseBody
+    @PostMapping(path = MConfig.MGATEWAY_RESET_CACHE)
+    public MResponse clearCache() {
+        MGatewayInfo.inst().resetCache();
         return MResponse.successResponse();
     }
 

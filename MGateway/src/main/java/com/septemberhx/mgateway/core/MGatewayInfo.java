@@ -55,6 +55,10 @@ public class MGatewayInfo {
         return new ArrayList<>(cannotSatisfiedRequestQueue);
     }
 
+    public void resetCache() {
+        this.routingCache.clear();
+    }
+
     public void retryFailedRequests() {
         synchronized (this.requestQueue) {
             while (!this.cannotSatisfiedRequestQueue.isEmpty()) {

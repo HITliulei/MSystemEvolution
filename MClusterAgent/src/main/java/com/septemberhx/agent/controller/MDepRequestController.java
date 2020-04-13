@@ -6,6 +6,7 @@ import com.septemberhx.agent.core.MRoutingInfo;
 import com.septemberhx.agent.utils.MClientUtils;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
+import com.septemberhx.common.bean.agent.MAllUserBean;
 import com.septemberhx.common.bean.agent.MDepResetRoutingBean;
 import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
@@ -45,6 +46,12 @@ public class MDepRequestController {
     public MResponse resetRouting(@RequestBody MDepResetRoutingBean resetRoutingBean) {
         MRoutingInfo.inst().resetRoutingMap(
                 resetRoutingBean.instDepMap(), resetRoutingBean.userDepMap(), resetRoutingBean.getServiceMap(), resetRoutingBean.getInstMap());
+
+        for (InstanceInfo info : this.clientUtils.getAllGatewayInstance()) {
+            URI uri = MUrlUtils.getRemoteUri(info.getIPAddr(), info.getPort(), MConfig.MGATEWAY_RESET_CACHE);
+            MRequestUtils.sendRequest(uri, null, null, RequestMethod.POST);
+        }
+
         return MResponse.successResponse();
     }
 
