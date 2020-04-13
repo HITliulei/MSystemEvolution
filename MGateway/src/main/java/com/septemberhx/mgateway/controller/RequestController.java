@@ -41,11 +41,10 @@ public class RequestController {
     @ResponseBody
     public MResponse dependencyRequest(@RequestBody MResponse requestBody, HttpServletRequest request) {
         String userId = request.getHeader(MConfig.PARAM_USER_ID);
-        logger.info(String.format(
-                "Receive request from %s: %s with userId %s", request.getRemoteAddr(), requestBody.toString(), userId));
         Mvf4msDep dep = gson.fromJson(gson.toJson(requestBody.get(MConfig.MGATEWAY_DEPENDENCY_ID)), Mvf4msDep.class);
         BaseSvcDependency baseSvcDependency = BaseSvcDependency.tranConfig2Dependency(dep);
-
+        logger.info(String.format(
+                "Receive request from %s: %s with userId %s", request.getRemoteAddr(), baseSvcDependency.toString(), userId));
         String clientId = request.getHeader(MConfig.PARAM_CLIENT_ID);
         if (clientId != null) {
             MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency, requestBody, gatewayConfig.getNodeId());
