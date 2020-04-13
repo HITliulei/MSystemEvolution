@@ -135,7 +135,7 @@ public class MSvcManager extends MUniqueObjectManager<MService> {
         if (svcDependency instanceof SvcVerDependency) {
             Optional<MService> serviceOpt = this.getById(svcInterface.getServiceId());
             if (serviceOpt.isPresent()) {
-                if (svcInterface.getServiceId().startsWith(svcDependency.getServiceName())
+                if (svcInterface.getServiceId().toLowerCase().startsWith(svcDependency.getServiceName().toLowerCase())
                         && svcInterface.getPatternUrl().equals(svcDependency.getPatternUrl())
                         && svcDependency.getVersionSet().contains(serviceOpt.get().getServiceVersion())) {
                     return true;
@@ -143,7 +143,7 @@ public class MSvcManager extends MUniqueObjectManager<MService> {
 
                 for (MSvcVersion svcVersion : svcDependency.getVersionSet()) {
                     Optional<MSvcInterface> svcInterfaceOpt = this.getInterface(
-                            svcDependency.getServiceName(), svcVersion, svcDependency.getPatternUrl());
+                            svcDependency.getServiceName().toLowerCase(), svcVersion, svcDependency.getPatternUrl());
                     if (svcInterfaceOpt.isPresent() && this.checkIfCompatible(svcInterface, svcInterfaceOpt.get())) {
                         return true;
                     }
@@ -151,7 +151,7 @@ public class MSvcManager extends MUniqueObjectManager<MService> {
 
             }
         } else if (svcDependency instanceof SvcSlaDependency) {
-            return svcInterface.getServiceId().startsWith(svcDependency.getServiceName())
+            return svcInterface.getServiceId().toLowerCase().startsWith(svcDependency.getServiceName().toLowerCase())
                     && svcInterface.getPatternUrl().equals(svcDependency.getPatternUrl())
                     && svcDependency.getSlaSet().contains(svcInterface.getFuncDescription().getSla());
         } else if (svcDependency instanceof SvcFuncDependency) {

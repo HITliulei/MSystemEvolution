@@ -78,6 +78,7 @@ public class MServiceController {
         for (MService service : serviceList) {
             // step 2, save all the services to the model and database
             service.setId(service.getServiceName().toLowerCase()+"-"+service.getServiceVersion().toString());
+            service.setServiceName(service.getServiceName().toLowerCase());
             for (MSvcInterface serviceInterface : service.getServiceInterfaceMap().values()) {
                 serviceInterface.setId(MIDUtils.uniqueInterfaceId(service.getServiceName(), serviceInterface.getFunctionName()));
                 serviceInterface.setServiceId(service.getId());

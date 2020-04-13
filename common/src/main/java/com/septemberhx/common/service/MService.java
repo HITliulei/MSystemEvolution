@@ -76,12 +76,12 @@ public class MService extends MUniqueObject {
         for (MSvcInterface api : this.serviceInterfaceMap.values()) {
             if (dep instanceof SvcVerDependency) {
                 if (dep.getVersionSet().contains(this.serviceVersion)
-                        && dep.getServiceName().equals(this.serviceName)
+                        && dep.getServiceName().toLowerCase().equals(this.serviceName.toLowerCase())
                         && dep.getPatternUrl().equals(api.getPatternUrl())) {
                     return Optional.of(api);
                 }
             } else if (dep instanceof SvcSlaDependency) {
-                if (dep.getServiceName().equals(this.serviceName)
+                if (dep.getServiceName().toLowerCase().equals(this.serviceName.toLowerCase())
                         && dep.getPatternUrl().equals(api.getPatternUrl())
                         && dep.getSlaSet().contains(api.getFuncDescription().getSla())) {
                     return Optional.of(api);
