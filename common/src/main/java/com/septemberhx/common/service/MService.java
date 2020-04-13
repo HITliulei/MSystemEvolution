@@ -62,6 +62,15 @@ public class MService extends MUniqueObject {
         return Optional.empty();
     }
 
+    public Optional<BaseSvcDependency> getDepById(String id) {
+        for (BaseSvcDependency svcDependency : this.allDepList()) {
+            if (svcDependency.getId().equals(id)) {
+                return Optional.of(svcDependency);
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<MSvcInterface> getInterfaceByDep(PureSvcDependency svcDependency) {
         BaseSvcDependency dep = BaseSvcDependency.tranPure(svcDependency);
         for (MSvcInterface api : this.serviceInterfaceMap.values()) {

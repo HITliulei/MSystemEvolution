@@ -12,6 +12,8 @@ import com.septemberhx.common.bean.server.MServiceCompareBean;
 import com.septemberhx.common.bean.server.MServiceRegisterBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.MService;
+import com.septemberhx.common.service.MSvcInterface;
+import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import com.septemberhx.common.service.diff.MServiceDiff;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,9 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,9 +53,27 @@ public class MOperation {
             List<MService> serviceList = new ArrayList<>();
             for (Map.Entry<String, MPathInfo> entry : map.entrySet()) {
                 MService service = GetServiceInfo.getMservice(entry.getKey(), entry.getValue());
+                String verStr = service.getServiceVersion().toString();
                 service.setServiceName(mServiceRegisterBean.getServiceName());
-                service.setMaxPlotNum(mServiceRegisterBean.getPlotMap().get(service.getServiceVersion().toString()));
-                service.setResource(mServiceRegisterBean.getResMap().get(service.getServiceVersion().toString()));
+                service.setMaxPlotNum(mServiceRegisterBean.getPlotMap().get(verStr));
+                service.setResource(mServiceRegisterBean.getResMap().get(verStr));
+
+                for (MSvcInterface svcInterface : service.getServiceInterfaceMap().values()) {
+                    if (mServiceRegisterBean.getInvokeMap().containsKey(verStr) &&
+                        mServiceRegisterBean.getInvokeMap().get(verStr).containsKey(svcInterface.getPatternUrl())) {
+                        Map<Integer, Integer> countMap = new HashMap<>();
+                        for (String depId : mServiceRegisterBean.getInvokeMap().get(verStr).get(svcInterface.getPatternUrl()).keySet()) {
+                            Optional<BaseSvcDependency> depOpt = service.getDepById(depId);
+                            if (depOpt.isPresent()) {
+                                countMap.put(
+                                        depOpt.get().hashCode(),
+                                        mServiceRegisterBean.getInvokeMap().get(verStr).get(svcInterface.getPatternUrl()).get(depId)
+                                );
+                            }
+                        }
+                        svcInterface.setInvokeCountMap(countMap);
+                    }
+                }
                 serviceList.add(service);
                 logger.info(service.toString());
             }

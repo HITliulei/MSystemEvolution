@@ -18,4 +18,5 @@ public class MServiceRegisterBean {
     private String gitUrl;
     private Map<String, MResource> resMap;
     private Map<String, Integer> plotMap;
+    private Map<String, Map<String, Map<String, Integer>>> invokeMap;
 }

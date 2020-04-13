@@ -111,10 +111,22 @@ public class MRoutingInfo {
         }
     }
 
-    public Optional<MRoutingBean> findNewRoutingBean(BaseSvcDependency dep, String nodeId, boolean ifUser) {
+    public Optional<MRoutingBean> findNewRoutingBean(BaseSvcDependency dep, String nodeId, String clientId, String callerPatternUrl) {
         Map<String, Map<PureSvcDependency, String>> routingMap = this.pureInstRoutingMap;
-        if (ifUser) {
+        Integer coe = 1;
+        if (clientId.toLowerCase().startsWith("user")) {
             routingMap = this.pureUserRoutingMap;
+            coe = 1;
+        } else {
+            for (MSvcInstance inst : this.svcInstanceMap.values()) {
+                if (inst.getIp().equals(clientId)) {
+                    MService svc = svcMap.get(inst.getServiceId());
+                    Optional<MSvcInterface> svcInterfaceOpt = svc.getInterfaceByPatternUrl(callerPatternUrl);
+                    if (svcInterfaceOpt.isPresent()) {
+                        coe = svcInterfaceOpt.get().getInvokeCountMap().get(dep.hashCode());
+                    }
+                }
+            }
         }
 
         if (routingMap.containsKey(nodeId) && routingMap.get(nodeId).containsKey(dep.getDep())) {
@@ -124,7 +136,7 @@ public class MRoutingInfo {
                 if (apiOpt.isPresent()) {
                     for (MSvcInstance inst : svcInstanceMap.values()) {
                         if (inst.getServiceId().equals(routingMap.get(nodeId).get(dep.getDep()))) {
-                            if (checkInstHasAvailablePlot(inst.getId(), apiOpt.get().getInvokeCountMap().get(dep.hashCode()))) {
+                            if (checkInstHasAvailablePlot(inst.getId(), 1)) {
                                 return Optional.of(new MRoutingBean(
                                         inst.getIp(),
                                         inst.getPort(),
