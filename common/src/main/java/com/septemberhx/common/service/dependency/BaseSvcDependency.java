@@ -57,9 +57,12 @@ public class BaseSvcDependency {
         BaseSvcDependency dependency = new BaseSvcDependency();
         PureSvcDependency pureSvcDependency = new PureSvcDependency();
         dependency.id = depConfig.getId();
-        pureSvcDependency.func = new MFunc(depConfig.getFunction());
         pureSvcDependency.serviceName = depConfig.getServiceName();
         pureSvcDependency.patternUrl = depConfig.getPatternUrl();
+
+        if (depConfig.getFunction() != null) {
+            pureSvcDependency.func = new MFunc(depConfig.getFunction());
+        }
 
         if (depConfig.getSlas() != null) {
             pureSvcDependency.slaSet = new HashSet<>();

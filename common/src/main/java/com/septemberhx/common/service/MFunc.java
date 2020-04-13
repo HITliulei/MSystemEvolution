@@ -41,9 +41,13 @@ public class MFunc {
                 '}';
     }
 
-    public boolean equals(MFunc o) {
+
+    @Override
+    public boolean equals(Object o) {
         if (this == o) return true;
-        return Objects.equals(functionName, o.functionName);
+        if (o == null || getClass() != o.getClass()) return false;
+        MFunc mFunc = (MFunc) o;
+        return Objects.equals(functionName, mFunc.functionName);
     }
 
     @Override
