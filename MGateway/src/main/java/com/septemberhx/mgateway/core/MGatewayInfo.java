@@ -100,8 +100,8 @@ public class MGatewayInfo {
         return this.requestQueue.take();
     }
 
-    public void addRequestInQueue(String userId, BaseSvcDependency dependency, MResponse parameters, String nodeId) {
-        this.requestQueue.offer(new MDepRequestCacheBean(dependency, userId, DateTime.now().getMillis(), parameters, nodeId));
+    public void addRequestInQueue(String userId, BaseSvcDependency dependency, MResponse parameters, String nodeId, String simulationIdd) {
+        this.requestQueue.offer(new MDepRequestCacheBean(dependency, userId, DateTime.now().getMillis(), parameters, nodeId, simulationIdd));
     }
 
 
