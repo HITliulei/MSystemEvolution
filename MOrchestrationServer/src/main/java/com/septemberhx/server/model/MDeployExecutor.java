@@ -62,7 +62,7 @@ public class MDeployExecutor implements MDeployExecutorInterface {
         if (this.checkIfFinished()) {
             MDepResetRoutingBean resetRoutingBean = new MDepResetRoutingBean();
             Map<String, MSvcInstance> instMap = new HashMap<>();
-            for (MSvcInstance instance : this.currModel.getInstanceManager().getInstanceByClusterId(this.clusterId)) {
+            for (MSvcInstance instance : this.currModel.getInstanceManager().getAllValues()) {
                 instMap.put(instance.getIp(), instance);
             }
             resetRoutingBean.setInstMap(instMap);

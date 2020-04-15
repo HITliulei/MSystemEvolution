@@ -50,6 +50,9 @@ public class MServerSkeleton {
     public void syncInstanceInfo(MInstanceInfoBean instanceInfo) {
         String nodeId = null;
         if (instanceInfo.getDockerInfo() != null) {
+            if (instanceInfo.getDockerInfo().getHostIp() == null) {
+                instanceInfo.getDockerInfo().setHostIp("60.205.188.102");
+            }
             MServerNode node = MServerSkeleton.getCurrNodeManager().getByIp(
                     instanceInfo.getClusterId(), instanceInfo.getDockerInfo().getHostIp());
             if (node != null) {

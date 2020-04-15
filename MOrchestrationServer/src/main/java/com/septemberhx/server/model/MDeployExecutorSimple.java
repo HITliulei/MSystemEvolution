@@ -114,7 +114,7 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
             {
                 MDepResetRoutingBean resetRoutingBean = new MDepResetRoutingBean();
                 Map<String, MSvcInstance> instMap = new HashMap<>();
-                for (MSvcInstance instance : this.currModel.getInstanceManager().getInstanceByClusterId(this.clusterId)) {
+                for (MSvcInstance instance : this.currModel.getInstanceManager().getAllValues()) {
                     if (!this.deletedInstIdSet.contains(instance.getId())) {
                         instMap.put(instance.getIp(), instance);
                     }
