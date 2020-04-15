@@ -48,7 +48,7 @@ public class RequestController {
         String clientId = request.getHeader(MConfig.PARAM_CLIENT_ID);
         if (clientId != null) {
             MGatewayInfo.inst().addRequestInQueue(userId, baseSvcDependency, requestBody, gatewayConfig.getNodeId(),
-                    (String) requestBody.get(MConfig.MGATEWAY_SIMULATION_ID));
+                    (String) requestBody.get(MConfig.MGATEWAY_SIMULATION_ID), (String) requestBody.get(MConfig.MGATEWAY_CALL_BACK_URL_ID));
             return MResponse.successResponse();
         } else {
             // the ip of the client is used as the client id for calls between instances

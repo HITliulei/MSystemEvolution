@@ -196,7 +196,7 @@ public class MGatewayRequest {
                     userId, userId, dependency.getId(), routingBeanOpt.get().getIpAddr(),
                     routingBeanOpt.get().getPort(), routingBeanOpt.get().getPatternUrl()));
             try {
-                URI uri = new URI((String) parameters.get(MConfig.MGATEWAY_CALL_BACK_URL_ID));
+                URI uri = new URI(requestCacheBean.getCallbackUrl());
                 response.set(MConfig.MGATEWAY_SIMULATION_ID, requestCacheBean.getSimulationId());
                 MRequestUtils.sendRequest(uri, response, null, RequestMethod.POST);
             } catch (Exception e) {
