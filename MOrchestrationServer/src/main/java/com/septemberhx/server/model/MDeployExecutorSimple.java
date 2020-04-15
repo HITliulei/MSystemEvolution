@@ -78,7 +78,7 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
                             svcAddMap.put(svcId, diffMap.get(currNodeId).get(svcId));
                         } else if (diffMap.get(currNodeId).get(svcId) < 0) {
                             List<MSvcInstance> svcInstanceList =
-                                    this.currModel.getInstanceManager().getInstanceByNodeId(currNodeId);
+                                    this.currModel.getInstanceManager().getInstByNodeIdAndSvcId(currNodeId, svcId);
                             Collections.shuffle(svcInstanceList, this.random);
                             for (int i = 0; i < Math.abs(diffMap.get(currNodeId).get(svcId)); ++i) {
                                 this.deletedInstMap.get(currNodeId).add(svcInstanceList.get(i));

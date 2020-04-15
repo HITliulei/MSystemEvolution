@@ -133,8 +133,10 @@ public class MDeployAlgos {
 
             if (nextInstMap.containsKey(currNodeId)) {
                 for (String svcId : currInstMap.get(currNodeId).keySet()) {
-                    diffMap.get(currNodeId).put(svcId,
-                            nextInstMap.get(currNodeId).getOrDefault(svcId, 0) - currInstMap.get(currNodeId).get(svcId));
+                    int t = nextInstMap.get(currNodeId).getOrDefault(svcId, 0) - currInstMap.get(currNodeId).get(svcId);
+                    if (t != 0) {
+                        diffMap.get(currNodeId).put(svcId, t);
+                    }
                 }
 
                 for (String svcId : nextInstMap.get(currNodeId).keySet()) {

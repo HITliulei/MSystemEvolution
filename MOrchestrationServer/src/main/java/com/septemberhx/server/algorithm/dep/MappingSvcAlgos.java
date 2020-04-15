@@ -106,7 +106,11 @@ public class MappingSvcAlgos {
                 } else if (!tmpSolvedSvcSet.contains(o1) && tmpSolvedSvcSet.contains(o2)) {
                     return 1;
                 } else {
-                    return -Integer.compare(metMap.get(o1).size(), metMap.get(o2).size());
+                    if (metMap.get(o1).size() != metMap.get(o2).size()) {
+                        return -Integer.compare(metMap.get(o1).size(), metMap.get(o2).size());
+                    } else {
+                        return -o1.getServiceVersion().compareTo(o2.getServiceVersion());
+                    }
                 }
             });
             MService targetSvc = targetSvcList.get(0);

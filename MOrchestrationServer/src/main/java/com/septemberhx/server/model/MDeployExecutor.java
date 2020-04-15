@@ -94,7 +94,7 @@ public class MDeployExecutor implements MDeployExecutorInterface {
                     }
 
                     List<MSvcInstance> svcInstanceList =
-                            this.currModel.getInstanceManager().getInstanceByNodeId(this.currNodeId);
+                            this.currModel.getInstanceManager().getInstByNodeIdAndSvcId(this.currNodeId, svcId);
                     Collections.shuffle(svcInstanceList, this.random);
                     for (int i = 0; i < Math.abs(diffMap.get(this.currNodeId).get(svcId)); ++i) {
                         this.removedInstList.add(svcInstanceList.get(i));

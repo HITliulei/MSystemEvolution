@@ -54,4 +54,14 @@ public class MSvcInstManager extends MUniqueObjectManager<MSvcInstance> {
         }
         return resultInstMap;
     }
+
+    public List<MSvcInstance> getInstByNodeIdAndSvcId(String currNodeId, String svcId) {
+        List<MSvcInstance> resultList = new ArrayList<>();
+        for (MSvcInstance inst : this.getInstanceByNodeId(currNodeId)) {
+            if (svcId.equals(inst.getServiceId())) {
+                resultList.add(inst);
+            }
+        }
+        return resultList;
+    }
 }

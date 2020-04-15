@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 @Getter
 @Setter
-public class MSvcVersion {
+public class MSvcVersion implements Comparable<MSvcVersion> {
 
     private int mainVersionNum;
     private int childVersionNum;
@@ -58,6 +58,23 @@ public class MSvcVersion {
             logger.info(e);
         }
         return version;
+    }
+
+    @Override
+    public int compareTo(MSvcVersion o) {
+        if (this.mainVersionNum > o.mainVersionNum) {
+            return 1;
+        } else if (this.mainVersionNum < o.mainVersionNum) {
+            return -1;
+        } else {
+            if (this.childVersionNum > o.childVersionNum) {
+                return 1;
+            } else if (this.childVersionNum < o.childVersionNum) {
+                return -1;
+            } else {
+                return Integer.compare(this.fixVersionNum, o.fixVersionNum);
+            }
+        }
     }
 
     @Override
