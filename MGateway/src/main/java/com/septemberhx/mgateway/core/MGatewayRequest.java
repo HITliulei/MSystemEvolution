@@ -13,6 +13,7 @@ import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
+import com.septemberhx.mgateway.bean.MIpAndPortConfig;
 import com.septemberhx.mgateway.config.MGatewayConfig;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -36,6 +37,10 @@ public class MGatewayRequest {
     @Autowired
     private MGatewayConfig gatewayConfig;
 
+    private ServerNodeType clusterType = ServerNodeType.EDGE;
+    private String testClusterIp = "10.111.1.122";
+    private Integer testClusterPort = 46832;
+
     private final Random random = new Random(10000);
     private static Logger logger = LogManager.getLogger(MGatewayRequest.class);
 
@@ -49,6 +54,19 @@ public class MGatewayRequest {
         return null;
      }
 
+    private MIpAndPortConfig getClusterAgent() {
+        if (this.clusterType == ServerNodeType.EDGE) {
+            InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+            if (agentInfo != null) {
+                return new MIpAndPortConfig(agentInfo.getIPAddr(), agentInfo.getPort());
+            } else {
+                return null;
+            }
+        } else {
+            return new MIpAndPortConfig(testClusterIp, testClusterPort);
+        }
+    }
+
     /**
      * Ask the gateway to get the routing
      * @param clientId: who send the requests. It may be a service instance or user client
@@ -56,9 +74,9 @@ public class MGatewayRequest {
      * @param userId: which user need this
      */
      public Optional<MRoutingBean> askClusterAgentForRoutingBean(String clientId, BaseSvcDependency dep, String userId) {
-         InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+         MIpAndPortConfig agentInfo = this.getClusterAgent();
          if (agentInfo != null) {
-             URI uri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_DEP_REQUEST_ROUTING);
+             URI uri = MUrlUtils.getRemoteUri(agentInfo.getIp(), agentInfo.getPort(), MConfig.MCLUSTER_DEP_REQUEST_ROUTING);
              MRoutingBean result = MRequestUtils.sendRequest(
                      uri, new MRequestRoutingBean(clientId, userId, dep, gatewayConfig.getNodeId()), MRoutingBean.class, RequestMethod.POST);
              if (result != null && result.getIpAddr() != null) {
@@ -85,10 +103,10 @@ public class MGatewayRequest {
             logger.info(String.format("Routing: %s", routingBeanOpt.get()));
             Optional<String> replaceOpt = MGatewayInfo.inst().getReplacement(routingBeanOpt.get().getIpAddr());
             if (replaceOpt.isPresent()) {
-                InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+                MIpAndPortConfig agentInfo = this.getClusterAgent();
                 if (agentInfo != null) {
                     response = MRequestUtils.sendRequest(
-                            MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_REPLACE_CALL),
+                            MUrlUtils.getRemoteUri(agentInfo.getIp(), agentInfo.getPort(), MConfig.MCLUSTER_REPLACE_CALL),
                             new MDepReplaceRequestBean(parameters, routingBeanOpt.get(), replaceOpt.get()),
                             MResponse.class,
                             RequestMethod.POST,
@@ -96,7 +114,7 @@ public class MGatewayRequest {
                     );
                 }
             } else {
-                if (routingBeanOpt.get().getNodeType() == ServerNodeType.EDGE) {
+                if (routingBeanOpt.get().getNodeType() == clusterType) {
                     response = MRequestUtils.sendRequest(
                             MUrlUtils.getRemoteUri(routingBeanOpt.get()),
                             parameters,
@@ -105,8 +123,8 @@ public class MGatewayRequest {
                             createHeader(calledUrl, routingBeanOpt.get().getPatternUrl(), userId)
                     );
                 } else {
-                    InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
-                    URI targetUri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_CLOUD_CALL);
+                    MIpAndPortConfig agentInfo = this.getClusterAgent();
+                    URI targetUri = MUrlUtils.getRemoteUri(agentInfo.getIp(), agentInfo.getPort(), MConfig.MCLUSTER_CLOUD_CALL);
                     response = MRequestUtils.sendRequest(
                             targetUri,
                             new MDepCloudRequestBean(parameters, routingBeanOpt.get()),
@@ -142,10 +160,10 @@ public class MGatewayRequest {
         if (routingBeanOpt.isPresent()) {
             Optional<String> replaceOpt = MGatewayInfo.inst().getReplacement(routingBeanOpt.get().getIpAddr());
             if (replaceOpt.isPresent()) {
-                InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+                MIpAndPortConfig agentInfo = this.getClusterAgent();
                 if (agentInfo != null) {
                     response = MRequestUtils.sendRequest(
-                            MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_REPLACE_CALL),
+                            MUrlUtils.getRemoteUri(agentInfo.getIp(), agentInfo.getPort(), MConfig.MCLUSTER_REPLACE_CALL),
                             new MDepReplaceRequestBean(parameters, routingBeanOpt.get(), replaceOpt.get()),
                             MResponse.class,
                             RequestMethod.POST,
@@ -153,7 +171,7 @@ public class MGatewayRequest {
                     );
                 }
             } else {
-                if (routingBeanOpt.get().getNodeType() == ServerNodeType.EDGE) {
+                if (routingBeanOpt.get().getNodeType() == clusterType) {
                     response = MRequestUtils.sendRequest(
                             MUrlUtils.getRemoteUri(routingBeanOpt.get()),
                             parameters,
@@ -162,8 +180,8 @@ public class MGatewayRequest {
                             createHeader(null, routingBeanOpt.get().getPatternUrl(), userId)
                     );
                 } else {
-                    InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
-                    URI targetUri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_CLOUD_CALL);
+                    MIpAndPortConfig agentInfo = this.getClusterAgent();
+                    URI targetUri = MUrlUtils.getRemoteUri(agentInfo.getIp(), agentInfo.getPort(), MConfig.MCLUSTER_CLOUD_CALL);
                     response = MRequestUtils.sendRequest(
                             targetUri,
                             new MDepCloudRequestBean(parameters, routingBeanOpt.get()),
