@@ -28,7 +28,7 @@ public class MServerSkeleton {
 
     @Getter
     @Setter
-    private MDeployExecutor executor;
+    private MDeployExecutorInterface executor;
 
     private static MServerSkeleton instance;
     private static Logger logger = LogManager.getLogger(MServerSkeleton.class);

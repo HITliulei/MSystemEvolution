@@ -1,12 +1,15 @@
 package com.septemberhx.server.model;
 
 import com.septemberhx.common.base.node.MServerCluster;
+import com.septemberhx.common.base.node.MServerNode;
+import com.septemberhx.common.base.node.ServerNodeType;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.agent.MDepResetRoutingBean;
 import com.septemberhx.common.bean.server.MUpdateCopyInstBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInstance;
+import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.utils.MRequestUtils;
 import com.septemberhx.common.utils.MUrlUtils;
 import com.septemberhx.server.algorithm.dep.MDeployAlgos;
@@ -26,174 +29,139 @@ import java.util.*;
  * @version 0.1
  * @date 2020/3/21
  */
-public class MDeployExecutor implements MDeployExecutorInterface {
+public class MDeployExecutorSimple implements MDeployExecutorInterface {
 
     enum NodeJobState {
+        IDLE,
         COPY,  // copy removed instances to cloud
         DEPLOY,  // deploy new instance or delete new instance
         CLEAN  // delete the instance copy on cloud
     }
 
     private List<String> nodeIdList = new ArrayList<>();
-    private String currNodeId;
     private String clusterId;
     private NodeJobState nodeJobState;
 
     private MSystemModel currModel;
     private Map<String, Map<String, Integer>> diffMap = new HashMap<>();
 
-    private Map<String, String> copyInstsMap = new HashMap<>();
     private Set<String> doingJobIdSet = new HashSet<>();
-    private List<MSvcInstance> removedInstList = new ArrayList<>();
 
     private Random random = new Random(1000000);
     private MDeployManager deployManager;
-    private static Logger logger = LogManager.getLogger(MDeployExecutor.class);
+    private static Logger logger = LogManager.getLogger(MDeployExecutorSimple.class);
+    private Map<String, List<MSvcInstance>> deletedInstMap = new HashMap<>();
+    private Set<String> deletedInstIdSet = new HashSet<>();
 
-    public MDeployExecutor(MDeployManager deployManager, MSystemModel currModel, String clusterId) {
+    public MDeployExecutorSimple(MDeployManager deployManager, MSystemModel currModel, String clusterId) {
         this.currModel = currModel;
         this.diffMap = MDeployAlgos.diff(deployManager, currModel);
         this.nodeIdList = new ArrayList<>(this.diffMap.keySet());
         this.clusterId = clusterId;
         this.deployManager = deployManager;
+        this.nodeJobState = NodeJobState.IDLE;
     }
 
     public void execute() {
-        if (this.checkIfFinished()) {
-            MDepResetRoutingBean resetRoutingBean = new MDepResetRoutingBean();
-            Map<String, MSvcInstance> instMap = new HashMap<>();
-            for (MSvcInstance instance : this.currModel.getInstanceManager().getInstanceByClusterId(this.clusterId)) {
-                instMap.put(instance.getIp(), instance);
-            }
-            resetRoutingBean.setInstMap(instMap);
-
-            Map<String, MService> svcMap = new HashMap<>();
-            for (MService svc : this.currModel.getServiceManager().getAllValues()) {
-                svcMap.put(svc.getId(), svc);
-            }
-            resetRoutingBean.setServiceMap(svcMap);
-            resetRoutingBean.putInstValues(this.deployManager.getNodeDepSvcMap());
-            resetRoutingBean.putUserValues(this.deployManager.getNodeUserDepSvcMap());
-
-            Pair<String, Integer> agentInfo = this.getClusterAgentInfo(this.clusterId);
-            URI uri = MUrlUtils.getRemoteUri(agentInfo.getValue0(), agentInfo.getValue1(), MConfig.MCLUSTER_DEP_ROUTING_RESET);
-            MRequestUtils.sendRequest(uri, resetRoutingBean, null, RequestMethod.POST);
-            return;
-        }
-
-        if (this.currNodeId == null && this.nodeIdList.size() > 0) {
-            this.currNodeId = nodeIdList.get(0);
-            nodeIdList.remove(0);
-
-            this.nodeJobState = NodeJobState.COPY;
-            this.removedInstList.clear();
-            if (this.diffMap.containsKey(this.currNodeId)) {
-                for (String svcId : diffMap.get(this.currNodeId).keySet()) {
-                    if (diffMap.get(this.currNodeId).get(svcId) >= 0) {
-                        continue;
-                    }
-
-                    List<MSvcInstance> svcInstanceList =
-                            this.currModel.getInstanceManager().getInstanceByNodeId(this.currNodeId);
-                    Collections.shuffle(svcInstanceList, this.random);
-                    for (int i = 0; i < Math.abs(diffMap.get(this.currNodeId).get(svcId)); ++i) {
-                        this.removedInstList.add(svcInstanceList.get(i));
-                    }
-                }
-            }
-
-            if (this.removedInstList.isEmpty()) {
-                this.execute();
-                return;
-            }
-
-            for (MSvcInstance inst : this.removedInstList) {
-                String newInstId = MIDUtils.uniqueInstanceId(inst.getServiceName(), inst.getVersion());
-                String cloudNodeId = this.getOneCloudId();
-                String jobId = this.deployInstanceOnCloud(cloudNodeId, inst.getServiceId(), newInstId);
-                this.copyInstsMap.put(inst.getIp(), newInstId);
-                this.doingJobIdSet.add(jobId);
-            }
-        } else if (this.nodeJobState == NodeJobState.COPY) {
-            if (!this.doingJobIdSet.isEmpty()) {
-                return;
-            }
+        if (this.nodeJobState == NodeJobState.IDLE) {
 
             this.nodeJobState = NodeJobState.DEPLOY;
-            if (this.notifyCopyInsts()) {
-                Map<String, Integer> svcAddMap = new HashMap<>();
-                if (this.diffMap.containsKey(this.currNodeId)) {
-                    for (String svcId : diffMap.get(this.currNodeId).keySet()) {
-                        if (diffMap.get(this.currNodeId).get(svcId) <= 0) {
-                            continue;
-                        }
-                        svcAddMap.put(svcId, diffMap.get(this.currNodeId).get(svcId));
-                    }
-                }
+            this.deletedInstMap.clear();
+            this.deletedInstIdSet.clear();
 
-                if (svcAddMap.isEmpty()) {
-                    this.execute();
-                    return;
+            for (String currNodeId : this.nodeIdList) {
+                this.deletedInstMap.put(currNodeId, new ArrayList<>());
+                Map<String, Integer> svcAddMap = new HashMap<>();
+                if (this.diffMap.containsKey(currNodeId)) {
+                    for (String svcId : diffMap.get(currNodeId).keySet()) {
+                        if (diffMap.get(currNodeId).get(svcId) > 0) {
+                            svcAddMap.put(svcId, diffMap.get(currNodeId).get(svcId));
+                        } else if (diffMap.get(currNodeId).get(svcId) < 0) {
+                            List<MSvcInstance> svcInstanceList =
+                                    this.currModel.getInstanceManager().getInstanceByNodeId(currNodeId);
+                            Collections.shuffle(svcInstanceList, this.random);
+                            for (int i = 0; i < Math.abs(diffMap.get(currNodeId).get(svcId)); ++i) {
+                                this.deletedInstMap.get(currNodeId).add(svcInstanceList.get(i));
+                                this.deletedInstIdSet.add(svcInstanceList.get(i).getId());
+                            }
+                        }
+                    }
                 }
 
                 for (String svcId : svcAddMap.keySet()) {
                     Optional<MService> svcOpt = this.currModel.getServiceManager().getById(svcId);
                     if (svcOpt.isPresent()) {
                         String newInstId = MIDUtils.uniqueInstanceId(svcOpt.get().getServiceName(), svcOpt.get().getServiceVersion().toString());
-                        String jobId = this.deployInstanceOnCluster(this.clusterId, this.currNodeId, svcId, newInstId);
-                        this.doingJobIdSet.add(jobId);
+                        Optional<MServerNode> nodeOpt = this.currModel.getNodeManager().getNodeById(currNodeId);
+                        if (nodeOpt.isPresent()) {
+                            String jobId = null;
+                            if (nodeOpt.get().getNodeType() == ServerNodeType.EDGE) {
+                                jobId = this.deployInstanceOnCluster(this.clusterId, currNodeId, svcId, newInstId);
+                            } else if (nodeOpt.get().getNodeType() == ServerNodeType.CLOUD) {
+                                jobId = this.deployInstanceOnCloud(this.currModel.getNodeManager().getCloudNodes().get(0).getId(), svcId, newInstId);
+                            }
+                            this.doingJobIdSet.add(jobId);
+                        }
                     }
                 }
-
-                for (MSvcInstance inst : this.removedInstList) {
-                    String jobId = this.deleteInstanceOnCluster(this.clusterId, inst.getNodeId(), inst.getServiceId(), inst.getPodId());
-                    this.doingJobIdSet.add(jobId);
-                }
-
-                if (this.doingJobIdSet.isEmpty()) {
-                    this.execute();
-                }
+                this.execute();
             }
         } else if (this.nodeJobState == NodeJobState.DEPLOY) {
             if (!this.doingJobIdSet.isEmpty()) {
                 return;
             }
 
-            this.nodeJobState = NodeJobState.CLEAN;
-            for (String instId : this.copyInstsMap.values()) {
-                String jobId = this.deleteInstanceOnCloud(instId);
-                this.doingJobIdSet.add(jobId);
+            {
+                MDepResetRoutingBean resetRoutingBean = new MDepResetRoutingBean();
+                Map<String, MSvcInstance> instMap = new HashMap<>();
+                for (MSvcInstance instance : this.currModel.getInstanceManager().getInstanceByClusterId(this.clusterId)) {
+                    if (!this.deletedInstIdSet.contains(instance.getId())) {
+                        instMap.put(instance.getIp(), instance);
+                    }
+                }
+                resetRoutingBean.setInstMap(instMap);
+
+                Map<String, MService> svcMap = new HashMap<>();
+                for (MService svc : this.currModel.getServiceManager().getAllValues()) {
+                    svcMap.put(svc.getId(), svc);
+                }
+                resetRoutingBean.setServiceMap(svcMap);
+                resetRoutingBean.putInstValues(this.deployManager.getNodeDepSvcMap());
+                resetRoutingBean.putUserValues(this.deployManager.getNodeUserDepSvcMap());
+
+                Pair<String, Integer> agentInfo = this.getClusterAgentInfo(this.clusterId);
+                URI uri = MUrlUtils.getRemoteUri(agentInfo.getValue0(), agentInfo.getValue1(), MConfig.MCLUSTER_DEP_ROUTING_RESET);
+                MRequestUtils.sendRequest(uri, resetRoutingBean, null, RequestMethod.POST);
             }
 
-            if (this.doingJobIdSet.isEmpty()) {
-                this.execute();
+            this.nodeJobState = NodeJobState.CLEAN;
+            for (String currNodeId : this.deletedInstMap.keySet()) {
+                Optional<MServerNode> nodeOpt = this.currModel.getNodeManager().getNodeById(currNodeId);
+                for (MSvcInstance svcInstance : this.deletedInstMap.get(currNodeId)) {
+                    if (nodeOpt.isPresent()) {
+                        String jobId = null;
+                        if (nodeOpt.get().getNodeType() == ServerNodeType.EDGE) {
+                            jobId = this.deleteInstanceOnCluster(this.clusterId, svcInstance.getNodeId(),
+                                        svcInstance.getServiceId(), svcInstance.getPodId());
+                        } else if (nodeOpt.get().getNodeType() == ServerNodeType.CLOUD) {
+                            jobId = this.deleteInstanceOnCloud(svcInstance.getPodId());
+                        }
+                        this.doingJobIdSet.add(jobId);
+                    }
+                }
             }
+            this.execute();
         } else if (this.nodeJobState == NodeJobState.CLEAN) {
             if (!this.doingJobIdSet.isEmpty()) {
                 return;
             }
 
-            this.nodeJobState = null;
-            this.currNodeId = null;
-            this.execute();
+            this.nodeJobState = NodeJobState.IDLE;
         }
     }
 
     public boolean checkIfFinished() {
-        return this.nodeIdList.isEmpty() && this.currNodeId == null;
-    }
-
-    public boolean notifyCopyInsts() {
-        Pair<String, Integer> agentInfo = this.getClusterAgentInfo(clusterId);
-        URI uri = MUrlUtils.getRemoteUri(agentInfo.getValue0(), agentInfo.getValue1(), MConfig.MCLUSTER_UPDATE_COPY_MAP);
-        MResponse response = MRequestUtils.sendRequest(
-                uri, new MUpdateCopyInstBean(this.copyInstsMap), MResponse.class, RequestMethod.POST
-        );
-        return true;
-    }
-
-    public String getOneCloudId() {
-        return this.currModel.getNodeManager().getCloudNodes().get(0).getId();
+        return this.doingJobIdSet.isEmpty() && this.nodeJobState == NodeJobState.IDLE;
     }
 
     /*
