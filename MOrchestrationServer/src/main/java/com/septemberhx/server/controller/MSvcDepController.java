@@ -2,6 +2,7 @@ package com.septemberhx.server.controller;
 
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
+import com.septemberhx.common.bean.gateway.MDepCloudRequestBean;
 import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.server.MRedirectInfo;
 import com.septemberhx.common.bean.server.dep.MDepUserRequestBean;
@@ -44,21 +45,31 @@ public class MSvcDepController {
                     requestBean.getParam(),
                     MResponse.class,
                     RequestMethod.POST,
-                    createHeader(request.getHeader(MConfig.PARAM_CALLER_URL), request.getHeader(MConfig.PARAM_CALLED_URL))
+                    createHeader(request.getHeader(MConfig.PARAM_USER_ID))
             );
         } else {
             return MResponse.failResponse();
         }
     }
 
-    private Map<String, List<String>> createHeader(String callerUrl, String calledUrl) {
+    @ResponseBody
+    @PostMapping(path = MConfig.MSERVER_CLOUD_CALL)
+    public MResponse processCloudCall(@RequestBody MDepCloudRequestBean requestBean, HttpServletRequest request) {
+        MRoutingBean routingBean = requestBean.getRoutingBean();
+        return MRequestUtils.sendRequest(
+                MUrlUtils.getRemoteUri(routingBean),
+                requestBean.getParam(),
+                MResponse.class,
+                RequestMethod.POST,
+                createHeader(request.getHeader(MConfig.PARAM_USER_ID))
+        );
+    }
+
+    public Map<String, List<String>> createHeader(String userId) {
         Map<String, List<String>> customHeaders = new HashMap<>();
-        List<String> p1 = new ArrayList<>();
-        p1.add(callerUrl);
-        List<String> p2 = new ArrayList<>();
-        p2.add(calledUrl);
-        customHeaders.put(MConfig.PARAM_CALLER_URL, p1);
-        customHeaders.put(MConfig.PARAM_CALLED_URL, p2);
+        List<String> p3 = new ArrayList<>();
+        p3.add(userId);
+        customHeaders.put(MConfig.PARAM_USER_ID, p3);
         return customHeaders;
     }
 }

@@ -1,5 +1,7 @@
 package com.septemberhx.agent.core;
 
+import com.septemberhx.common.base.node.MServerCluster;
+import com.septemberhx.common.base.node.ServerNodeType;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.exception.NonexistenServiceException;
 import com.septemberhx.common.service.MService;
@@ -28,6 +30,9 @@ public class MRoutingInfo {
     private Map<String, Map<PureSvcDependency, String>> pureUserRoutingMap;
 
     @Setter
+    private MServerCluster cluster;
+
+    @Setter
     private Map<String, MService> svcMap;
 
     @Setter
@@ -50,9 +55,13 @@ public class MRoutingInfo {
      */
     private Map<String, Map<String, Map<BaseSvcDependency, MRoutingBean>>> routingTable;
 
+    @Setter
+    public Map<String, Map<String, Integer>> nodeDelayMap;
+
     public void resetRoutingMap(Map<String, Map<PureSvcDependency, String>> rMap, Map<String, Map<PureSvcDependency, String>> uMap, Map<String, MService> svcMap, Map<String, MSvcInstance> svcInstanceMap) {
         this.usedPlot.clear();
         this.routingTable.clear();
+        this.nodeDelayMap.clear();
         this.pureInstRoutingMap = rMap;
         this.pureUserRoutingMap = uMap;
         this.svcMap = svcMap;
@@ -134,14 +143,22 @@ public class MRoutingInfo {
             if (targetSvc != null) {
                 Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(dep.getDep());
                 if (apiOpt.isPresent()) {
-                    for (MSvcInstance inst : svcInstanceMap.values()) {
-                        if (inst.getServiceId().equals(routingMap.get(nodeId).get(dep.getDep()))) {
-                            if (checkInstHasAvailablePlot(inst.getIp(), coe)) {
-                                return Optional.of(new MRoutingBean(
-                                        inst.getIp(),
-                                        inst.getPort(),
-                                        apiOpt.get().getPatternUrl()
-                                ));
+                    List<String> nodeList = this.getNodeListOrderByDelay(nodeId);
+                    for (String currNodeId : nodeList) {
+                        for (MSvcInstance inst : svcInstanceMap.values()) {
+                            if (!inst.getNodeId().equals(currNodeId)) {
+                                continue;
+                            }
+
+                            if (inst.getServiceId().equals(routingMap.get(nodeId).get(dep.getDep()))) {
+                                if (checkInstHasAvailablePlot(inst.getIp(), coe)) {
+                                    return Optional.of(new MRoutingBean(
+                                            inst.getIp(),
+                                            inst.getPort(),
+                                            apiOpt.get().getPatternUrl(),
+                                            this.cluster.getNodeMap().containsKey(currNodeId) ? ServerNodeType.EDGE : ServerNodeType.CLOUD
+                                    ));
+                                }
                             }
                         }
                     }
@@ -149,6 +166,18 @@ public class MRoutingInfo {
             }
         }
         return Optional.empty();
+    }
+
+    public List<String> getNodeListOrderByDelay(String nodeId) {
+        List<String> nodeList = new ArrayList<>();
+        if (!this.nodeDelayMap.containsKey(nodeId)) {
+            nodeList.add(nodeId);
+            return nodeList;
+        }
+
+        nodeList = new ArrayList<>(this.nodeDelayMap.get(nodeId).keySet());
+        nodeList.sort(Comparator.comparingInt(o -> nodeDelayMap.get(nodeId).get(o)));
+        return nodeList;
     }
 
     public boolean checkInstHasAvailablePlot(String instanceIp, int plotNum) {

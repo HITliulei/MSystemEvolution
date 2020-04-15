@@ -66,6 +66,7 @@ public class MConfig {
     public final static String MSERVER_NEW_DEP_REQUEST = "/request/newDepRequest";
     public final static String MSERVER_REPLACE_CALL = "/request/replaceCall";
     public final static String MSERVER_JOB_NOTIFY_URI = "/job/notify";
+    public final static String MSERVER_CLOUD_CALL = "/request/cloudCall";
 
     public final static String MCLUSTER_SVC_METADATA_NAME = "mclient";
     public final static String MCLUSTER_SVC_METADATA_VALUE = "true";
@@ -77,6 +78,7 @@ public class MConfig {
     public final static String MCLUSTER_UPDATE_COPY_MAP = "/magent/updateReplace";
     public final static String MCLUSTER_FETCH_DEP_REQUEST = "/magent/fetchDepRequests";
     public final static String MCLUSTER_FETCH_DEP_REQUEST_COUNT = "/magent/fetchDepRequestCount";
+    public static final String MCLUSTER_CLOUD_CALL = "/magent/cloudRequest";
 
     public final static String MGATEWAY_NAME = "MGateway";
     public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";

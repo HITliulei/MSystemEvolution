@@ -24,4 +24,6 @@ public class MDepReplaceRequestBean {
         this.rawRoutingBean = rawRoutingBean;
         this.replacementId = replacementId;
     }
+
+    public MDepReplaceRequestBean() { }
 }

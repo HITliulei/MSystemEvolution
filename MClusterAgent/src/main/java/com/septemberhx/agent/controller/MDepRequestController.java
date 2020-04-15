@@ -8,6 +8,7 @@ import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.bean.agent.MAllUserBean;
 import com.septemberhx.common.bean.agent.MDepResetRoutingBean;
+import com.septemberhx.common.bean.gateway.MDepCloudRequestBean;
 import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
 import com.septemberhx.common.bean.mclient.MUpdateSysDataBean;
@@ -46,6 +47,8 @@ public class MDepRequestController {
     public MResponse resetRouting(@RequestBody MDepResetRoutingBean resetRoutingBean) {
         MRoutingInfo.inst().resetRoutingMap(
                 resetRoutingBean.instDepMap(), resetRoutingBean.userDepMap(), resetRoutingBean.getServiceMap(), resetRoutingBean.getInstMap());
+
+        MRoutingInfo.inst().setNodeDelayMap(resetRoutingBean.nodeDelayMap);
 
         for (InstanceInfo info : this.clientUtils.getAllGatewayInstance()) {
             URI uri = MUrlUtils.getRemoteUri(info.getIPAddr(), info.getPort(), MConfig.MGATEWAY_RESET_CACHE);
@@ -100,7 +103,19 @@ public class MDepRequestController {
                 requestBean,
                 MResponse.class,
                 RequestMethod.POST,
-                createHeader(request.getHeader(MConfig.PARAM_CALLER_URL), request.getHeader(MConfig.PARAM_CALLED_URL))
+                createHeader(request.getHeader(MConfig.PARAM_USER_ID))
+        );
+    }
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MCLUSTER_CLOUD_CALL)
+    public MResponse processCloudRequest(@RequestBody MDepCloudRequestBean requestBean, HttpServletRequest request) {
+        return MRequestUtils.sendRequest(
+                MUrlUtils.getRemoteUri(this.agentConfig.getCenter().getIp(), this.agentConfig.getCenter().getPort(), MConfig.MSERVER_CLOUD_CALL),
+                requestBean,
+                MResponse.class,
+                RequestMethod.POST,
+                createHeader(request.getHeader(MConfig.PARAM_USER_ID))
         );
     }
 
@@ -114,14 +129,11 @@ public class MDepRequestController {
         return MResponse.successResponse();
     }
 
-    private Map<String, List<String>> createHeader(String callerUrl, String calledUrl) {
+    public Map<String, List<String>> createHeader(String userId) {
         Map<String, List<String>> customHeaders = new HashMap<>();
-        List<String> p1 = new ArrayList<>();
-        p1.add(callerUrl);
-        List<String> p2 = new ArrayList<>();
-        p2.add(calledUrl);
-        customHeaders.put(MConfig.PARAM_CALLER_URL, p1);
-        customHeaders.put(MConfig.PARAM_CALLED_URL, p2);
+        List<String> p3 = new ArrayList<>();
+        p3.add(userId);
+        customHeaders.put(MConfig.PARAM_USER_ID, p3);
         return customHeaders;
     }
 }

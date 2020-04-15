@@ -2,8 +2,10 @@ package com.septemberhx.mgateway.core;
 
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
+import com.septemberhx.common.base.node.ServerNodeType;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
+import com.septemberhx.common.bean.gateway.MDepCloudRequestBean;
 import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.gateway.MDepRequestCacheBean;
 import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
@@ -94,13 +96,25 @@ public class MGatewayRequest {
                     );
                 }
             } else {
-                response = MRequestUtils.sendRequest(
-                        MUrlUtils.getRemoteUri(routingBeanOpt.get()),
-                        parameters,
-                        MResponse.class,
-                        RequestMethod.POST,
-                        createHeader(calledUrl, routingBeanOpt.get().getPatternUrl(), userId)
-                );
+                if (routingBeanOpt.get().getNodeType() == ServerNodeType.EDGE) {
+                    response = MRequestUtils.sendRequest(
+                            MUrlUtils.getRemoteUri(routingBeanOpt.get()),
+                            parameters,
+                            MResponse.class,
+                            RequestMethod.POST,
+                            createHeader(calledUrl, routingBeanOpt.get().getPatternUrl(), userId)
+                    );
+                } else {
+                    InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+                    URI targetUri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_CLOUD_CALL);
+                    response = MRequestUtils.sendRequest(
+                            targetUri,
+                            new MDepCloudRequestBean(parameters, routingBeanOpt.get()),
+                            MResponse.class,
+                            RequestMethod.POST,
+                            createHeader(calledUrl, routingBeanOpt.get().getPatternUrl(), userId)
+                    );
+                }
             }
         } else {
             logger.warn(String.format("Cannot response to request from %s with dep %s", instanceIp, dependency));
@@ -139,13 +153,25 @@ public class MGatewayRequest {
                     );
                 }
             } else {
-                response = MRequestUtils.sendRequest(
-                        MUrlUtils.getRemoteUri(routingBeanOpt.get()),
-                        parameters,
-                        MResponse.class,
-                        RequestMethod.POST,
-                        createHeader(null, routingBeanOpt.get().getPatternUrl(), userId)
-                );
+                if (routingBeanOpt.get().getNodeType() == ServerNodeType.EDGE) {
+                    response = MRequestUtils.sendRequest(
+                            MUrlUtils.getRemoteUri(routingBeanOpt.get()),
+                            parameters,
+                            MResponse.class,
+                            RequestMethod.POST,
+                            createHeader(null, routingBeanOpt.get().getPatternUrl(), userId)
+                    );
+                } else {
+                    InstanceInfo agentInfo = this.getRandomClusterAgentInstance();
+                    URI targetUri = MUrlUtils.getRemoteUri(agentInfo.getIPAddr(), agentInfo.getPort(), MConfig.MCLUSTER_CLOUD_CALL);
+                    response = MRequestUtils.sendRequest(
+                            targetUri,
+                            new MDepCloudRequestBean(parameters, routingBeanOpt.get()),
+                            MResponse.class,
+                            RequestMethod.POST,
+                            createHeader(null, routingBeanOpt.get().getPatternUrl(), userId)
+                    );
+                }
             }
 
             logger.info(String.format("Routing request from %s of user %s with dep %s to %s:%d%s",

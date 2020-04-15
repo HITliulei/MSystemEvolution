@@ -31,6 +31,8 @@ public class MDepResetRoutingBean {
     private Map<String, List<PureSvcDependency>> nodeUserDepList = new HashMap<>();
     private Map<String, List<String>> nodeUserServiceIdList = new HashMap<>();
 
+    public Map<String, Map<String, Integer>> nodeDelayMap = new HashMap<>();
+
     public void putInstValues(Map<String, Map<PureSvcDependency, String>> valueMap) {
         for (String nodeId : valueMap.keySet()) {
             List<PureSvcDependency> depList = new ArrayList<>();

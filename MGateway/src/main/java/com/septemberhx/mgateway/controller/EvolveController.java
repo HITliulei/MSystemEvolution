@@ -33,6 +33,7 @@ public class EvolveController {
     @PostMapping(path = MConfig.MGATEWAY_RESET_CACHE)
     public MResponse clearCache() {
         MGatewayInfo.inst().resetCache();
+        this.retryFailedRequests();
         return MResponse.successResponse();
     }
 

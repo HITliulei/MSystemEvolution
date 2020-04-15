@@ -1,5 +1,6 @@
 package com.septemberhx.common.bean;
 
+import com.septemberhx.common.base.node.ServerNodeType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,11 +19,13 @@ public class MRoutingBean {
     private String ipAddr;
     private Integer port;
     private String patternUrl;
+    private ServerNodeType nodeType;
 
-    public MRoutingBean(String ipAddr, Integer port, String patternUrl) {
+    public MRoutingBean(String ipAddr, Integer port, String patternUrl, ServerNodeType nodeType) {
         this.ipAddr = ipAddr;
         this.port = port;
         this.patternUrl = patternUrl;
+        this.nodeType = nodeType;
     }
 
     public MRoutingBean() {
@@ -35,11 +38,12 @@ public class MRoutingBean {
         MRoutingBean that = (MRoutingBean) o;
         return Objects.equals(ipAddr, that.ipAddr) &&
                 Objects.equals(port, that.port) &&
-                Objects.equals(patternUrl, that.patternUrl);
+                Objects.equals(patternUrl, that.patternUrl) &&
+                Objects.equals(nodeType, that.nodeType);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(ipAddr, port, patternUrl);
+        return Objects.hash(ipAddr, port, patternUrl, nodeType);
     }
 }

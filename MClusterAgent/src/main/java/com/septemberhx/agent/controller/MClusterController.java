@@ -1,6 +1,7 @@
 package com.septemberhx.agent.controller;
 
 import com.septemberhx.agent.config.MAgentConfig;
+import com.septemberhx.agent.core.MRoutingInfo;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.agent.MRegisterClusterBean;
 import com.septemberhx.common.config.MConfig;
@@ -24,6 +25,7 @@ public class MClusterController {
     @ResponseBody
     @PostMapping(value = "/register")
     public MResponse registerCluster(@RequestBody MRegisterClusterBean clusterBean) {
+        MRoutingInfo.inst().setCluster(clusterBean.getServerCluster());
         return MRequestUtils.sendRequest(
                 MUrlUtils.getRemoteUri(agentConfig.getCenter().getIp(),
                         agentConfig.getCenter().getPort(), MConfig.MSERVER_CLUSTER_REGISTER),

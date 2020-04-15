@@ -128,6 +128,7 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
                 resetRoutingBean.setServiceMap(svcMap);
                 resetRoutingBean.putInstValues(this.deployManager.getNodeDepSvcMap());
                 resetRoutingBean.putUserValues(this.deployManager.getNodeUserDepSvcMap());
+                resetRoutingBean.setNodeDelayMap(this.currModel.getNodeManager().getNodeDelayMap(this.clusterId));
 
                 Pair<String, Integer> agentInfo = this.getClusterAgentInfo(this.clusterId);
                 URI uri = MUrlUtils.getRemoteUri(agentInfo.getValue0(), agentInfo.getValue1(), MConfig.MCLUSTER_DEP_ROUTING_RESET);

@@ -49,6 +49,7 @@ public class MClusterManager extends MUniqueObjectManager<MServerCluster> {
 
     public void addConnectionInfo(MNodeConnectionInfo info, String startNodeId, String endNodeId) {
         serverNodeGraph.putEdgeValue(startNodeId, endNodeId, info);
+        serverNodeGraph.putEdgeValue(endNodeId, startNodeId, info);
     }
 
     public void removeConnectionInfo(String startNodeId, String endNodeId) {
@@ -159,5 +160,21 @@ public class MClusterManager extends MUniqueObjectManager<MServerCluster> {
             resultList.addAll(cluster.allNodes());
         }
         return resultList;
+    }
+
+    public Map<String, Map<String, Integer>> getNodeDelayMap(String clusterId) {
+        Map<String, Map<String, Integer>> resultMap = new HashMap<>();
+        List<MServerNode> nodeList = this.getNodesByClusterId(clusterId);
+        for (MServerNode node : nodeList) {
+            resultMap.put(node.getId(), new HashMap<>());
+            resultMap.get(node.getId()).put(node.getId(), 0);
+            List<MServerNode> nList = getConnectedNodesDecentWithDelayTolerance(node.getId());
+            for (MServerNode n : nList) {
+                Optional<MNodeConnectionInfo> infoOpt = serverNodeGraph.edgeValue(node.getId(), n.getId());
+                infoOpt.ifPresent(mNodeConnectionInfo ->
+                        resultMap.get(node.getId()).put(n.getId(), (int) mNodeConnectionInfo.getDelay()));
+            }
+        }
+        return resultMap;
     }
 }
