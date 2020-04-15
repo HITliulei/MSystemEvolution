@@ -214,6 +214,7 @@ public class MRoutingInfo {
         this.pureInstRoutingMap = new ConcurrentHashMap<>();
         this.pureUserRoutingMap = new ConcurrentHashMap<>();
         this.usedPlot = new ConcurrentHashMap<>();
+        this.nodeDelayMap = new ConcurrentHashMap<>();
     }
 
     public static MRoutingInfo inst() {
