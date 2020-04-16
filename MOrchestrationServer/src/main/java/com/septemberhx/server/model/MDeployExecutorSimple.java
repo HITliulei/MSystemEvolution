@@ -104,8 +104,8 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
                         }
                     }
                 }
-                this.execute();
             }
+            this.execute();
         } else if (this.nodeJobState == NodeJobState.DEPLOY) {
             if (!this.doingJobIdSet.isEmpty()) {
                 return;
