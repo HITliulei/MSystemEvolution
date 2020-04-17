@@ -73,9 +73,12 @@ public class MDepRequestController {
                         routingBean.getCallerPatternUrl(),
                         routingBean.getUserId(), routingBean.getDependency(), routingOpt.get());
                 return routingOpt.get();
+            } else {
+                return null;
             }
+        } else {
+            return routingOpt.get();
         }
-        return null;
     }
 
     @PostMapping(path = MConfig.MCLUSTER_UPDATE_SYS_DATA_URI)

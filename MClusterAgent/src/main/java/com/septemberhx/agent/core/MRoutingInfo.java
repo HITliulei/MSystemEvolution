@@ -69,7 +69,9 @@ public class MRoutingInfo {
     }
 
     public Optional<MRoutingBean> getRoutingFromRecord(String clientId, String userId, BaseSvcDependency dependency) {
-        if (this.routingTable.containsKey(clientId) && this.routingTable.containsKey(userId) && this.routingTable.containsKey(dependency)) {
+        if (this.routingTable.containsKey(clientId)
+                && this.routingTable.get(clientId).containsKey(userId)
+                && this.routingTable.get(clientId).get(userId).containsKey(dependency)) {
             return Optional.of(this.routingTable.get(clientId).get(userId).get(dependency));
         }
 
