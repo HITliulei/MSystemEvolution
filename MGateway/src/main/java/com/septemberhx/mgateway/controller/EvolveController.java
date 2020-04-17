@@ -102,6 +102,7 @@ public class EvolveController {
                 countMap.put(cacheBean.getBaseSvcDependency().getDep(), new HashSet<>());
             }
             countMap.get(cacheBean.getBaseSvcDependency().getDep()).add(cacheBean.getClientId());
+            countBean.addId(cacheBean.getSimulationId());
         }
 
         for (PureSvcDependency dep : countMap.keySet()) {

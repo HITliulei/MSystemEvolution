@@ -22,6 +22,7 @@ public class MDepRequestCountBean {
     private String nodeId;
     private List<PureSvcDependency> depList;
     private List<Integer> depUserCount;
+    private List<String> idList;
 
     public MDepRequestCountBean() { }
 
@@ -30,10 +31,15 @@ public class MDepRequestCountBean {
         this.depUserCount.add(count);
     }
 
+    public void addId(String id) {
+        this.idList.add(id);
+    }
+
     public MDepRequestCountBean(String nodeId) {
         this.nodeId = nodeId;
         this.depList = new ArrayList<>();
         this.depUserCount = new ArrayList<>();
+        this.idList = new ArrayList<>();
     }
 
     public Map<PureSvcDependency, Integer> depUserCountMap() {
