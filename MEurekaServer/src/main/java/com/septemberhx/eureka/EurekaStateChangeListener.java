@@ -34,8 +34,6 @@ public class EurekaStateChangeListener {
         //服务断线事件
         String appName = eurekaInstanceCanceledEvent.getAppName();
         String serverId = eurekaInstanceCanceledEvent.getServerId();
-        System.out.println(appName);
-        System.out.println(serverId);
     }
 
     @EventListener

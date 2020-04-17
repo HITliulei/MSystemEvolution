@@ -7,6 +7,9 @@ eureka:
     fetch-registry: true
     service-url:
       defaultZone: http://localhost:8080/eureka
+  server:
+    peer-node-read-timeout-ms: 30000
+
 
 spring:
   application:
