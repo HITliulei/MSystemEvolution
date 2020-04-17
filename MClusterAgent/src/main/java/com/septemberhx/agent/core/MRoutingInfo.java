@@ -53,7 +53,7 @@ public class MRoutingInfo {
      * This table is used to make sure each time window the same dep of the
      *   same user will be directed to the same inst.
      */
-    private Map<String, Map<String, Map<BaseSvcDependency, MRoutingBean>>> routingTable;
+    private Map<String, Map<String, Map<PureSvcDependency, MRoutingBean>>> routingTable;
 
     @Setter
     public Map<String, Map<String, Integer>> nodeDelayMap;
@@ -71,8 +71,8 @@ public class MRoutingInfo {
     public Optional<MRoutingBean> getRoutingFromRecord(String clientId, String userId, BaseSvcDependency dependency) {
         if (this.routingTable.containsKey(clientId)
                 && this.routingTable.get(clientId).containsKey(userId)
-                && this.routingTable.get(clientId).get(userId).containsKey(dependency)) {
-            return Optional.of(this.routingTable.get(clientId).get(userId).get(dependency));
+                && this.routingTable.get(clientId).get(userId).containsKey(dependency.getDep())) {
+            return Optional.of(this.routingTable.get(clientId).get(userId).get(dependency.getDep()));
         }
 
         return Optional.empty();
@@ -89,7 +89,7 @@ public class MRoutingInfo {
         if (!this.routingTable.get(clientId).containsKey(userId)) {
             this.routingTable.get(clientId).put(userId, new HashMap<>());
         }
-        this.routingTable.get(clientId).get(userId).put(dependency, routingBean);
+        this.routingTable.get(clientId).get(userId).put(dependency.getDep(), routingBean);
 
         MSvcInstance targetInst = null;
         for (MSvcInstance svcInstance : svcInstanceMap.values()) {
