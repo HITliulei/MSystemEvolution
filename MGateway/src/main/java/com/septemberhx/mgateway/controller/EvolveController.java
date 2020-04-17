@@ -30,6 +30,13 @@ public class EvolveController {
     private MGatewayConfig gatewayConfig;
 
     @ResponseBody
+    @PostMapping(path = MConfig.MGATEWAY_RESET)
+    public MResponse reset() {
+        MGatewayInfo.inst().reset();
+        return MResponse.successResponse();
+    }
+
+    @ResponseBody
     @PostMapping(path = MConfig.MGATEWAY_RESET_CACHE)
     public MResponse clearCache() {
         MGatewayInfo.inst().resetCache();

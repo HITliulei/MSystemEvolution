@@ -156,4 +156,12 @@ public class MGatewayInfo {
             return Optional.empty();
         }
     }
+
+    public void reset() {
+        this.requestQueue.clear();
+        this.userRequestRecordQueue.clear();
+        this.cannotSatisfiedRequestQueue.clear();
+        this.routingCache.clear();
+        this.replaceMap.clear();
+    }
 }
