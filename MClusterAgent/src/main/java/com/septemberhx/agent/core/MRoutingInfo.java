@@ -58,7 +58,7 @@ public class MRoutingInfo {
     @Setter
     public Map<String, Map<String, Integer>> nodeDelayMap;
 
-    public void resetRoutingMap(Map<String, Map<PureSvcDependency, String>> rMap, Map<String, Map<PureSvcDependency, String>> uMap, Map<String, MService> svcMap, Map<String, MSvcInstance> svcInstanceMap) {
+    public synchronized void resetRoutingMap(Map<String, Map<PureSvcDependency, String>> rMap, Map<String, Map<PureSvcDependency, String>> uMap, Map<String, MService> svcMap, Map<String, MSvcInstance> svcInstanceMap) {
         this.usedPlot.clear();
         this.routingTable.clear();
         this.nodeDelayMap.clear();
@@ -81,7 +81,7 @@ public class MRoutingInfo {
     /*
      * Occupy one plot for given routing info
      */
-    public void recordRouting(String clientId, String callerPatternUrl, String userId, BaseSvcDependency dependency, MRoutingBean routingBean) {
+    public synchronized void recordRouting(String clientId, String callerPatternUrl, String userId, BaseSvcDependency dependency, MRoutingBean routingBean) {
         if (!this.routingTable.containsKey(clientId)) {
             this.routingTable.put(clientId, new HashMap<>());
         }
@@ -246,7 +246,7 @@ public class MRoutingInfo {
         return false;
     }
 
-    public int getUsedPlotNum(String instanceIp) {
+    public synchronized int getUsedPlotNum(String instanceIp) {
         int totalNum = 0;
         if (this.usedPlot.containsKey(instanceIp)) {
             for (String apiUrl : this.usedPlot.get(instanceIp).keySet()) {
