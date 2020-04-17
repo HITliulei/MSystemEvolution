@@ -147,7 +147,7 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
                         } else if (nodeOpt.get().getNodeType() == ServerNodeType.CLOUD) {
                             jobId = this.deleteInstanceOnCloud(svcInstance.getPodId());
                         }
-                        this.doingJobIdSet.add(jobId);
+                        this.currModel.getInstanceManager().remove(svcInstance.getId());
                     }
                 }
             }
