@@ -111,14 +111,15 @@ public class MRoutingInfo {
                     }
                 }
             }
-            if (!this.usedPlot.containsKey(clientId)) {
-                this.usedPlot.put(clientId, new HashMap<>());
+            String calledInstId = targetInst.getId();
+            if (!this.usedPlot.containsKey(calledInstId)) {
+                this.usedPlot.put(calledInstId, new HashMap<>());
             }
-            if (!this.usedPlot.get(clientId).containsKey(routingBean.getPatternUrl())) {
-                this.usedPlot.get(clientId).put(routingBean.getPatternUrl(), new HashMap<>());
+            if (!this.usedPlot.get(calledInstId).containsKey(routingBean.getPatternUrl())) {
+                this.usedPlot.get(calledInstId).put(routingBean.getPatternUrl(), new HashMap<>());
             }
-            this.usedPlot.get(clientId).get(routingBean.getPatternUrl())
-                    .put(userId, usedPlot + this.usedPlot.get(clientId).get(routingBean.getPatternUrl()).getOrDefault(userId, 0));
+            this.usedPlot.get(calledInstId).get(routingBean.getPatternUrl())
+                    .put(userId, usedPlot + this.usedPlot.get(calledInstId).get(routingBean.getPatternUrl()).getOrDefault(userId, 0));
         }
     }
 
