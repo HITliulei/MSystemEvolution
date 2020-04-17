@@ -84,4 +84,22 @@ public class EvolveController {
     public List<MDepRequestCacheBean> failedRequests() {
         return MGatewayInfo.inst().failedRequests();
     }
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MGATEWAY_FAILED_REQUEST_COUNT)
+    public MDepRequestCountBean failedRequestCount() {
+        MDepRequestCountBean countBean = new MDepRequestCountBean(this.gatewayConfig.getNodeId());
+        Map<PureSvcDependency, Set<String>> countMap = new HashMap<>();
+        for (MDepRequestCacheBean cacheBean : MGatewayInfo.inst().failedRequests()) {
+            if (!countMap.containsKey(cacheBean.getBaseSvcDependency().getDep())) {
+                countMap.put(cacheBean.getBaseSvcDependency().getDep(), new HashSet<>());
+            }
+            countMap.get(cacheBean.getBaseSvcDependency().getDep()).add(cacheBean.getClientId());
+        }
+
+        for (PureSvcDependency dep : countMap.keySet()) {
+            countBean.putValue(dep, countMap.get(dep).size());
+        }
+        return countBean;
+    }
 }
