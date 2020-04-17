@@ -5,10 +5,10 @@ import com.septemberhx.common.base.node.ServerNodeType;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.exception.NonexistenServiceException;
 import com.septemberhx.common.service.MService;
+import com.septemberhx.common.service.MSla;
 import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.common.service.MSvcInterface;
-import com.septemberhx.common.service.dependency.BaseSvcDependency;
-import com.septemberhx.common.service.dependency.PureSvcDependency;
+import com.septemberhx.common.service.dependency.*;
 import lombok.Setter;
 
 import java.util.*;
@@ -166,8 +166,56 @@ public class MRoutingInfo {
                     }
                 }
             }
+        } else {
+            List<String> nodeList = this.getNodeListOrderByDelay(nodeId);
+            for (String currNodeId : nodeList) {
+                for (MSvcInstance inst : svcInstanceMap.values()) {
+                    if (!inst.getNodeId().equals(currNodeId)) {
+                        continue;
+                    }
+
+                    if (checkInstHasAvailablePlot(inst.getIp(), coe)) {
+                        MService targetSvc = svcMap.get(inst.getServiceId());
+                        if (checkIfSvcMeetDep(targetSvc, dep.getDep())) {
+                            Optional<MSvcInterface> apiOpt = targetSvc.getInterfaceByDep(dep.getDep());
+                            if (apiOpt.isPresent()) {
+                                return Optional.of(new MRoutingBean(
+                                        inst.getIp(),
+                                        inst.getPort(),
+                                        apiOpt.get().getPatternUrl(),
+                                        this.cluster.getNodeMap().containsKey(currNodeId) ? ServerNodeType.EDGE : ServerNodeType.CLOUD
+                                ));
+                            }
+                        }
+                    }
+                }
+            }
         }
         return Optional.empty();
+    }
+
+    public static boolean checkIfSvcMeetDep(MService svc, PureSvcDependency svcDependency) {
+        BaseSvcDependency dep = BaseSvcDependency.tranPure(svcDependency);
+        if (dep instanceof SvcFuncDependency) {
+            for (MSla sla : svcDependency.getSlaSet()) {
+                if (svc.ifSatisfied(svcDependency.getFunc(), sla)) {
+                    return true;
+                }
+            }
+        } else if (dep instanceof SvcSlaDependency) {
+            if (svc.getServiceName().toLowerCase().equals(svcDependency.getServiceName().toLowerCase())) {
+                Optional<MSvcInterface> apiOpt = svc.getInterfaceByPatternUrl(svcDependency.getPatternUrl());
+                if (apiOpt.isPresent() && svcDependency.getSlaSet().contains(apiOpt.get().getFuncDescription().getSla())) {
+                    return true;
+                }
+            }
+        } else if (dep instanceof SvcVerDependency) {
+            if (svc.getServiceName().toLowerCase().equals(svcDependency.getServiceName().toLowerCase())
+                    && svcDependency.getVersionSet().contains(svc.getServiceVersion())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public List<String> getNodeListOrderByDelay(String nodeId) {
