@@ -9,4 +9,5 @@ public interface MDeployExecutorInterface {
     void execute();
     boolean checkIfFinished();
     void jobFinished(String jobId);
+    boolean checkIfDeleted(String instId);
 }

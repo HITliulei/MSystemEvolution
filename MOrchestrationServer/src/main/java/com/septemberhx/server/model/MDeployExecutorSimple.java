@@ -16,6 +16,7 @@ import com.septemberhx.server.algorithm.dep.MDeployAlgos;
 import com.septemberhx.server.job.MDeleteJob;
 import com.septemberhx.server.job.MDeployJob;
 import com.septemberhx.server.utils.MIDUtils;
+import lombok.Getter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.javatuples.Pair;
@@ -51,6 +52,7 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
     private MDeployManager deployManager;
     private static Logger logger = LogManager.getLogger(MDeployExecutorSimple.class);
     private Map<String, List<MSvcInstance>> deletedInstMap = new HashMap<>();
+
     private Set<String> deletedInstIdSet = new HashSet<>();
 
     public MDeployExecutorSimple(MDeployManager deployManager, MSystemModel currModel, String clusterId) {
@@ -62,12 +64,16 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
         this.nodeJobState = NodeJobState.IDLE;
     }
 
+    @Override
+    public boolean checkIfDeleted(String instId) {
+        return this.deletedInstIdSet.contains(instId);
+    }
+
     public void execute() {
         if (this.nodeJobState == NodeJobState.IDLE) {
 
             this.nodeJobState = NodeJobState.DEPLOY;
             this.deletedInstMap.clear();
-            this.deletedInstIdSet.clear();
 
             for (String currNodeId : this.nodeIdList) {
                 this.deletedInstMap.put(currNodeId, new ArrayList<>());
@@ -100,6 +106,7 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
                             } else if (nodeOpt.get().getNodeType() == ServerNodeType.CLOUD) {
                                 jobId = this.deployInstanceOnCloud(this.currModel.getNodeManager().getCloudNodes().get(0).getId(), svcId, newInstId);
                             }
+                            logger.info("Deploy new instance " + newInstId);
                             this.doingJobIdSet.add(jobId);
                         }
                     }
@@ -147,6 +154,7 @@ public class MDeployExecutorSimple implements MDeployExecutorInterface {
                         } else if (nodeOpt.get().getNodeType() == ServerNodeType.CLOUD) {
                             jobId = this.deleteInstanceOnCloud(svcInstance.getPodId());
                         }
+                        logger.info("Delete instance " + svcInstance.getId());
                         this.currModel.getInstanceManager().remove(svcInstance.getId());
                     }
                 }

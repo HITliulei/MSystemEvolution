@@ -58,6 +58,11 @@ public class MDeployExecutor implements MDeployExecutorInterface {
         this.deployManager = deployManager;
     }
 
+    @Override
+    public boolean checkIfDeleted(String instId) {
+        return false;
+    }
+
     public void execute() {
         if (this.checkIfFinished()) {
             MDepResetRoutingBean resetRoutingBean = new MDepResetRoutingBean();

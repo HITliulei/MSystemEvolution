@@ -113,6 +113,10 @@ public class MappingSvcAlgos {
                     }
                 }
             });
+            if (targetSvcList.isEmpty()) {
+                logger.error("Failed to satisfy for some demands");
+                break;
+            }
             MService targetSvc = targetSvcList.get(0);
 
             for (BaseSvcDependency svcDependency : metMap.get(targetSvc)) {

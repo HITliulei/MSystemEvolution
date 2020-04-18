@@ -61,6 +61,10 @@ public class MServerSkeleton {
 
             // check if the instance is alive. The mObjectIdMap will not be null if alive
             String containerInstanceId = instanceInfo.getDockerInfo().getInstanceId();
+            if (MServerSkeleton.getInstance().getExecutor().checkIfDeleted(containerInstanceId)) {
+                return;
+            }
+
             if (instanceInfo.getMObjectIdMap() != null) {
                 MSvcInstance instance = new MSvcInstance(
                         instanceInfo.getParentIdMap(),
