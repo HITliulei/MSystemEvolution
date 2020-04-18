@@ -61,10 +61,12 @@ public class MGatewayInfo {
 
     public void retryFailedRequests() {
         synchronized (this.requestQueue) {
-            while (!this.cannotSatisfiedRequestQueue.isEmpty()) {
-                MDepRequestCacheBean cacheBean = this.cannotSatisfiedRequestQueue.poll();
-                this.requestQueue.add(cacheBean);
-            }
+//            while (!this.cannotSatisfiedRequestQueue.isEmpty()) {
+//                MDepRequestCacheBean cacheBean = this.cannotSatisfiedRequestQueue.poll();
+//                cacheBean.setTimestamp(DateTime.now().getMillis());
+//                this.requestQueue.add(cacheBean);
+//            }
+            this.cannotSatisfiedRequestQueue.clear();
         }
     }
 
