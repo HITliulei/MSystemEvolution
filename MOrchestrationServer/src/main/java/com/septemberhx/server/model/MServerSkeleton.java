@@ -97,6 +97,9 @@ public class MServerSkeleton {
                     }
                 }
 
+                if (!MServerSkeleton.getCurrInstManager().containsById(instance.getId())) {
+                    logger.info("Register new instance " + instance.getId());
+                }
                 MServerSkeleton.getCurrInstManager().update(instance);
             }
         } else {
