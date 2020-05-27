@@ -7,10 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -60,6 +57,14 @@ public class MService extends MUniqueObject {
             }
         }
         return Optional.empty();
+    }
+
+    public List<BaseSvcDependency> getAllDep() {
+        List<BaseSvcDependency> resultList = new ArrayList<>();
+        for (String depName : this.mSvcDepDesc.getDependencyMaps().keySet()) {
+            resultList.addAll(this.mSvcDepDesc.getDependencyMaps().get(depName).values());
+        }
+        return resultList;
     }
 
     public Optional<BaseSvcDependency> getDepById(String id) {
