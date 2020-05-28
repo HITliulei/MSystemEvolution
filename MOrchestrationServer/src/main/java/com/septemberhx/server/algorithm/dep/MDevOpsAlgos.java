@@ -14,7 +14,10 @@ import java.util.*;
 
 public class MDevOpsAlgos {
 
-    public static List<MService> getMiniServiceSet(MService wantedSvc, List<MSvcInstance> existInsts, MSystemModel currModel) {
+    // Please attention !!!!
+    // RoutingMap will be modified !!!!!!!!!!!
+    public static List<MService> getMiniServiceSet(MService wantedSvc, List<MSvcInstance> existInsts,
+                                                   Map<PureSvcDependency, MService> routingMap, MSystemModel currModel) {
         List<MService> svcList = new ArrayList<>();
         for (BaseSvcDependency dep : wantedSvc.getAllDep()) {
             boolean ifWorked = false;
@@ -22,6 +25,8 @@ public class MDevOpsAlgos {
                 Optional<MService> svcOpt = currModel.getServiceManager().getById(inst.getServiceId());
                 if (svcOpt.isPresent() && MappingSvcAlgos.checkIfSvcMeetDep(svcOpt.get(), dep.getDep())) {
                     // todo: record the routing rules
+                    routingMap.put(dep.getDep(), svcOpt.get());
+
                     ifWorked = true;
                     break;
                 }
@@ -112,29 +117,63 @@ public class MDevOpsAlgos {
         return false;
     }
 
-    public static List<MBaseJob> deployInst(MService service, String nodeId, boolean ifDep, List<MSvcInstance> existInsts, MSystemModel currModel) {
+    public static List<MBaseJob> deployInst(MService service, String nodeId, boolean ifDep, List<MSvcInstance> existInsts,
+                                            Map<PureSvcDependency, MService> routingMap, MSystemModel currModel) {
         List<MBaseJob> jobList = new ArrayList<>();
         if (!ifDep) {
             MDeployJob deployJob = new MDeployJob(nodeId, service.getServiceName(),
                     MIDUtils.uniqueInstanceId(service.getServiceName(), service.getServiceVersion().toString()), service.getImageUrl());
             jobList.add(deployJob);
         } else {
-            List<MService> svcList = getMiniServiceSet(service, existInsts, currModel);
+            // 注意，这里 routingMap 会被修改！！！
+            // existinsts 也会被修改 !!!
+            List<MService> svcList = getMiniServiceSet(service, existInsts, routingMap, currModel);
             for (MService svc : svcList) {
                 MDeployJob deployJob = new MDeployJob(nodeId, svc.getServiceName(),
                         MIDUtils.uniqueInstanceId(svc.getServiceName(), svc.getServiceVersion().toString()), svc.getImageUrl());
                 jobList.add(deployJob);
+
+                existInsts.add(new MSvcInstance(
+                        new HashMap<>(),
+                        "",
+                        deployJob.getNodeId(),
+                        null,
+                        0,
+                        deployJob.getUniqueId(),
+                        new HashSet<>(),
+                        svc.getServiceName(),
+                        svc.getId(),
+                        "",
+                        svc.getServiceVersion().toString()
+                ));
             }
         }
         return jobList;
     }
 
-    public static void upgradeInst(MSvcInstance targetInst, MService targetSvc, boolean ifDep) {
-
+    public static List<MBaseJob> upgradeInst(MSvcInstance targetInst, List<MSvcInstance> existInsts, MService targetSvc, boolean ifDep, Map<PureSvcDependency, MService> routingMap, MSystemModel currModel) {
+        // 注意, routingMap 绘被修改
+        List<MBaseJob> jobList = deployInst(targetSvc, targetInst.getNodeId(), ifDep, existInsts, routingMap, currModel);
+        List<MBaseJob> deleteJobList = deleteInst(targetInst.getId(), existInsts, routingMap, ifDep, currModel);
+        jobList.addAll(deleteJobList);
+        return jobList;
     }
 
-    public static void upgradeSvc(MService oldSvc, MService newSvc, boolean ifDep) {
+    public static List<MBaseJob> upgradeSvc(List<MSvcInstance> existInsts, MService oldSvc, MService newSvc, boolean ifDep, Map<PureSvcDependency, MService> routingMap, MSystemModel currModel) {
+        List<MSvcInstance> deleteList = new ArrayList<>();
+        List<MBaseJob> jobList = new ArrayList<>();
 
+        for (MSvcInstance svcInstance : existInsts) {
+            if (svcInstance.getServiceId().equals(oldSvc.getId())) {
+                deleteList.add(svcInstance);
+                jobList.addAll(deployInst(newSvc, svcInstance.getNodeId(), ifDep, existInsts, routingMap, currModel));
+            }
+        }
+
+        for (MSvcInstance svcInstance : deleteList) {
+            jobList.addAll(deleteInst(svcInstance.getId(), existInsts, routingMap, ifDep, currModel));
+        }
+        return jobList;
     }
 
     public static void changeDep(MService svc, BaseSvcDependency svcDependency, PureSvcDependency newDep, boolean ifDep) {
