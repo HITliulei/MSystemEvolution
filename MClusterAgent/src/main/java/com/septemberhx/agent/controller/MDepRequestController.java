@@ -7,7 +7,9 @@ import com.septemberhx.agent.utils.MClientUtils;
 import com.septemberhx.common.bean.MResponse;
 import com.septemberhx.common.bean.MRoutingBean;
 import com.septemberhx.common.bean.agent.MAllUserBean;
+import com.septemberhx.common.bean.agent.MChangeDepRequestBean;
 import com.septemberhx.common.bean.agent.MDepResetRoutingBean;
+import com.septemberhx.common.bean.agent.MInstanceInfoBean;
 import com.septemberhx.common.bean.gateway.MDepCloudRequestBean;
 import com.septemberhx.common.bean.gateway.MDepReplaceRequestBean;
 import com.septemberhx.common.bean.mclient.MRequestRoutingBean;
@@ -53,6 +55,23 @@ public class MDepRequestController {
         for (InstanceInfo info : this.clientUtils.getAllGatewayInstance()) {
             URI uri = MUrlUtils.getRemoteUri(info.getIPAddr(), info.getPort(), MConfig.MGATEWAY_RESET_CACHE);
             MRequestUtils.sendRequest(uri, null, null, RequestMethod.POST);
+        }
+
+        return MResponse.successResponse();
+    }
+
+    @ResponseBody
+    @PostMapping(path = MConfig.MCLUSTER_CHANGE_DEP)
+    public MResponse changeDep(@RequestBody MChangeDepRequestBean changeDepRequestBean) {
+        // notify the changes to all instances of target service
+        for (MInstanceInfoBean infoBean : this.clientUtils.getInstanceInfoList()) {
+            if (MRoutingInfo.inst().getSvcMap().containsKey(changeDepRequestBean.getServiceId())) {
+                MService svc = MRoutingInfo.inst().getSvcMap().get(changeDepRequestBean.getServiceId());
+                if (infoBean.getServiceName().equals(svc.getServiceName()) && infoBean.getVersion().equals(svc.getServiceVersion().toString())) {
+                    URI uri = MUrlUtils.getRemoteUri(infoBean.getIp(), infoBean.getPort(), MConfig.MCLIENT_CHANGE_DEP);
+                    MRequestUtils.sendRequest(uri, changeDepRequestBean, null, RequestMethod.POST);
+                }
+            }
         }
 
         return MResponse.successResponse();

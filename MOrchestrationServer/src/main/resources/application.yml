@@ -13,7 +13,7 @@ mybatis:
   type-aliases-package: com.septemberhx.server.dao
 
 server:
-  port: 8080
+  port: 8082
 eureka:
   instance:
     prefer-ip-address: true

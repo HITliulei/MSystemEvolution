@@ -2,6 +2,7 @@ package com.septemberhx.mclient.controller;
 
 import com.netflix.appinfo.ApplicationInfoManager;
 import com.netflix.discovery.EurekaClient;
+import com.septemberhx.common.bean.agent.MChangeDepRequestBean;
 import com.septemberhx.common.config.MConfig;
 import com.septemberhx.common.bean.mclient.MApiContinueRequest;
 import com.septemberhx.common.bean.mclient.MApiSplitBean;
@@ -70,6 +71,12 @@ public class MClientController {
         MClientSkeleton.inst().setRequestMappingHandlerMapping(this.handlerMapping);
         MClientSkeleton.inst().setMvf4msConfig(this.mvf4msConfig);
         logger.info(this.mvf4msConfig.toString());
+    }
+
+    @ResponseBody
+    @PostMapping(path = "/changeDep")
+    public void changeDep(@RequestBody MChangeDepRequestBean changeDepRequestBean) {
+        MClientSkeleton.inst().getMvf4msConfig().setDependencies(changeDepRequestBean.getSvcDependencies());
     }
 
     @ResponseBody

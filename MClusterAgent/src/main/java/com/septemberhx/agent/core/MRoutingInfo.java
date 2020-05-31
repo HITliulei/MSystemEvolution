@@ -9,6 +9,7 @@ import com.septemberhx.common.service.MSla;
 import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.common.service.MSvcInterface;
 import com.septemberhx.common.service.dependency.*;
+import lombok.Getter;
 import lombok.Setter;
 
 import java.util.*;
@@ -33,6 +34,7 @@ public class MRoutingInfo {
     private MServerCluster cluster;
 
     @Setter
+    @Getter
     private Map<String, MService> svcMap;
 
     @Setter

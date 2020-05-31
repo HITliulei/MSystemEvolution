@@ -139,4 +139,11 @@ public class MService extends MUniqueObject {
     public MSvcInterface getInterfaceById(String interfaceId) {
         return this.getServiceInterfaceMap().get(interfaceId);
     }
+
+    public void updateDeps(List<BaseSvcDependency> deps) {
+        this.mSvcDepDesc.updateDeps(deps);
+        for (MSvcInterface svcInterface : this.serviceInterfaceMap.values()) {
+            svcInterface.updateDeps(deps);
+        }
+    }
 }

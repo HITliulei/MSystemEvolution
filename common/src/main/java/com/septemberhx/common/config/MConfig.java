@@ -79,6 +79,7 @@ public class MConfig {
     public final static String MCLUSTER_FETCH_DEP_REQUEST = "/magent/fetchDepRequests";
     public final static String MCLUSTER_FETCH_DEP_REQUEST_COUNT = "/magent/fetchDepRequestCount";
     public static final String MCLUSTER_CLOUD_CALL = "/magent/cloudRequest";
+    public static final String MCLUSTER_CHANGE_DEP = "/magent/changeDep";
 
     public final static String MGATEWAY_NAME = "MGateway";
     public final static String MGATEWAY_DEPENDENCY_CALL = "/call/dependency";
@@ -95,6 +96,9 @@ public class MConfig {
     public static final String MGATEWAY_RESET_CACHE = "/evolve/resetCache";
     public static final String MGATEWAY_RESET = "/evolve/reset";
     public static final String MGATEWAY_SIMULATION_ID = "__simulate_id";
+    public static final String MGATEWAY_CHANGE_DEP = "/evolve/changeDep";
+
+    public static final String MCLIENT_CHANGE_DEP = "/mclient/changeDep";
 
     public final static String MDPREDICTOR_PREDICT = "/predict";
 

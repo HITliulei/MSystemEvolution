@@ -58,4 +58,12 @@ public class MSvcInterface extends MUniqueObject {
         this.serviceId = other.serviceId;
         this.invokeCountMap = new HashMap<>();
     }
+
+    public void updateDeps(List<BaseSvcDependency> deps) {
+        this.invokeCountMap.clear();
+
+        for (BaseSvcDependency dep : deps) {
+            this.invokeCountMap.put(dep.hashCode(), 1);
+        }
+    }
 }

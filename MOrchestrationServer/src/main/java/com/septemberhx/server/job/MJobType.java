@@ -14,4 +14,6 @@ public enum MJobType {
     JOB_DEPLOY,
 
     JOB_DELETE,
+
+    JOB_CHANGE_DEP,
 }

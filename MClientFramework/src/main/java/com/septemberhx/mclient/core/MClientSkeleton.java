@@ -58,6 +58,7 @@ public class MClientSkeleton {
     private RequestMappingHandlerMapping requestMappingHandlerMapping;
 
     @Setter
+    @Getter
     private Mvf4msConfig mvf4msConfig;
 
     private Random random = new Random(10000);

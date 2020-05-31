@@ -1,5 +1,7 @@
 package com.septemberhx.server.algorithm.dep;
 
+import com.septemberhx.common.config.Mvf4msDep;
+import com.septemberhx.common.config.Mvf4msDepConfig;
 import com.septemberhx.common.service.MService;
 import com.septemberhx.common.service.MSvcInstance;
 import com.septemberhx.common.service.dependency.BaseSvcDependency;
@@ -176,7 +178,15 @@ public class MDevOpsAlgos {
         return jobList;
     }
 
-    public static void changeDep(MService svc, BaseSvcDependency svcDependency, PureSvcDependency newDep, boolean ifDep) {
+    public static void changeDep(MService svc, List<Mvf4msDepConfig> newDeps, PureSvcDependency newDep, boolean ifDep, Map<PureSvcDependency, MService> routingMap, MSystemModel currModel) {
+        List<BaseSvcDependency> svcDepList = new ArrayList<>();
+        for (Mvf4msDepConfig cofig : newDeps) {
+            for (Mvf4msDep dep : cofig.getDependence()) {
+                svcDepList.add(BaseSvcDependency.tranConfig2Dependency(dep));
+            }
+        }
 
+
+        svc.updateDeps(svcDepList);
     }
 }

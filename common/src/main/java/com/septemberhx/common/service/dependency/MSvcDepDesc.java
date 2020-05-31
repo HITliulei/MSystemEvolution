@@ -5,6 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,5 +43,16 @@ public class MSvcDepDesc {
         List<BaseSvcDependency> resultList = new ArrayList<>();
         dependencyMaps.values().stream().map(Map::values).forEach(resultList::addAll);
         return resultList;
+    }
+
+    public void updateDeps(List<BaseSvcDependency> deps) {
+        Map<String, BaseSvcDependency> newDepMap = new HashMap<>();
+        for (BaseSvcDependency dep : deps) {
+            newDepMap.put(dep.getId(), dep);
+        }
+
+        for (String key : dependencyMaps.keySet()) {
+            dependencyMaps.put(key, newDepMap);
+        }
     }
 }
