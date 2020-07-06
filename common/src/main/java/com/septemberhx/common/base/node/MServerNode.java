@@ -12,8 +12,6 @@ public class MServerNode extends MUniqueObject {
     private ServerNodeType nodeType;
     private MResource resource;
     private MPosition position;
-    private Long delay;
-    private Long bandwidth;
     private String ip;
     private String clusterId;
 
@@ -23,8 +21,6 @@ public class MServerNode extends MUniqueObject {
                 "nodeType=" + nodeType +
                 ", resource=" + resource +
                 ", position=" + position +
-                ", delay=" + delay +
-                ", bandwidth=" + bandwidth +
                 ", ip='" + ip + '\'' +
                 ", clusterId='" + clusterId + '\'' +
                 ", id='" + id + '\'' +
