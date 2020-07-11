@@ -18,6 +18,7 @@
         <module>MEurekaServer</module>
         <module>MInfoCollector</module>
         <module>MBuildCenter</module>
+        <module>MSvcEnvAgent</module>
     </modules>
 
     <properties>
