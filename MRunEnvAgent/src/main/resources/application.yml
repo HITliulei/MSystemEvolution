@@ -1,9 +1,29 @@
 
 server:
-  port: 8080
+  port: 46832
 
 spring:
   application:
     name: MRunEnvAgent
 
+
+mvf4ms:
+  center:
+    ip: 60.205.188.102
+    port: 30763
+  cluster:
+    name: test
+  elasticsearch:
+    ip: 192.168.1.102
+    port: 4000
+
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${REGISTRY}/eureka
 
