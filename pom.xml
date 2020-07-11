@@ -19,6 +19,7 @@
         <module>MInfoCollector</module>
         <module>MBuildCenter</module>
         <module>MSvcEnvAgent</module>
+        <module>MRunEnvAgent</module>
     </modules>
 
     <properties>

@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: NULL
+  namespace: kube-test
+  labels:
+    app: NULL
+spec:
+  containers:
+    - name: NULL
+      image: NULL
+      ports:
+        - containerPort: 8080
+      volumeMounts:
+        - mountPath: /var/log/mclient
+          name: log-volume
+      env:
+        - name: REGISTRY
+          value: "10.244.2.2:8080"
+  volumes:
+    - name: log-volume
+      hostPath:
+        path: /data/hexiang/test-dir/log
