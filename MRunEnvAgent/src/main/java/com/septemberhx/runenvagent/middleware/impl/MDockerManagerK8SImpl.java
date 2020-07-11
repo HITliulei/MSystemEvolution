@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import static com.septemberhx.common.config.MConfig.K8S_NAMESPACE;
-import static com.septemberhx.runenvagent.utils.MClientUtils.readPodYaml;
+import static com.septemberhx.runenvagent.utils.CommonUtil.readPodYaml;
 
 public class MDockerManagerK8SImpl implements MDockerManager {
 
@@ -160,15 +160,5 @@ public class MDockerManagerK8SImpl implements MDockerManager {
             logger.info(e);
         }
         return resultPod;
-    }
-
-    public static void main(String[] args) {
-//        MDockerManagerK8SImpl dockerManager = new MDockerManagerK8SImpl("http://192.168.1.102:8082");
-        V1Pod pod = readPodYaml("sampleservice");
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        System.out.println(gson.toJson(pod));
-//        dockerManager.deployInstanceOnNode("ices-104", pod);
-//        MDeployPodRequest podRequest = new MDeployPodRequest("test-1", "ices-104", pod);
-//        MRequestUtils.sendRequest(MUrlUtils.getRemoteUri("192.168.1.102", 9000, "/magent/deploy"), podRequest, null, RequestMethod.POST);
     }
 }

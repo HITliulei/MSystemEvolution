@@ -20,14 +20,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
-
-import java.io.File;
 import java.io.FileWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.septemberhx.runenvagent.utils.CommonUtil.readPodYaml;
 
 
 @Component
@@ -45,10 +45,6 @@ public class MClientUtils {
 
     public static void sendRestInfo(URI uri, MInstanceRestInfoBean infoBean) {
         MRequestUtils.sendRequest(uri, infoBean, Object.class, RequestMethod.POST);
-    }
-
-    public static Boolean deleteInstanceById(String instanceId) {
-        return dockerManager.deleteInstanceById(instanceId);
     }
 
     public static V1Deployment buildDeployment(String serviceName, String serviceInstanceId, String nodeId, String image) {
@@ -100,17 +96,26 @@ public class MClientUtils {
         return deployment;
     }
 
-    public static V1Pod readPodYaml(String serviceName) {
-        V1Pod pod = null;
+    public void depoly(MDeployPodRequest mDeployPodRequest) {
         try {
-            Object podYamlObj = Yaml.load(new File("./yaml/" + serviceName + ".yaml"));
-            if (podYamlObj instanceof V1Pod) {
-                pod = (V1Pod) podYamlObj;
-            }
+            V1Pod pod = dockerManager.deployInstanceOnNode(
+                    mDeployPodRequest.getNodeId(),
+                    mDeployPodRequest.getUniqueId(),
+                    mDeployPodRequest.getServiceName(),
+                    mDeployPodRequest.getImageUrl()
+            );
+            podDuringDeploying.put(pod.getMetadata().getName(), mDeployPodRequest);
+            logger.info("Job " + mDeployPodRequest.getId() + " dispatched");
         } catch (Exception e) {
-            logger.info(e);
+            logger.warn(String.format(
+                    "Failed to notify job %s to MServer. Please check the connection to MServer",
+                    mDeployPodRequest.getId()
+            ));
         }
-        return pod;
+    }
+
+    public Boolean deleteInstanceById(String instanceId) {
+        return dockerManager.deleteInstanceById(instanceId);
     }
 
     public List<MInstanceInfoBean> getInstanceInfoList() {
@@ -228,23 +233,6 @@ public class MClientUtils {
         return resultInfoList;
     }
 
-    public void depoly(MDeployPodRequest mDeployPodRequest) {
-        try {
-            V1Pod pod = dockerManager.deployInstanceOnNode(
-                    mDeployPodRequest.getNodeId(),
-                    mDeployPodRequest.getUniqueId(),
-                    mDeployPodRequest.getServiceName(),
-                    mDeployPodRequest.getImageUrl()
-            );
-            podDuringDeploying.put(pod.getMetadata().getName(), mDeployPodRequest);
-            logger.info("Job " + mDeployPodRequest.getId() + " dispatched");
-        } catch (Exception e) {
-            logger.warn(String.format(
-                    "Failed to notify job %s to MServer. Please check the connection to MServer",
-                    mDeployPodRequest.getId()
-            ));
-        }
-    }
 
     public synchronized boolean notifyDeployJobFinished(MInstanceInfoBean infoBean) {
         if (infoBean.getDockerInfo() == null) return false;

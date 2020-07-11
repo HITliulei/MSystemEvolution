@@ -1,8 +1,11 @@
 package com.septemberhx.runenvagent.controller;
 
+import com.netflix.discovery.converters.Auto;
 import com.septemberhx.common.bean.agent.MDeployPodRequest;
+import com.septemberhx.runenvagent.utils.MClientUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 public class MAgentController {
     private static Logger logger = LogManager.getLogger(MAgentController.class);
 
+    @Autowired
+    private MClientUtils mClientUtils;
+
     /**
      * deploy one instance in cluster
      * @param mDeployPodRequest information about the microservice instance to be deployed
@@ -24,6 +30,8 @@ public class MAgentController {
     @RequestMapping(path = "/deploy", method = RequestMethod.POST)
     public void deploy(@RequestBody MDeployPodRequest mDeployPodRequest) {
         logger.info("info of service to be deployed: " + mDeployPodRequest);
+        this.mClientUtils.depoly(mDeployPodRequest);
+
     }
 
     /**
@@ -33,5 +41,6 @@ public class MAgentController {
     @RequestMapping(path = "/deleteInstance", method = RequestMethod.GET)
     public void deleteInstance(@RequestParam("dockerInstanceId") String instanceId) {
         logger.info("instanceId to be depleted: " + instanceId);
+        this.mClientUtils.deleteInstanceById(instanceId);
     }
 }
