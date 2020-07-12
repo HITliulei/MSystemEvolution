@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.septemberhx.runenvagent.utils.CommonUtil.readPodYaml;
-
 
 @Component
 public class MClientUtils {
@@ -51,7 +49,7 @@ public class MClientUtils {
         String deploymentName = serviceName + "-" + serviceInstanceId;
 
         // read pod configure file supplied by users
-        V1Pod pod = readPodYaml(serviceName);
+        V1Pod pod = CommonUtil.readPodYaml(serviceName);
         if (pod == null) {
             throw new RuntimeException("Cannot get the yaml file for service: " + serviceName);
         }
