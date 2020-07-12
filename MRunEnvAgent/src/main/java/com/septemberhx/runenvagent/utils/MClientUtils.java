@@ -116,6 +116,10 @@ public class MClientUtils {
         return dockerManager.deleteInstanceById(instanceId);
     }
 
+    public Map<String,String> getAllNodeLabel(){
+        return dockerManager.getAllnode();
+    }
+
     public List<MInstanceInfoBean> getInstanceInfoList() {
         List<MInstanceInfoBean> result = new ArrayList<>();
         for (InstanceInfo info : this.clusterMiddleware.getInstanceInfoList()) {

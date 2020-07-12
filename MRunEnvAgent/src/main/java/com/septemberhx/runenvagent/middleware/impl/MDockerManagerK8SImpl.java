@@ -9,6 +9,8 @@ import io.kubernetes.client.ApiException;
 import io.kubernetes.client.Configuration;
 import io.kubernetes.client.apis.CoreV1Api;
 import io.kubernetes.client.apis.ExtensionsV1beta1Api;
+import io.kubernetes.client.models.V1Node;
+import io.kubernetes.client.models.V1NodeList;
 import io.kubernetes.client.models.V1Pod;
 import io.kubernetes.client.models.V1PodList;
 import io.kubernetes.client.util.Config;
@@ -17,6 +19,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import static com.septemberhx.common.config.MConfig.K8S_NAMESPACE;
 import static com.septemberhx.runenvagent.utils.CommonUtil.readPodYaml;
@@ -160,5 +164,29 @@ public class MDockerManagerK8SImpl implements MDockerManager {
             logger.info(e);
         }
         return resultPod;
+    }
+
+    @Override
+    public Map<String, String> getAllnode(){
+        Map<String, String> map = new HashMap<>();
+        V1NodeList v1NodeList = null;
+        try {
+            v1NodeList = this.coreV1Api.listNode(null,
+                    null, null, null, null, null,
+                    null, null, null);
+            List<V1Node> items = v1NodeList.getItems();
+            for(V1Node v1Node:items){
+                Map<String, String> labels = v1Node.getMetadata().getLabels();
+                for(String string: labels.keySet()){
+                    if(string.equals("node")){
+                        map.put(v1Node.getMetadata().getName(), labels.get(string));
+                        break;
+                    }
+                }
+            }
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 }

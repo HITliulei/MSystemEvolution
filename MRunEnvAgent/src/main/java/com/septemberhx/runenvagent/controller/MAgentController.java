@@ -105,6 +105,15 @@ public class MAgentController {
     }
 
     /**
+     * get all node and its label
+     * @return node , node-label
+     */
+    @GetMapping("/getAllNodeLable")
+    public Map<String,String> getallNodeLabel(){
+        return this.mclientUtils.getAllNodeLabel();
+    }
+
+    /**
      *
      * @param cacheBean
      */

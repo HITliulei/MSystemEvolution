@@ -8,10 +8,17 @@ import java.util.Set;
 
 public interface MServiceManager {
 
+
     Set<String> getNodeIdSet();
+
     Optional<String> getInstanceIdByIp(String ip);
+
     Optional<String> getNodeIdOfInstance(String instanceId);
+
     List<InstanceInfo> getInstanceInfoList();
+
     InstanceInfo getInstanceInfoById(String instanceId);
+
     public InstanceInfo getInstanceInfoByIpAndPort(String ipAddr);
+
 }
