@@ -3,6 +3,7 @@ package com.septemberhx.runenvagent;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.context.annotation.Bean;
 
 /**
  * @Author Lei
@@ -12,7 +13,6 @@ import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 @SpringBootApplication
 @EnableEurekaClient
 public class MRunEnvAgentApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(MRunEnvAgentApplication.class,args);
     }

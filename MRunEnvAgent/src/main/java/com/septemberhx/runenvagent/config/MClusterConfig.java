@@ -14,4 +14,5 @@ import lombok.ToString;
 @ToString
 public class MClusterConfig {
     private String name;
+    private String k8sClientUrl;
 }

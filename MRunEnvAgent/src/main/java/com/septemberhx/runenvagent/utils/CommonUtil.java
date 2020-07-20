@@ -17,6 +17,11 @@ import java.io.File;
 public class CommonUtil {
     private static Logger logger = LogManager.getLogger(CommonUtil.class);
 
+    /**
+     *
+     * @param serviceName serviceName
+     * @return
+     */
     public static V1Pod readPodYaml(String serviceName) {
         V1Pod pod = null;
         try {

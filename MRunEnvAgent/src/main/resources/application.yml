@@ -13,9 +13,11 @@ mvf4ms:
     port: 30763
   cluster:
     name: test
+    k8sClientUrl: ${k8sClientUrl}
   elasticsearch:
     ip: 192.168.1.102
     port: 4000
+
 
 
 eureka:
