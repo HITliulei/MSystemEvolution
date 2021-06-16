@@ -1,0 +1,16 @@
+server:
+  port: 8000
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    registryFetchIntervalSeconds: 5
+  server:
+    enable-self-preservation: false
+    peer-node-read-timeout-ms: 30000
+    eviction-interval-timer-in-ms: 4000
+
+spring:
+  application:
+    name: eureka-server-service

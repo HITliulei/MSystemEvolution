@@ -1,0 +1,20 @@
+server:
+  port: 46832
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    registryFetchIntervalSeconds: 5
+    service-url:
+      defaultZone: http://${REGISTRY}/eureka
+
+spring:
+  application:
+    name: MClusterAgent
+
+mvf4ms:
+  center:
+    ip: 54.65.128.130
+    port: 58080

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka-server
+  labels:
+    app: eureka-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka-server
+  template:
+    metadata:
+      labels:
+        app: eureka-server
+    spec:
+      containers:
+        - name: eureka-server
+          image: micheallei/meurekaserver:v2.0
+          ports:
+            - containerPort: 8000
+      nodeSelector:
+        node: aws-cluster-05
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka-server
+  labels:
+    app: eureka-server
+spec:
+  type: NodePort
+  ports:
+    - port: 8000
+      targetPort: 8000
+      nodePort: 30761
+      protocol: TCP
+  selector:
+    app: eureka-server

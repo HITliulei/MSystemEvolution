@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: NULL                              # instance Id
+  namespace: kube-mv4ms                   # namespace
+  labels:
+    app: NULL                             # service Name微服务名称
+spec:
+  containers:
+    - name: NULL
+      image: NULL                         # Build Center构建的镜像
+      ports:
+        - containerPort: 8080
+      volumeMounts:
+        - mountPath: /var/log/mclient
+          name: log-volume
+      env:
+        - name: REGISTRY
+          value: "18.163.249.85:30761"    # 注册中心的ip + port
+  volumes:
+    - name: log-volume
+      hostPath:
+        path: /data/hexiang/test-dir/log
+
+
