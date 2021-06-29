@@ -12,14 +12,13 @@
 * `MClientFramework`：微服务编程框架
 * `MClusterAgent`：集群中的agent，让集群能够接收外部指令
 * `MEurekaServer`：定制版 eureka 中心
-* `MGateway`：集群中的网关
-* `MOrchestrationServer`：整个微服务自适应系统的中控
+* `MGateway`：集群中的网关, 自己编写的路由规则
+* `MCenterControl`：整个微服务自适应系统的中控
 * `MServiceAnalyser`：从源码层面解析一个微服务项目，来自动获取微服务相关信息
-* `MInfoCollector`：收集该节点上的日志信息，并发送给 logstash
 
 ## 边缘的日志收集
 
-![](./pic/structure.png)
+![](./img/structure.png)
 
 ## 使用
 
